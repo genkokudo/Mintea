@@ -14,12 +14,14 @@ namespace HtmlToDomTest
             this.output = output;
         }
 
-        [Fact]
+        [Fact(DisplayName = "1+1=2のはず")]
+        [Trait("Category", "Arithmetic")]   // 
+        [Trait("Priority", "2")]            // 
         public void Test1()
         {
             string testData =
             "<tr class=\"collapse\" id=\"dummy@(item.Id)\"><td colspan=\"3\"><div class=\"d-flex justify-content-end\"><button type=\"button\" class=\"btn btn-primary\" style=\"margin-right:48px\" onclick=\"activate(@item.Id)\">有効化</button><button type=\"button\" class=\"btn btn-danger\" style=\"margin-right:48px\" onclick=\"delete(@item.Id)\">削除</button></div></td></tr>";
-            var result = Trans.SearchAll(testData);
+            var result = Trans.SearchAll(testData, "<", ">");
 
             output.WriteLine("テスト開始");
             foreach (var item in result)
