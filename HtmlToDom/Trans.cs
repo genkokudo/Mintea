@@ -4,12 +4,12 @@ using System.Text.RegularExpressions;
 
 namespace HtmlToDom
 {
-    public class HtmlToDom
+    public class Trans
     {
         const string BeginTag = "<";
         const string EndTag = ">";
 
-        public List<string> SearchAll(string rawText)
+        public static List<string> SearchAll(string rawText)
         {
             var result = new List<string>();
 
@@ -27,7 +27,7 @@ namespace HtmlToDom
 
             foreach (var item in mc)
             {
-                Console.WriteLine(item.ToString());
+                result.Add(item.ToString());
             }
 
             return result;
