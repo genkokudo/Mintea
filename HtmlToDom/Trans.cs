@@ -45,10 +45,10 @@ namespace HtmlToDom
         /// リストのリストを作成して階層構造を示す
         /// </summary>
         /// <param name="rawText"></param>
-        public static TreeNode<string> ParseTags(string rawText)
+        public static TreeNode<TagInfo> ParseTags(string rawText)
         {
             // ルート
-            var root = new TreeNode<string>(string.Empty);
+            var root = new TreeNode<TagInfo>(new TagInfo(string.Empty));
 
             // 現在編集中のノード
             var currentNode = root;
@@ -74,16 +74,22 @@ namespace HtmlToDom
                 }
                 else
                 {
-                    // 閉じタグではないので、現在のノードに子登録して深い階層へ
-                    var tagTree = new TreeNode<string>(tagName);
+                    // タグ情報作成
+                    var tagInfo = new TagInfo(tagName);
+                    // TODO:残りの要素のリストを持たせる
+                    foreach (var tag in split)
+                    {
+                        tagInfo.Parameters.Add(tag);
+                    }
+                    tagInfo.Parameters.RemoveAt(0);
+
+                    // 現在のノードに子登録して深い階層へ
+                    var tagTree = new TreeNode<TagInfo>(tagInfo);
                     currentNode.AddChild(tagTree);
                     currentNode = tagTree;
-
-                    // TODO:残りの要素のリストをノードに持たせる
-                    // 新しいクラスを作成する
                 }
             }
-            if (currentNode.Value == string.Empty)
+            if (currentNode.Value.Category == string.Empty)
             {
                 Console.WriteLine("閉じタグが一致していない気がします。");
             }
