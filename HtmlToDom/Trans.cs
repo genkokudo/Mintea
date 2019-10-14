@@ -2,6 +2,17 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+// TODO:このあとやること
+
+// ツリーを再帰的にたどって、DOMの順番を出力
+// ↑普通にたどったらOK
+// 順番通りにDOMを出力する（順番によって連番付ける）
+// 基本は"名前=パラメータ"だが、classのようにスペースで区切って複数ある前提で組む
+// switch文作っておくとフレキシブルに組みやすい 
+//
+// できれば@foreach, @ifに対応する（そんなことできるの？）
+// 
+
 namespace HtmlToDom
 {
     public class Trans
@@ -47,6 +58,9 @@ namespace HtmlToDom
         /// <param name="rawText"></param>
         public static TreeNode<TagInfo> ParseTags(string rawText)
         {
+            // 邪魔なので最初に複数スペースは削除する
+            rawText = ReplaceSpaces(rawText);
+
             // ルート
             var root = new TreeNode<TagInfo>(new TagInfo(string.Empty));
 
@@ -76,7 +90,7 @@ namespace HtmlToDom
                 {
                     // タグ情報作成
                     var tagInfo = new TagInfo(tagName);
-                    // TODO:残りの要素のリストを持たせる
+                    // 残りの要素のリストを持たせる
                     foreach (var tag in split)
                     {
                         tagInfo.Parameters.Add(tag);
@@ -94,6 +108,18 @@ namespace HtmlToDom
                 Console.WriteLine("閉じタグが一致していない気がします。");
             }
             return root;
+        }
+
+        /// <summary>
+        /// 複数スペースを1つのスペースにする
+        /// </summary>
+        /// <param name="text">対象テキスト</param>
+        /// <returns>複数スペースを1つのスペースにしたテキスト</returns>
+        private static string ReplaceSpaces(string text)
+        {
+            var pattern = @"\s\s+";
+            var regex = new Regex(pattern);
+            return regex.Replace(text, " ");
         }
     }
 }

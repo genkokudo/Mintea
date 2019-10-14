@@ -11,9 +11,9 @@ namespace HtmlToDom
     {
         /// <summary>
         /// タグの種類
+        /// "tr"とかのHTMLタグ内の0番目の要素
         /// </summary>
         public string Category { get; set; }
-
 
         /// <summary>
         /// タグのパラメータ
