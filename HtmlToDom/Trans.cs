@@ -6,6 +6,9 @@ namespace HtmlToDom
 {
     public class Trans
     {
+        private const char beginTag = '<';
+        private const char endTag = '>';
+
         /// <summary>
         /// 設定した開始終了文字列に囲まれた文字列を抽出する
         /// </summary>
@@ -13,7 +16,7 @@ namespace HtmlToDom
         /// <param name="begin">開始文字列</param>
         /// <param name="end">終了文字列</param>
         /// <returns>抽出した値のリスト（設定した開始終了文字列含む）</returns>
-        public static List<string> SearchAll(string rawText, string begin, string end)
+        public static List<string> SearchAll(string rawText, char begin, char end)
         {
             var result = new List<string>();
 
@@ -39,11 +42,52 @@ namespace HtmlToDom
 
         /// <summary>
         /// タグの階層構造を作成する
+        /// リストのリストを作成して階層構造を示す
         /// </summary>
         /// <param name="rawText"></param>
-        public static void ParceTags(string rawText)
+        public static TreeNodeBase<string> ParseTags(string rawText)
         {
-            var tags = SearchAll(rawText, "<", ">");
+            // ルート
+            var root = new TreeNodeBase<string>(string.Empty);
+
+            // 現在編集中のノード
+            var currentNode = root;
+
+            // タグごとにバラす
+            var tags = SearchAll(rawText, beginTag, endTag);
+
+            // 出てきたタグについて親子関係を作成
+            foreach (var item in tags)
+            {
+                var current = item;
+                // "<", ">"を取り除いて、スペースで区切る
+                current = current.Trim(beginTag);
+                current = current.Trim(endTag);
+                var split = current.Split(' ');
+
+                // 0番目がタグ名
+                var tagName = split[0];
+                if (tagName.StartsWith("/"))
+                {
+                    //閉じタグ
+                    currentNode = currentNode.Parent;
+                }
+                else
+                {
+                    // 閉じタグではないので、現在のノードに子登録して深い階層へ
+                    var tagTree = new TreeNodeBase<string>(tagName);
+                    currentNode.AddChild(tagTree);
+                    currentNode = tagTree;
+
+                    // TODO:残りの要素のリストをノードに持たせる
+                    // 新しいクラスを作成する
+                }
+            }
+            if (currentNode.Value == string.Empty)
+            {
+                Console.WriteLine("閉じタグが一致していない気がします。");
+            }
+            return root;
         }
     }
 }
