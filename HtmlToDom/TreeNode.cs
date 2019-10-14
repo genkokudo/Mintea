@@ -8,17 +8,17 @@ namespace HtmlToDom
     /// 簡易ツリー構造のジェネリッククラス
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public /*abstract*/ class TreeNodeBase<T> : ITreeNode<TreeNodeBase<T>> where T : class
+    public /*abstract*/ class TreeNode<T>
     {
         /// <summary>
         /// 親への参照フィールド
         /// </summary>
-        protected TreeNodeBase<T> parent = null;
+        protected TreeNode<T> parent = null;
 
         /// <summary>
         /// 親への参照プロパティ
         /// </summary>
-        public virtual TreeNodeBase<T> Parent
+        public virtual TreeNode<T> Parent
         {
             get
             {
@@ -33,17 +33,17 @@ namespace HtmlToDom
         /// <summary>
         /// 子ノードのリストフィールド
         /// </summary>
-        protected IList<TreeNodeBase<T>> children = null;
+        protected IList<TreeNode<T>> children = null;
 
         /// <summary>
         /// 子ノードのリストプロパティ
         /// </summary>
-        public virtual IList<TreeNodeBase<T>> Children
+        public virtual IList<TreeNode<T>> Children
         {
             get
             {
                 if (children == null)
-                    children = new List<TreeNodeBase<T>>();
+                    children = new List<TreeNode<T>>();
                 return children;
             }
             set
@@ -55,9 +55,9 @@ namespace HtmlToDom
         /// <summary>
         /// データ実体
         /// </summary>
-        public T Value = null;
+        public T Value = default(T);
 
-        public TreeNodeBase(T data)
+        public TreeNode(T data)
         {
             Value = data;
         }
@@ -68,7 +68,7 @@ namespace HtmlToDom
         /// </summary>
         /// <param name="child">追加したいノード</param>
         /// <returns>追加後のオブジェクト</returns>
-        public virtual TreeNodeBase<T> AddChild(TreeNodeBase<T> child)
+        public virtual TreeNode<T> AddChild(TreeNode<T> child)
         {
             if (child == null)
                 throw new ArgumentNullException("Adding tree child is null.");
@@ -84,7 +84,7 @@ namespace HtmlToDom
         /// </summary>
         /// <param name="child">削除したいノード</param>
         /// <returns>削除後のオブジェクト</returns>
-        public virtual TreeNodeBase<T> RemoveChild(TreeNodeBase<T> child)
+        public virtual TreeNode<T> RemoveChild(TreeNode<T> child)
         {
             this.Children.Remove(child);
             return this;
@@ -95,7 +95,7 @@ namespace HtmlToDom
         /// </summary>
         /// <param name="child">削除したいノード</param>
         /// <returns>削除の可否</returns>
-        public virtual bool TryRemoveChild(TreeNodeBase<T> child)
+        public virtual bool TryRemoveChild(TreeNode<T> child)
         {
             return this.Children.Remove(child);
         }
@@ -104,7 +104,7 @@ namespace HtmlToDom
         /// 子ノードを全て削除する。
         /// </summary>
         /// <returns>子ノードを全削除後のオブジェクト</returns>
-        public virtual TreeNodeBase<T> ClearChildren()
+        public virtual TreeNode<T> ClearChildren()
         {
             this.Children.Clear();
             return this;
@@ -114,9 +114,9 @@ namespace HtmlToDom
         /// 自身のノードを親ツリーから削除する。
         /// </summary>
         /// <returns>親のオブジェクト</returns>
-        public virtual TreeNodeBase<T> RemoveOwn()
+        public virtual TreeNode<T> RemoveOwn()
         {
-            TreeNodeBase<T> parent = this.Parent;
+            TreeNode<T> parent = this.Parent;
             parent.RemoveChild(this);
             return parent;
         }
@@ -127,7 +127,7 @@ namespace HtmlToDom
         /// <returns>削除の可否</returns>
         public virtual bool TryRemoveOwn()
         {
-            TreeNodeBase<T> parent = this.Parent;
+            TreeNode<T> parent = this.Parent;
             return parent.TryRemoveChild(this);
         }
 

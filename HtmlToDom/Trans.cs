@@ -45,10 +45,10 @@ namespace HtmlToDom
         /// リストのリストを作成して階層構造を示す
         /// </summary>
         /// <param name="rawText"></param>
-        public static TreeNodeBase<string> ParseTags(string rawText)
+        public static TreeNode<string> ParseTags(string rawText)
         {
             // ルート
-            var root = new TreeNodeBase<string>(string.Empty);
+            var root = new TreeNode<string>(string.Empty);
 
             // 現在編集中のノード
             var currentNode = root;
@@ -75,7 +75,7 @@ namespace HtmlToDom
                 else
                 {
                     // 閉じタグではないので、現在のノードに子登録して深い階層へ
-                    var tagTree = new TreeNodeBase<string>(tagName);
+                    var tagTree = new TreeNode<string>(tagName);
                     currentNode.AddChild(tagTree);
                     currentNode = tagTree;
 
