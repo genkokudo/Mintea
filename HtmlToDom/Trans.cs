@@ -62,7 +62,7 @@ namespace HtmlToDom
             rawText = ReplaceSpaces(rawText);
 
             // ルート
-            var root = new TreeNode<TagInfo>(new TagInfo(string.Empty));
+            var root = new TreeNode<TagInfo>(new TagInfo());
 
             // 現在編集中のノード
             var currentNode = root;
@@ -89,13 +89,7 @@ namespace HtmlToDom
                 else
                 {
                     // タグ情報作成
-                    var tagInfo = new TagInfo(tagName);
-                    // 残りの要素のリストを持たせる
-                    foreach (var tag in split)
-                    {
-                        tagInfo.Parameters.Add(tag);
-                    }
-                    tagInfo.Parameters.RemoveAt(0);
+                    var tagInfo = new TagInfo(split);
 
                     // 現在のノードに子登録して深い階層へ
                     var tagTree = new TreeNode<TagInfo>(tagInfo);

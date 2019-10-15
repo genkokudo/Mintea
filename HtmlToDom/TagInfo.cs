@@ -11,22 +11,50 @@ namespace HtmlToDom
     {
         /// <summary>
         /// タグの種類
-        /// "tr"とかのHTMLタグ内の0番目の要素
+        /// 無い場合（Rootの場合）はnull
         /// </summary>
-        public string Category { get; set; }
+        public string Category
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// タグのパラメータ
+        /// 「class="aa bb"」って感じの文字列
         /// </summary>
-        public List<string> Parameters { get; set; }
+        public List<string> Parameters { get; set; } = new List<string>();
+
+        /// <summary>
+        /// ルートかどうか
+        /// </summary>
+        public bool IsRoot
+        {
+            get { return Category == null; }
+        }
+
+        /// <summary>
+        /// タグ1つ分の情報
+        /// 引数なしはRoot
+        /// </summary>
+        public TagInfo()
+        {
+            // なにもしない
+        }
 
         /// <summary>
         /// タグ1つ分の情報
         /// </summary>
-        public TagInfo(string name)
+        /// <param name="parameters">タグ内のパラメータ</param>
+        public TagInfo(string[] parameters)
         {
-            Category = name;
-            Parameters = new List<string>();
+            // 残りの要素のリストを持たせる
+            foreach (var tag in parameters)
+            {
+                Parameters.Add(tag);
+            }
+            Category = Parameters[0];
+            Parameters.RemoveAt(0);
         }
     }
 }
