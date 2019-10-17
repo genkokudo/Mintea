@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 // 基本は"名前=パラメータ"だが、classのようにスペースで区切って複数ある前提で組む
 // switch文作っておくとフレキシブルに組みやすい 
 //
+// できれば、タグに囲まれたinnerTextに対応する（どうやって？）
+//
 // できれば@foreach, @ifに対応する（そんなことできるの？）
 // 
 
@@ -95,6 +97,12 @@ namespace HtmlToDom
                     var tagTree = new TreeNode<TagInfo>(tagInfo);
                     currentNode.AddChild(tagTree);
                     currentNode = tagTree;
+
+                    // "/"で終わってたら閉じタグ処理
+                    if (tagName.EndsWith("/"))
+                    {
+                        currentNode = currentNode.Parent;
+                    }
                 }
             }
             if (currentNode.Value.Category == string.Empty)
@@ -104,6 +112,34 @@ namespace HtmlToDom
             return root;
         }
 
+        /// <summary>
+        /// 1つのタグ情報をjQueryにする
+        /// </summary>
+        /// <param name="tagInfo">1つのタグ情報</param>
+        public static string ToJQueryDom(TagInfo tagInfo)
+        {
+            // <tr class="a b"></tr>
+            // を
+            // const tr1 = $("<tr>")
+            //     .addClass("a")
+            //     .addClass("b");
+            // にする。
+
+            // <a id="a" name="b"></a>
+            // を
+            // const a1 = $("<a>")
+            //     .attr("id", "a") 
+            //     .attr("name", "b");
+            // にする。
+
+            return "";
+        }
+
+        // 個々のタグができたら、親子関係に従ってappendする
+
+        // innerText検出する
+
+        #region 複数スペースを1つのスペースにする
         /// <summary>
         /// 複数スペースを1つのスペースにする
         /// </summary>
@@ -115,5 +151,7 @@ namespace HtmlToDom
             var regex = new Regex(pattern);
             return regex.Replace(text, " ");
         }
+        #endregion
+
     }
 }

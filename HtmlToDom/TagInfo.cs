@@ -45,7 +45,7 @@ namespace HtmlToDom
         /// <summary>
         /// タグ1つ分の情報
         /// </summary>
-        /// <param name="parameters">タグ内のパラメータ</param>
+        /// <param name="parameters">タグ内のパラメータ：タグの括弧内をスペースで区切った配列</param>
         public TagInfo(string[] parameters)
         {
             // 残りの要素のリストを持たせる
