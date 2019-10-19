@@ -22,6 +22,48 @@ namespace HtmlToDom
         private const char beginTag = '<';
         private const char endTag = '>';
 
+        // TODO:
+        /// <summary>
+        /// styleタグを作成する
+        /// 
+        /// style="" は使わないので
+        /// 見つけたら自動的に<style></style>作ってあげる
+        /// </summary>
+        /// <param name="tagInfo"></param>
+        /// <returns></returns>
+        public static string MakeStyle(TagInfo tagInfo) // count
+        {
+            // style="margin-right:48px"
+
+            // <style>
+            // button1 {
+            //     margin-right:48px;
+            // }
+            // </style>
+            return "";
+        }
+
+        // TODO:
+        /// <summary>
+        /// on関係の関数を作成する
+        /// 
+        /// onなんとか= "" は使わないので
+        /// 見つけたら自動的に関数作ってあげる
+        /// </summary>
+        /// <param name="tagInfo"></param>
+        /// <returns></returns>
+        public static string MakeFunction(TagInfo tagInfo)
+        {
+            // onclick="activate(@item.Id)"
+
+            // $(document).on('click', 'a[name=voteIcon]', function () { 
+            //     activate(@item.Id)
+            // }
+
+            // イベントがあるのにnameがないとかぶっちゃけありえないので、無かったら強制的に付ける
+            return "";
+        }
+
         /// <summary>
         /// 設定した開始終了文字列に囲まれた文字列を抽出する
         /// </summary>
@@ -132,12 +174,21 @@ namespace HtmlToDom
             //     .attr("name", "b");
             // にする。
 
+            switch (tagInfo.Category)
+            {
+                case "":
+                    break;
+                default:
+                    break;
+            }
+
             return "";
         }
 
         // 個々のタグができたら、親子関係に従ってappendする
 
         // innerText検出する
+        // <aa>ここを検出</aa>
 
         #region 複数スペースを1つのスペースにする
         /// <summary>
