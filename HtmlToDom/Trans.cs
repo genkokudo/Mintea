@@ -174,6 +174,10 @@ namespace HtmlToDom
             //     .attr("name", "b");
             // にする。
 
+            foreach (var item in tagInfo.Parameters)
+            {
+
+            }
             switch (tagInfo.Category)
             {
                 case "":
@@ -196,7 +200,7 @@ namespace HtmlToDom
         /// </summary>
         /// <param name="text">対象テキスト</param>
         /// <returns>複数スペースを1つのスペースにしたテキスト</returns>
-        private static string ReplaceSpaces(string text)
+        public static string ReplaceSpaces(string text)
         {
             var pattern = @"\s\s+";
             var regex = new Regex(pattern);

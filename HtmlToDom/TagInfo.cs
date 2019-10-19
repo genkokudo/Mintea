@@ -23,7 +23,7 @@ namespace HtmlToDom
         /// タグのパラメータ
         /// 「class="aa bb"」って感じの文字列
         /// </summary>
-        public List<string> Parameters { get; set; } = new List<string>();
+        public List<TagParameter> Parameters { get; set; } = new List<TagParameter>();
 
         /// <summary>
         /// ルートかどうか
@@ -49,12 +49,60 @@ namespace HtmlToDom
         public TagInfo(string[] parameters)
         {
             // 残りの要素のリストを持たせる
+            var rawParameters = new List<string>();
             foreach (var tag in parameters)
             {
-                Parameters.Add(tag);
+                rawParameters.Add(tag);
             }
-            Category = Parameters[0];
-            Parameters.RemoveAt(0);
+            Category = rawParameters[0];
+            rawParameters.RemoveAt(0);
+
+            foreach (var tag in rawParameters)
+            {
+                Parameters.Add(new TagParameter(tag));
+            }
+        }
+    }
+
+    /// <summary>
+    /// タグ情報のパラメータ要素
+    /// 「class="aa bb"」って感じの文字列
+    /// </summary>
+    public class TagParameter
+    {
+        /// <summary>
+        /// パラメータの種類
+        /// classとか
+        /// </summary>
+        public string Category { get; set; }
+
+        /// <summary>
+        /// パラメータの内容
+        /// </summary>
+        public List<string> Parameters { get; private set; } = new List<string>();
+
+        /// <summary>
+        /// タグ情報のパラメータ要素
+        /// 「class="aa bb"」って感じの文字列
+        /// </summary>
+        /// <param name="parameterStr">「class="aa bb"」って感じの文字列</param>
+        public TagParameter(string parameterStr)
+        {
+            var split = parameterStr.Split('=');
+            Category = split[0];
+
+            // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
+            var tempStr = split[1].Trim('"');
+            tempStr = tempStr.Replace(";", "; ");
+            tempStr = Trans.ReplaceSpaces(tempStr);
+            var parameters = tempStr.Split(' ');
+            foreach (var item in parameters)
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                {
+                    Parameters.Add(item);
+                }
+            }
         }
     }
 }
