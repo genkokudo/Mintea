@@ -4,6 +4,7 @@ using System.Text;
 
 namespace HtmlToDom
 {
+    #region TagInfo：タグ1つ分の情報
     /// <summary>
     /// タグ1つ分の情報
     /// </summary>
@@ -63,7 +64,9 @@ namespace HtmlToDom
             }
         }
     }
+    #endregion
 
+    #region TagParameter：タグ情報のパラメータ要素
     /// <summary>
     /// タグ情報のパラメータ要素
     /// 「class="aa bb"」って感じの文字列
@@ -78,8 +81,21 @@ namespace HtmlToDom
 
         /// <summary>
         /// パラメータの内容
+        /// 無い（長さ0）場合もある
         /// </summary>
         public List<string> Parameters { get; private set; } = new List<string>();
+
+        /// <summary>
+        /// タグ情報のパラメータ要素
+        /// innerText用
+        /// </summary>
+        /// <param name="innerText">タグに囲まれていた文字列</param>
+        /// <param name="dummy">オーバーロードの為、何を入れても良い</param>
+        public TagParameter(string innerText, string dummy)
+        {
+            Category = "text";
+            Parameters.Add(innerText);
+        }
 
         /// <summary>
         /// タグ情報のパラメータ要素
@@ -90,19 +106,22 @@ namespace HtmlToDom
         {
             var split = parameterStr.Split('=');
             Category = split[0];
-
-            // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
-            var tempStr = split[1].Trim('"');
-            tempStr = tempStr.Replace(";", "; ");
-            tempStr = Trans.ReplaceSpaces(tempStr);
-            var parameters = tempStr.Split(' ');
-            foreach (var item in parameters)
+            if (split.Length > 1)
             {
-                if (!string.IsNullOrWhiteSpace(item))
+                // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
+                var tempStr = split[1].Trim('"');
+                tempStr = tempStr.Replace(";", "; ");
+                tempStr = Trans.ReplaceSpaces(tempStr);
+                var parameters = tempStr.Split(' ');
+                foreach (var item in parameters)
                 {
-                    Parameters.Add(item);
+                    if (!string.IsNullOrWhiteSpace(item))
+                    {
+                        Parameters.Add(item);
+                    }
                 }
             }
         }
     }
+    #endregion
 }

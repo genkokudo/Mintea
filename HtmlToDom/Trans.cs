@@ -11,9 +11,20 @@ using System.Text.RegularExpressions;
 // switch文作っておくとフレキシブルに組みやすい 
 //
 // できれば、タグに囲まれたinnerTextに対応する（どうやって？）
-//
+// こういうパターンがある
+// ・<aa><bb></bb></aa>
+// ・<aa/>
+// ・<aa>aaaa</aa>
+// 検出した順番に、元の文字列から取り除いていって見つけるしかなさそう。
+// タグの次に一般文字が来てたらそれを得る
+// 
+// 
+// 
+// 
+// 
 // できれば@foreach, @ifに対応する（そんなことできるの？）
 // 
+// 完成したjQueryを"."で改行、インデントを付ける。
 
 namespace HtmlToDom
 {
@@ -81,7 +92,7 @@ namespace HtmlToDom
             //*:0回以上の繰り返し
             //?: 最小判定（?がなかったら、最も大きな結果を取得する）
 
-            // 何か1文字以上入っていることを条件に検索
+            // "<",">"に何か1文字以上入っていることを条件に検索
             var terms = begin + "(.+?)" + end;
             // 条件に合った文字列を全部拾う
             var r = new Regex(terms, RegexOptions.Multiline);
@@ -90,6 +101,55 @@ namespace HtmlToDom
             foreach (var item in mc)
             {
                 result.Add(item.ToString());
+            }
+
+            // TODO:innerTextを検出する
+
+
+            return result;
+        }
+
+        public static List<string> SearchInnerTextAll(string rawText, char begin, char end)
+        {
+            // 改行を消す
+            var text = rawText.Replace("\r\n", "\n");
+            text = text.Replace("\n", "");
+
+            // innerTextのリスト
+            var result = new List<string>();
+
+            // "<",">"に何か1文字以上入っていることを条件に検索
+            var terms = begin + "(.+?)" + end;
+            // 条件に合った文字列を全部拾う
+            var r = new Regex(terms, RegexOptions.Multiline);
+            var mc = r.Matches(rawText);
+
+            foreach (var item in mc)
+            {
+                // innerTextがあっても無くても登録していく
+                // 先頭から現在のタグを削除
+                var current = item.ToString();
+                text = text.Substring(current.Length);
+
+                // "<"があるか
+                var index = text.IndexOf(begin);
+                if (index >= 0)
+                {
+                    if (current.Contains("/"))
+                    {
+                        result.Add(string.Empty);
+                    }
+                    else
+                    {
+                        var innerText = text.Substring(0, index);
+                        result.Add(innerText.Trim());
+                        text = text.Substring(innerText.Length);
+                    }
+                }
+                else
+                {
+                    result.Add(string.Empty);
+                }
             }
 
             return result;
@@ -174,17 +234,28 @@ namespace HtmlToDom
             //     .attr("name", "b");
             // にする。
 
-            foreach (var item in tagInfo.Parameters)
+            foreach (var tag in tagInfo.Parameters)
             {
-
+                foreach (var item in tag.Parameters)
+                {
+                    switch (tag.Category)
+                    {
+                        case "class":
+                            // .addClass
+                            break;
+                        case "style":
+                            // .addClass("fa-thumbs-up")
+                            break;
+                        case "text":    // TODO:innerText
+                            // .text
+                            break;
+                        default:
+                            // .attr("id", "votes-count")
+                            break;
+                    }
+                }
             }
-            switch (tagInfo.Category)
-            {
-                case "":
-                    break;
-                default:
-                    break;
-            }
+            // この後子をappendして、";"を付ける
 
             return "";
         }
@@ -208,5 +279,15 @@ namespace HtmlToDom
         }
         #endregion
 
+        /// <summary>
+        /// 完成したjQueryを"."で改行
+        /// インデントを付ける
+        /// </summary>
+        /// <param name="raw">完成したjQuery</param>
+        /// <returns>フォーマット後のjQuery</returns>
+        public static string Format(string raw)
+        {
+            return raw.Replace(".", "\n    .");
+        }
     }
 }

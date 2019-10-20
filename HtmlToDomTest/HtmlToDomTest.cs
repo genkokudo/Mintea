@@ -43,9 +43,29 @@ namespace HtmlToDomTest
 
         }
 
-        [Fact(DisplayName = "1つのタグをjQueryにする")]
+        [Fact(DisplayName = "innerText取得確認")]
         [Trait("Category", "取り敢えず確認")]
         public void Test3()
+        {
+            string testData =
+            "<tr class=\"collapse\" id=\"dummy@(item.Id)\"><td colspan=\"3\"><div class=\"d-flex justify-content-end\"><button type=\"button\" class=\"btn btn-primary\" style=\"margin-right:48px\" onclick=\"activate(@item.Id)\">有効化</button><button type=\"button\" class=\"btn btn-danger\" style=\"margin-right:48px\" onclick=\"delete(@item.Id)\">削除</button></div></td></tr>";
+            var result = Trans.SearchInnerTextAll(testData, '<', '>');
+
+            result[0].Is("");
+            result[1].Is("");
+            result[2].Is("");
+            result[3].Is("有効化");
+            result[4].Is("");
+            result[5].Is("削除");
+            result[6].Is("");
+            result[7].Is("");
+            result[8].Is("");
+            result[9].Is("");
+        }
+
+        [Fact(DisplayName = "1つのタグをjQueryにする")]
+        [Trait("Category", "取り敢えず確認")]
+        public void Test4()
         {
             string testData =
             "<tr class=\"collapse\" id=\"dummy@(item.Id)\"><td colspan=\"3\"><div class=\"d-flex justify-content-end\"><button type=\"button\" class=\"btn btn-primary\" style=\"margin-right:48px\" onclick=\"activate(@item.Id)\">有効化</button><button type=\"button\" class=\"btn btn-danger\" style=\"margin-right:48px\" onclick=\"delete(@item.Id)\">削除</button></div></td></tr>";
