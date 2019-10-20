@@ -74,6 +74,12 @@ namespace HtmlToDom
     public class TagParameter
     {
         /// <summary>
+        /// タグの種類
+        /// innerText
+        /// </summary>
+        public const string InnerText = "innerText";
+
+        /// <summary>
         /// パラメータの種類
         /// classとか
         /// </summary>
@@ -87,14 +93,14 @@ namespace HtmlToDom
 
         /// <summary>
         /// タグ情報のパラメータ要素
-        /// innerText用
+        /// 任意のパラメータ（1つのみ）
         /// </summary>
-        /// <param name="innerText">タグに囲まれていた文字列</param>
-        /// <param name="dummy">オーバーロードの為、何を入れても良い</param>
-        public TagParameter(string innerText, string dummy)
+        /// <param name="category">パラメータの種類</param>
+        /// <param name="parameter">パラメータの内容</param>
+        public TagParameter(string category, string parameter)
         {
-            Category = "text";
-            Parameters.Add(innerText);
+            Category = category;
+            Parameters.Add(parameter);
         }
 
         /// <summary>

@@ -62,7 +62,6 @@ namespace HtmlToDom
             Value = data;
         }
 
-
         /// <summary>
         /// 子ノードを追加する。
         /// </summary>

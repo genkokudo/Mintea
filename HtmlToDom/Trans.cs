@@ -75,6 +75,7 @@ namespace HtmlToDom
             return "";
         }
 
+        #region SearchAll:設定した開始終了文字列に囲まれた文字列を抽出する
         /// <summary>
         /// 設定した開始終了文字列に囲まれた文字列を抽出する
         /// </summary>
@@ -103,12 +104,19 @@ namespace HtmlToDom
                 result.Add(item.ToString());
             }
 
-            // TODO:innerTextを検出する
-
-
             return result;
         }
 
+        #endregion
+
+        #region SearchInnerTextAll:全てのinnerText（各タグに囲まれた文字）を抽出する
+        /// <summary>
+        /// 全てのinnerText（各タグに囲まれた文字）を抽出する
+        /// </summary>
+        /// <param name="rawText">入力テキスト</param>
+        /// <param name="begin">開始文字列</param>
+        /// <param name="end">終了文字列</param>
+        /// <returns>抽出したinnerTextのリスト</returns>
         public static List<string> SearchInnerTextAll(string rawText, char begin, char end)
         {
             // 改行を消す
@@ -155,6 +163,9 @@ namespace HtmlToDom
             return result;
         }
 
+        #endregion
+
+        #region ParseTags:タグの階層構造を作成する
         /// <summary>
         /// タグの階層構造を作成する
         /// リストのリストを作成して階層構造を示す
@@ -173,15 +184,19 @@ namespace HtmlToDom
 
             // タグごとにバラす
             var tags = SearchAll(rawText, beginTag, endTag);
+            // 各タグのinnerText抽出
+            var innerTexts = SearchInnerTextAll(rawText, beginTag, endTag);
 
             // 出てきたタグについて親子関係を作成
-            foreach (var item in tags)
+            for (int i = 0; i < tags.Count; i++)
             {
-                var current = item;
+                var currentTag = tags[i];
+                var currentInnerText = innerTexts[i];
+
                 // "<", ">"を取り除いて、スペースで区切る
-                current = current.Trim(beginTag);
-                current = current.Trim(endTag);
-                var split = current.Split(' ');
+                currentTag = currentTag.Trim(beginTag);
+                currentTag = currentTag.Trim(endTag);
+                var split = currentTag.Split(' ');
 
                 // 0番目がタグ名
                 var tagName = split[0];
@@ -197,6 +212,12 @@ namespace HtmlToDom
 
                     // 現在のノードに子登録して深い階層へ
                     var tagTree = new TreeNode<TagInfo>(tagInfo);
+                    // innerTextがあれば追加
+                    if (!string.IsNullOrWhiteSpace(currentInnerText))
+                    {
+                        tagInfo.Parameters.Add(new TagParameter(TagParameter.InnerText, currentInnerText));
+                    }
+
                     currentNode.AddChild(tagTree);
                     currentNode = tagTree;
 
@@ -213,6 +234,7 @@ namespace HtmlToDom
             }
             return root;
         }
+        #endregion
 
         /// <summary>
         /// 1つのタグ情報をjQueryにする
@@ -220,6 +242,9 @@ namespace HtmlToDom
         /// <param name="tagInfo">1つのタグ情報</param>
         public static string ToJQueryDom(TagInfo tagInfo)
         {
+            var result = string.Empty;
+            var count = 0;
+
             // <tr class="a b"></tr>
             // を
             // const tr1 = $("<tr>")
@@ -227,37 +252,47 @@ namespace HtmlToDom
             //     .addClass("b");
             // にする。
 
-            // <a id="a" name="b"></a>
-            // を
-            // const a1 = $("<a>")
-            //     .attr("id", "a") 
-            //     .attr("name", "b");
-            // にする。
+            // TODO:順序を確立する
 
-            foreach (var tag in tagInfo.Parameters)
+            // TODO:for文を書く
+            // constなんとかを書く
+            count++;
+            if (!string.IsNullOrWhiteSpace(result))
             {
-                foreach (var item in tag.Parameters)
+                result = $"{result}\n\n";
+            }
+            result = $"{result}const {tagInfo.Category}{count} = $(\"<{tagInfo.Category}>\")";
+
+            // パラメータを追加していく
+            foreach (var tagParameter in tagInfo.Parameters)
+            {
+                foreach (var item in tagParameter.Parameters)
                 {
-                    switch (tag.Category)
+                    switch (tagParameter.Category)
                     {
                         case "class":
                             // .addClass
+                            result = $"{result}.addClass(\"{item}\")";
                             break;
                         case "style":
                             // .addClass("fa-thumbs-up")
+                            result = $"{result}.addClass(\"{item}\")";
                             break;
-                        case "text":    // TODO:innerText
-                            // .text
+                        case TagParameter.InnerText:
+                            result = $"{result}.text(\"{item}\")";
                             break;
                         default:
                             // .attr("id", "votes-count")
+                            result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
                             break;
                     }
                 }
             }
-            // この後子をappendして、";"を付ける
+            // TODO: この後子をappendして、";"を付ける
 
-            return "";
+            // 改行とインデントを付ける
+            result = Format(result);
+            return result;
         }
 
         // 個々のタグができたら、親子関係に従ってappendする
