@@ -268,26 +268,39 @@ namespace HtmlToDom
             {
                 foreach (var item in tagParameter.Parameters)
                 {
-                    switch (tagParameter.Category)
+                    if (tagParameter.Category.StartsWith("on"))
                     {
-                        case "class":
-                            // .addClass
-                            result = $"{result}.addClass(\"{item}\")";
-                            break;
-                        case "style":
-                            // .addClass("fa-thumbs-up")
-                            result = $"{result}.addClass(\"{item}\")";
-                            break;
-                        case TagParameter.InnerText:
-                            result = $"{result}.text(\"{item}\")";
-                            break;
-                        default:
-                            // .attr("id", "votes-count")
-                            result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
-                            break;
+                        // onイベントならば、即席で関数を作成して、それを設定する
+                        // TODO:関数作成
+                        result = $"{result}.addClass(\"{tagParameter.Category}func{count}\")";
+                    }
+                    else
+                    {
+                        switch (tagParameter.Category)
+                        {
+                            case "class":
+                                // .addClass("fa-thumbs-up")
+                                result = $"{result}.addClass(\"{item}\")";
+                                break;
+                            case "style":
+                                // 即席でcssクラスを作成して、それを設定する
+                                // TODO:class作成
+                                // .addClass("class1")
+                                result = $"{result}.addClass(\"class{count}\")";
+                                break;
+                            case TagParameter.InnerText:
+                                result = $"{result}.text(\"{item}\")";
+                                break;
+                            default:
+                                // .attr("id", "votes-count")
+                                result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
+                                break;
+                        }
                     }
                 }
             }
+
+            // 個々のタグができたら、親子関係に従ってappendする
             // TODO: この後子をappendして、";"を付ける
 
             // 改行とインデントを付ける
@@ -295,12 +308,7 @@ namespace HtmlToDom
             return result;
         }
 
-        // 個々のタグができたら、親子関係に従ってappendする
-
-        // innerText検出する
-        // <aa>ここを検出</aa>
-
-        #region 複数スペースを1つのスペースにする
+        #region ReplaceSpaces:複数スペースを1つのスペースにする
         /// <summary>
         /// 複数スペースを1つのスペースにする
         /// </summary>
@@ -314,6 +322,7 @@ namespace HtmlToDom
         }
         #endregion
 
+        #region Format:完成したjQueryを"."で改行
         /// <summary>
         /// 完成したjQueryを"."で改行
         /// インデントを付ける
@@ -324,5 +333,6 @@ namespace HtmlToDom
         {
             return raw.Replace(".", "\n    .");
         }
+        #endregion
     }
 }
