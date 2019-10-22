@@ -3,6 +3,7 @@ using Xunit;
 using HtmlToDom;
 using ChainingAssertion;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 namespace HtmlToDomTest
 {
@@ -63,23 +64,38 @@ namespace HtmlToDomTest
             result[9].Is("");
         }
 
-        [Fact(DisplayName = "1つのタグをjQueryにする")]
+        [Fact(DisplayName = "jQueryの順序・append文作成")]
         [Trait("Category", "取り敢えず確認")]
-        public void Test4()
+        public void Test5()
         {
             string testData =
             "<tr class=\"collapse\" id=\"dummy@(item.Id)\"><td colspan=\"3\"><div class=\"d-flex justify-content-end\"><button type=\"button\" class=\"btn btn-primary\" style=\"margin-right:48px\" onclick=\"activate(@item.Id)\">有効化</button><button type=\"button\" class=\"btn btn-danger\" style=\"margin-right:48px\" onclick=\"delete(@item.Id)\">削除</button></div></td></tr>";
             var root = Trans.ParseTags(testData);
+            var sequence = new List<TagInfo>();
+            var result = Trans.BuildJQuery(root, string.Empty, sequence);
 
-            var result1 = Trans.ToJQueryDom(root.Children[0].Value);
-            result1.Is("const td1 = $(#\"<td>\").attr(\"colspan\",\"3\");");
+            // 順序を付けなければならない
+            result.Is("div3.appendChild(button4);\ndiv3.appendChild(button5);\ntd2.appendChild(div3);\ntr1.appendChild(td2);\n");
 
-            var result2 = Trans.ToJQueryDom(root.Children[0].Value);
-            result2.Is("const div2 = $(#\"<div>\").addClass(\"d-flex\").addClass(\"justify-content-end\")");
+            sequence.Count.Is(5);
+            sequence[0].Category.Is("button");
+            sequence[1].Category.Is("button");
+            sequence[2].Category.Is("div");
+            sequence[3].Category.Is("td");
+            sequence[4].Category.Is("tr");
+        }
 
-            var result3 = Trans.ToJQueryDom(root.Children[0].Value);
-            result3.Is("const button3 = $(#\"<button>\").attr(\"type\", \"button\").addClass(\"btn\").addClass(\"btn-primary\")");
+        [Fact(DisplayName = "全てjQueryにする")]
+        [Trait("Category", "取り敢えず確認")]
+        public void Test6()
+        {
+            string testData =
+               "<tr class=\"collapse\" id=\"dummy@(item.Id)\"><td colspan=\"3\"><div class=\"d-flex justify-content-end\"><button type=\"button\" class=\"btn btn-primary\" style=\"margin-right:48px\" onclick=\"activate(@item.Id)\">有効化</button><button type=\"button\" class=\"btn btn-danger\" style=\"margin-right:48px\" onclick=\"delete(@item.Id)\">削除</button></div></td></tr>";
 
+            var result = Trans.ToJQuery(testData);
+
+            output.WriteLine(result);
+            result.Is("const button4 = $(\"<button>\")\n    .attr(\"type\", \"button\")\n    .addClass(\"btn\")\n    .addClass(\"button4Class\")\n    .addClass(\"button4Funconclick\")\n    .text(\"有効化\");\n\n\nconst button5 = $(\"<button>\")\n    .attr(\"type\", \"button\")\n    .addClass(\"btn\")\n    .addClass(\"button5Class\")\n    .addClass(\"button5Funconclick\")\n    .text(\"削除\");\n\n\nconst div3 = $(\"<div>\")\n    .addClass(\"d-flex\");\n\n\nconst td2 = $(\"<td>\")\n    .attr(\"colspan\", \"3\");\n\n\nconst tr1 = $(\"<tr>\")\n    .addClass(\"collapse\")\n    .attr(\"id\", \"dummy@(item\n    .Id)\");\n\ndiv3.appendChild(button4);\ndiv3.appendChild(button5);\ntd2.appendChild(div3);\ntr1.appendChild(td2);\n");
         }
     }
 }

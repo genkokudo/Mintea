@@ -7,25 +7,12 @@ using System.Text.RegularExpressions;
 // ツリーを再帰的にたどって、DOMの順番を出力
 // ↑普通にたどったらOK
 // 順番通りにDOMを出力する（順番によって連番付ける）
-// 基本は"名前=パラメータ"だが、classのようにスペースで区切って複数ある前提で組む
-// switch文作っておくとフレキシブルに組みやすい 
 //
-// できれば、タグに囲まれたinnerTextに対応する（どうやって？）
-// こういうパターンがある
-// ・<aa><bb></bb></aa>
-// ・<aa/>
-// ・<aa>aaaa</aa>
-// 検出した順番に、元の文字列から取り除いていって見つけるしかなさそう。
-// タグの次に一般文字が来てたらそれを得る
-// 
-// 
-// 
-// 
-// 
 // できれば@foreach, @ifに対応する（そんなことできるの？）
 // 
 // 完成したjQueryを"."で改行、インデントを付ける。
 
+// br, hrは無視。使うな。
 namespace HtmlToDom
 {
     public class Trans
@@ -165,14 +152,15 @@ namespace HtmlToDom
 
         #endregion
 
-        #region ParseTags:タグの階層構造を作成する
+        #region ParseTags:タグの階層構造を作成し、番号を付ける
         /// <summary>
-        /// タグの階層構造を作成する
+        /// タグの階層構造を作成し、番号を付ける
         /// リストのリストを作成して階層構造を示す
         /// </summary>
         /// <param name="rawText"></param>
         public static TreeNode<TagInfo> ParseTags(string rawText)
         {
+            int count = 0;
             // 邪魔なので最初に複数スペースは削除する
             rawText = ReplaceSpaces(rawText);
 
@@ -180,6 +168,7 @@ namespace HtmlToDom
             var root = new TreeNode<TagInfo>(new TagInfo());
 
             // 現在編集中のノード
+            root.Value.Id = count;
             var currentNode = root;
 
             // タグごとにバラす
@@ -200,31 +189,39 @@ namespace HtmlToDom
 
                 // 0番目がタグ名
                 var tagName = split[0];
-                if (tagName.StartsWith("/"))
+                // br, hrは無視
+                var temp = tagName.ToLower().Replace(" ", "").Replace("/", "");
+                if (temp != "br" && temp != "hr")
                 {
-                    //閉じタグ
-                    currentNode = currentNode.Parent;
-                }
-                else
-                {
-                    // タグ情報作成
-                    var tagInfo = new TagInfo(split);
-
-                    // 現在のノードに子登録して深い階層へ
-                    var tagTree = new TreeNode<TagInfo>(tagInfo);
-                    // innerTextがあれば追加
-                    if (!string.IsNullOrWhiteSpace(currentInnerText))
+                    if (tagName.StartsWith("/"))
                     {
-                        tagInfo.Parameters.Add(new TagParameter(TagParameter.InnerText, currentInnerText));
-                    }
-
-                    currentNode.AddChild(tagTree);
-                    currentNode = tagTree;
-
-                    // "/"で終わってたら閉じタグ処理
-                    if (tagName.EndsWith("/"))
-                    {
+                        //閉じタグ
                         currentNode = currentNode.Parent;
+                    }
+                    else
+                    {
+                        // タグ情報作成
+                        count++;
+                        var tagInfo = new TagInfo(split);
+                        tagInfo.Id = count;
+
+                        // 現在のノードに子登録して深い階層へ
+                        var tagTree = new TreeNode<TagInfo>(tagInfo);
+                        // innerTextがあれば追加
+                        if (!string.IsNullOrWhiteSpace(currentInnerText))
+                        {
+                            tagInfo.Parameters.Add(new TagParameter(TagParameter.InnerText, currentInnerText));
+                        }
+
+                        currentNode.AddChild(tagTree);
+                        currentNode = tagTree;
+
+                        // "/"で終わってたら閉じタグ処理
+                        if (tagName.EndsWith("/"))
+                        {
+                            currentNode = currentNode.Parent;
+                        }
+
                     }
                 }
             }
@@ -236,75 +233,112 @@ namespace HtmlToDom
         }
         #endregion
 
+        #region BuildJQuery:親要素に子要素をappendする部分のjQueryスクリプトを作成する
         /// <summary>
-        /// 1つのタグ情報をjQueryにする
+        /// 親要素に子要素をappendする部分のjQueryスクリプトを作成する
+        /// また、それ以前の各タグのスクリプト生成順を作成する
         /// </summary>
-        /// <param name="tagInfo">1つのタグ情報</param>
-        public static string ToJQueryDom(TagInfo tagInfo)
+        /// <param name="tagTree">タグの木構造</param>
+        /// <param name="currentResult">空文字列</param>
+        /// <param name="sequence">スクリプト生成する順序を登録する為の空のリスト</param>
+        /// <returns></returns>
+        public static string BuildJQuery(TreeNode<TagInfo> tagTree, string currentResult, List<TagInfo> sequence)
+        {
+            foreach (var item in tagTree.Children)
+            {
+                currentResult = BuildJQuery(item, currentResult, sequence);
+            }
+            if (!tagTree.Value.IsRoot)
+            {
+                if (!tagTree.Parent.Value.IsRoot)
+                {
+                    currentResult = $"{currentResult}{tagTree.Parent.Value.Name}.appendChild({tagTree.Value.Name});\n";
+                }
+                // 生成順を登録
+                sequence.Add(tagTree.Value);
+            }
+            return currentResult;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 木構造タグデータをjQueryにする
+        /// </summary>
+        /// <param name="tagTree">タグデータ</param>
+        public static string TreeToJQuery(TreeNode<TagInfo> tagTree)
         {
             var result = string.Empty;
-            var count = 0;
 
-            // <tr class="a b"></tr>
-            // を
-            // const tr1 = $("<tr>")
-            //     .addClass("a")
-            //     .addClass("b");
-            // にする。
+            // スクリプト作成するタグの順序を確立する
+            var sequence = new List<TagInfo>();
+            var appendStr = BuildJQuery(tagTree, string.Empty, sequence);
 
-            // TODO:順序を確立する
-
-            // TODO:for文を書く
-            // constなんとかを書く
-            count++;
-            if (!string.IsNullOrWhiteSpace(result))
+            foreach (var tagInfo in sequence)
             {
-                result = $"{result}\n\n";
-            }
-            result = $"{result}const {tagInfo.Category}{count} = $(\"<{tagInfo.Category}>\")";
-
-            // パラメータを追加していく
-            foreach (var tagParameter in tagInfo.Parameters)
-            {
-                foreach (var item in tagParameter.Parameters)
+                // constなんとかを書く
+                if (!string.IsNullOrWhiteSpace(result))
                 {
-                    if (tagParameter.Category.StartsWith("on"))
+                    result = $"{result}\n\n";
+                }
+                result = $"{result}const {tagInfo.Name} = $(\"<{tagInfo.Category}>\")";
+
+                // パラメータを追加していく
+                foreach (var tagParameter in tagInfo.Parameters)
+                {
+                    foreach (var item in tagParameter.Parameters)
                     {
-                        // onイベントならば、即席で関数を作成して、それを設定する
-                        // TODO:関数作成
-                        result = $"{result}.addClass(\"{tagParameter.Category}func{count}\")";
-                    }
-                    else
-                    {
-                        switch (tagParameter.Category)
+                        if (tagParameter.Category.StartsWith("on"))
                         {
-                            case "class":
-                                // .addClass("fa-thumbs-up")
-                                result = $"{result}.addClass(\"{item}\")";
-                                break;
-                            case "style":
-                                // 即席でcssクラスを作成して、それを設定する
-                                // TODO:class作成
-                                // .addClass("class1")
-                                result = $"{result}.addClass(\"class{count}\")";
-                                break;
-                            case TagParameter.InnerText:
-                                result = $"{result}.text(\"{item}\")";
-                                break;
-                            default:
-                                // .attr("id", "votes-count")
-                                result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
-                                break;
+                            // onイベントならば、即席で関数を作成して、それを設定する
+                            // TODO:関数作成
+                            result = $"{result}.addClass(\"{tagInfo.Name}Func{tagParameter.Category}\")";
+                        }
+                        else
+                        {
+                            switch (tagParameter.Category)
+                            {
+                                case "class":
+                                    // .addClass("fa-thumbs-up")
+                                    result = $"{result}.addClass(\"{item}\")";
+                                    break;
+                                case "style":
+                                    // 即席でcssクラスを作成して、それを設定する
+                                    // TODO:class作成
+                                    // .addClass("class1")
+                                    result = $"{result}.addClass(\"{tagInfo.Name}Class\")";
+                                    break;
+                                case TagParameter.InnerText:
+                                    result = $"{result}.text(\"{item}\")";
+                                    break;
+                                default:
+                                    // .attr("id", "votes-count")
+                                    result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
+                                    break;
+                            }
                         }
                     }
                 }
+                result = $"{result};\n";
             }
-
-            // 個々のタグができたら、親子関係に従ってappendする
-            // TODO: この後子をappendして、";"を付ける
 
             // 改行とインデントを付ける
             result = Format(result);
+
+            // appendChildを付ける
+            result = result + "\n" + appendStr;
+            return result;
+        }
+
+        /// <summary>
+        /// HTMLタグから、それを生成するjQueryを作成する
+        /// </summary>
+        /// <param name="tagStr">HTMLタグ</param>
+        /// <returns>jQuery</returns>
+        public static string ToJQuery(string tagStr)
+        {
+            var root = ParseTags(tagStr);
+            var result = TreeToJQuery(root);
             return result;
         }
 

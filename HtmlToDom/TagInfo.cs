@@ -19,6 +19,13 @@ namespace HtmlToDom
             get;
             private set;
         }
+        public string Name
+        {
+            get
+            {
+                return $"{Category}{Id}";
+            }
+        }
 
         /// <summary>
         /// タグのパラメータ
@@ -33,6 +40,11 @@ namespace HtmlToDom
         {
             get { return Category == null; }
         }
+
+        /// <summary>
+        /// 通し番号
+        /// </summary>
+        public int Id { get; set; }
 
         /// <summary>
         /// タグ1つ分の情報
