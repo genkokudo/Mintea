@@ -127,7 +127,7 @@ namespace HtmlToDom
             if (split.Length > 1)
             {
                 // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
-                var tempStr = split[1].Trim('"');
+                var tempStr = split[1].Trim('\'');
                 tempStr = tempStr.Replace(";", "; ");
                 tempStr = Trans.ReplaceSpaces(tempStr);
                 var parameters = tempStr.Split(' ');

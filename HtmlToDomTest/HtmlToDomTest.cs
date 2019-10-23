@@ -95,7 +95,7 @@ namespace HtmlToDomTest
             var result = Trans.ToJQuery(testData);
 
             output.WriteLine(result);
-            result.Is("const button4 = $(\"<button>\")\n    .attr(\"type\", \"button\")\n    .addClass(\"btn\")\n    .addClass(\"button4Class\")\n    .addClass(\"button4Funconclick\")\n    .text(\"óLå¯âª\");\n\n\nconst button5 = $(\"<button>\")\n    .attr(\"type\", \"button\")\n    .addClass(\"btn\")\n    .addClass(\"button5Class\")\n    .addClass(\"button5Funconclick\")\n    .text(\"çÌèú\");\n\n\nconst div3 = $(\"<div>\")\n    .addClass(\"d-flex\");\n\n\nconst td2 = $(\"<td>\")\n    .attr(\"colspan\", \"3\");\n\n\nconst tr1 = $(\"<tr>\")\n    .addClass(\"collapse\")\n    .attr(\"id\", \"dummy@(item\n    .Id)\");\n\ndiv3.appendChild(button4);\ndiv3.appendChild(button5);\ntd2.appendChild(div3);\ntr1.appendChild(td2);\n");
+            result.Is("const button4 = $('<button>')\n    .attr('type', 'button')\n    .addClass('btn')\n    .addClass('button4Class')\n    .addClass('button4Funconclick')\n    .text('óLå¯âª');\n\n\nconst button5 = $('<button>')\n    .attr('type', 'button')\n    .addClass('btn')\n    .addClass('button5Class')\n    .addClass('button5Funconclick')\n    .text('çÌèú');\n\n\nconst div3 = $('<div>')\n    .addClass('d-flex');\n\n\nconst td2 = $('<td>')\n    .attr('colspan', '3');\n\n\nconst tr1 = $('<tr>')\n    .addClass('collapse')\n    .attr('id', 'dummy@(item\n    .Id)');\n\ndiv3.appendChild(button4);\ndiv3.appendChild(button5);\ntd2.appendChild(div3);\ntr1.appendChild(td2);\n");
         }
     }
 }

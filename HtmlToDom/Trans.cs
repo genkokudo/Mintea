@@ -3,14 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 // TODO:このあとやること
-
-// ツリーを再帰的にたどって、DOMの順番を出力
-// ↑普通にたどったらOK
-// 順番通りにDOMを出力する（順番によって連番付ける）
-//
 // できれば@foreach, @ifに対応する（そんなことできるの？）
-// 
-// 完成したjQueryを"."で改行、インデントを付ける。
 
 // br, hrは無視。使うな。
 namespace HtmlToDom
@@ -163,6 +156,8 @@ namespace HtmlToDom
             int count = 0;
             // 邪魔なので最初に複数スペースは削除する
             rawText = ReplaceSpaces(rawText);
+            // ダブルクォーテーションをシングルにする
+            rawText = rawText.Replace('"', '\'');
 
             // ルート
             var root = new TreeNode<TagInfo>(new TagInfo());
@@ -281,7 +276,7 @@ namespace HtmlToDom
                 {
                     result = $"{result}\n\n";
                 }
-                result = $"{result}const {tagInfo.Name} = $(\"<{tagInfo.Category}>\")";
+                result = $"{result}const {tagInfo.Name} = $('<{tagInfo.Category}>')";
 
                 // パラメータを追加していく
                 foreach (var tagParameter in tagInfo.Parameters)
@@ -292,7 +287,7 @@ namespace HtmlToDom
                         {
                             // onイベントならば、即席で関数を作成して、それを設定する
                             // TODO:関数作成
-                            result = $"{result}.addClass(\"{tagInfo.Name}Func{tagParameter.Category}\")";
+                            result = $"{result}.addClass('{tagInfo.Name}Func{tagParameter.Category}')";
                         }
                         else
                         {
@@ -300,20 +295,20 @@ namespace HtmlToDom
                             {
                                 case "class":
                                     // .addClass("fa-thumbs-up")
-                                    result = $"{result}.addClass(\"{item}\")";
+                                    result = $"{result}.addClass('{item}')";
                                     break;
                                 case "style":
                                     // 即席でcssクラスを作成して、それを設定する
                                     // TODO:class作成
                                     // .addClass("class1")
-                                    result = $"{result}.addClass(\"{tagInfo.Name}Class\")";
+                                    result = $"{result}.addClass('{tagInfo.Name}Class')";
                                     break;
                                 case TagParameter.InnerText:
-                                    result = $"{result}.text(\"{item}\")";
+                                    result = $"{result}.text('{item}')";
                                     break;
                                 default:
                                     // .attr("id", "votes-count")
-                                    result = $"{result}.attr(\"{tagParameter.Category}\", \"{item}\")";
+                                    result = $"{result}.attr('{tagParameter.Category}', '{item}')";
                                     break;
                             }
                         }
@@ -333,11 +328,11 @@ namespace HtmlToDom
         /// <summary>
         /// HTMLタグから、それを生成するjQueryを作成する
         /// </summary>
-        /// <param name="tagStr">HTMLタグ</param>
+        /// <param name="html">HTMLタグ</param>
         /// <returns>jQuery</returns>
-        public static string ToJQuery(string tagStr)
+        public static string ToJQuery(string html)
         {
-            var root = ParseTags(tagStr);
+            var root = ParseTags(html);
             var result = TreeToJQuery(root);
             return result;
         }
