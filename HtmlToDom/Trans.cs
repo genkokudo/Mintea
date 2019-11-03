@@ -4,8 +4,9 @@ using System.Text.RegularExpressions;
 
 // TODO:このあとやること
 // できれば@foreach, @ifに対応する（そんなことできるの？）
-
 // br, hrは無視。使うな。
+
+// 折角なのでRazorエンジンに書き換えたい
 namespace HtmlToDom
 {
     public class Trans
