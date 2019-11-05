@@ -118,6 +118,7 @@ namespace HtmlToDom
                 // innerTextがあっても無くても登録していく
                 // 先頭から現在のタグを削除
                 var current = item.ToString();
+                text = text.Trim();
                 text = text.Substring(current.Length);
 
                 // "<"があるか
@@ -275,7 +276,7 @@ namespace HtmlToDom
                 // constなんとかを書く
                 if (!string.IsNullOrWhiteSpace(result))
                 {
-                    result = $"{result}\n\n";
+                    result = $"{result}\n";
                 }
                 result = $"{result}const {tagInfo.Name} = $('<{tagInfo.Category}>')";
 
