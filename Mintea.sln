@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlToDom", "HtmlToDom\HtmlToDom.csproj", "{C86CAC1C-8AD8-4FF1-811B-7AD3C64D134C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mintea", "HtmlToDom\Mintea.csproj", "{C86CAC1C-8AD8-4FF1-811B-7AD3C64D134C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlToDomTest", "HtmlToDomTest\HtmlToDomTest.csproj", "{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinteaTest", "HtmlToDomTest\MinteaTest.csproj", "{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

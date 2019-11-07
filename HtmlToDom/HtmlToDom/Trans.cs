@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 // br, hrは無視。使うな。
 
 // 折角なのでRazorエンジンに書き換えたい
-namespace HtmlToDom
+namespace Mintea.HtmlToDom
 {
     public class Trans
     {

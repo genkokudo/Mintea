@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HtmlToDom\HtmlToDom.csproj" />
+    <ProjectReference Include="..\HtmlToDom\Mintea.csproj" />
   </ItemGroup>
 
 </Project>

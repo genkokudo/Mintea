@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HtmlToDom
+namespace Mintea.HtmlToDom
 {
     /// <summary>
     /// 簡易ツリー構造のジェネリッククラス

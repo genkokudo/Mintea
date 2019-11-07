@@ -5,7 +5,7 @@ using ChainingAssertion;
 using Xunit.Abstractions;
 using System.Collections.Generic;
 
-namespace HtmlToDomTest
+namespace MinteaTest
 {
     public class HtmlToDomTest
     {

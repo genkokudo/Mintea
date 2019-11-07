@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HtmlToDom
+namespace Mintea.HtmlToDom
 {
     #region TagInfo：タグ1つ分の情報
     /// <summary>
