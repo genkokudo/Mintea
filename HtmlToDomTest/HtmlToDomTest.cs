@@ -1,9 +1,9 @@
 using System;
 using Xunit;
-using HtmlToDom;
 using ChainingAssertion;
 using Xunit.Abstractions;
 using System.Collections.Generic;
+using Mintea.HtmlToDom;
 
 namespace MinteaTest
 {
