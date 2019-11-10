@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mintea.SnippetGenerator
+namespace Mintea.DailyReport
 {
     /// <summary>
-    /// スニペットファイルを生成する
+    /// 日報を生成する
     /// </summary>
-    class SnippetGenerator
+    class DeilyReportGenerator
     {
     }
 }
