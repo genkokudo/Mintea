@@ -2,6 +2,7 @@
 using RazorEngine.Templating;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace Practice
@@ -83,7 +84,29 @@ namespace Practice
             //Console.WriteLine(result3);
 
             // じゃあ、何かやってみよう。
-            // 日報を
+            // 日報を作る
+
+            // TODO:datファイルを読み込んで、テンプレートとして使用する
+            // データは最終的にサーバのどこかに置くので、ここでは適当なデータフォルダ作ってアクセス
+
+            // TODO:Modelデータを作成する
+
+            //OKボタンがクリックされたとき、選択されたファイルを読み取り専用で開く
+            Console.WriteLine("--------");
+            using (var reader = new StreamReader("Template/Test.dat"))
+            {
+                string text = reader.ReadToEnd();
+                Console.WriteLine(text);
+            }
+            Console.WriteLine("--------");
+            using (var reader = new StreamReader("Template/DailyBase.dat"))
+            {
+                string text = reader.ReadToEnd();
+                Console.WriteLine(text);
+            }
+            Console.WriteLine("--------");
+
+
         }
     }
 }

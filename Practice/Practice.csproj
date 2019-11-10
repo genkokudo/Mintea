@@ -11,4 +11,13 @@
     <PackageReference Include="System.Reactive.Core" Version="4.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Template\DailyBase.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Template\Test.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
