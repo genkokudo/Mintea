@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HtmlToDom\Mintea.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Template\botsu\DailyBase.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
