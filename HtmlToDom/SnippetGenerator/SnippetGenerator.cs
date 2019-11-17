@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace Mintea.SnippetGenerator
 {
+    // TODO:この後どうするか？
+    // 
+
     /// <summary>
     /// スニペットファイルを生成する
     /// </summary>
@@ -40,14 +43,14 @@ namespace Mintea.SnippetGenerator
                 // Header句
                 w.WriteStartElement("Header");
 
-                w.WriteStartElement("SnippetTypes");
                 // 可変長の要素になる・・・かな？
+                w.WriteStartElement("SnippetTypes");
                 w.WriteStartElement("SnippetType");
                 w.WriteValue("Expansion");  // 改行せずに値を書く
                 w.WriteEndElement();
                 w.WriteEndElement();
 
-                w.WriteStartElement("Title");
+                w.WriteStartElement("Title");   
                 w.WriteValue("test_theory");
                 w.WriteEndElement();
 

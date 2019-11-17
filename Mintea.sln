@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mintea", "HtmlToDom\Mintea.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinteaTest", "HtmlToDomTest\MinteaTest.csproj", "{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice", "Practice\Practice.csproj", "{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Practice", "Practice\Practice.csproj", "{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
