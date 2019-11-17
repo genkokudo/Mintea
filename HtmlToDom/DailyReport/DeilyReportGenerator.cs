@@ -4,10 +4,12 @@ using System.Text;
 
 namespace Mintea.DailyReport
 {
-    /// <summary>
-    /// 日報を生成する
-    /// </summary>
-    class DeilyReportGenerator
-    {
-    }
+    // 没
+
+    ///// <summary>
+    ///// 日報を生成する
+    ///// </summary>
+    //class DeilyReportGenerator
+    //{
+    //}
 }

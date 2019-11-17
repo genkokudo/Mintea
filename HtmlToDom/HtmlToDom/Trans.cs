@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+// AngleSharp使えよ恥ずかしいな～…
+// まあ練習ということで。
+
 // TODO:このあとやること
+// ToJQuery以外はprivateメソッドにすること
 // できれば@foreach, @ifに対応する（そんなことできるの？）
 // br, hrは無視。使うな。
 

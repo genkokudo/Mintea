@@ -7,6 +7,7 @@ using Mintea.HtmlToDom;
 
 namespace MinteaTest
 {
+    // 
     public class HtmlToDomTest
     {
         private readonly ITestOutputHelper output;
