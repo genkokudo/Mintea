@@ -4,6 +4,23 @@ using System.Text;
 
 namespace Mintea.SnippetGenerator
 {
+    /// <summary>
+    /// テキストタイプ
+    /// ぶっちゃけよくわからないのでExpansionだけ使う
+    /// </summary>
+    public enum SnippetType
+    {
+        /// <summary>選択したコードの周りにコード スニペットを配置</summary>
+        SurroundsWith,
+        /// <summary>カーソル位置にコード スニペットを挿入</summary>
+        Expansion,
+        /// <summary>
+        /// C# のリファクタリング中にコード スニペットを使用
+        /// カスタムのコード スニペットには使用できない
+        /// </summary>
+        Refactoring
+    }
+
     // https://docs.microsoft.com/ja-jp/visualstudio/ide/code-snippet-functions?view=vs-2019
     /// <summary>リテラルに適用する関数</summary>
     public enum Function

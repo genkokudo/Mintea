@@ -12,12 +12,8 @@ namespace Mintea.SnippetGenerator
         // Header 要素
         // Keywords 要素:誰も使ってないみたい。いらない
 
-        // SurroundsWith: 選択したコードの周りにコード スニペットを配置します。
-        // Expansion : カーソル位置にコード スニペットを挿入します。
-        // Refactoring: C# のリファクタリング中にコード スニペットを使用するよう指定します。 Refactoring は、カスタムのコード スニペットには使用できません。
-
         /// <summary>スニペットのタイプ</summary>
-        public string SnippetType { get; set; } = "Expansion";
+        public SnippetType SnippetType { get; set; } = SnippetType.Expansion;
 
         /// <summary>タイトル</summary>
         public string Title { get; set; } = "Untitled";
