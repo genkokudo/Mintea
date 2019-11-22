@@ -12,10 +12,10 @@ namespace Mintea.SnippetGenerator
         // Header 要素
         // Keywords 要素:誰も使ってないみたい。いらない
 
-
         // SurroundsWith: 選択したコードの周りにコード スニペットを配置します。
         // Expansion : カーソル位置にコード スニペットを挿入します。
         // Refactoring: C# のリファクタリング中にコード スニペットを使用するよう指定します。 Refactoring は、カスタムのコード スニペットには使用できません。
+
         /// <summary>スニペットのタイプ</summary>
         public string SnippetType { get; set; } = "Expansion";
 
@@ -34,53 +34,81 @@ namespace Mintea.SnippetGenerator
         /// <summary>ショートカットになるフレーズ</summary>
         public string Shortcut { get; set; } = string.Empty;
 
+        #region Snippet要素
+
+        #endregion
         // Snippet 要素
+        /// <summary>
+        /// LiteralとObjectのリストだが
+        /// Objectは使わないのでLiteralのリストにする
+        /// </summary>
+        public List<Literal> Declarations { get; set; }
+
+        /// <summary>
+        /// インポートする必要のある名前空間が格納されます。
+        /// Imports > Import(複数) > Namespace
+        /// </summary>
+        public List<string> Imports { get; set; }
+
+        // References要素:スニペットで参照する必要のあるアセンブリ（dllのこと）、VB用なのでいらない。
+
+        #region Code要素
+        // <Code Language = "Language"　Kind="method body/method decl/type decl/page/file/any"　Delimiter="Delimiter">
+        /// <summary>テンプレートにするコード</summary>
+        public string Code { get; set; } = string.Empty;
+
+        /// <summary>言語</summary>
+        public Language Language { get; set; } = Language.CSharp;
+
+        /// <summary>特殊文字</summary>
+        public string Delimiter { get; set; } = "$";
+
+        /// <summary>スニペットの種類</summary>
+        public Kind Kind { get; set; } = Kind.Any;
+        #endregion
+
+    }
+
+    /// <summary>
+    /// デミリタ文字で定義される部分の値
+    /// Literal以外にObjectがあるが、こっちは使わない
+    /// </summary>
+    public class Literal    // abstruct class Declarationsを作っても良い
+    {
         // Declarations:編集できるコード スニペットの部分を構成するリテラルとオブジェクトを指定します。
-        //    <Snippet>
         //<Declarations>
         //    <Literal>
         //        <ID>type</ID>
         //        <ToolTip>プロパティの型</ToolTip>
         //        <Default>int</Default>
         //    </Literal>
-        //    <Literal>
+        //    <Literal>     // default="true" Editable="false" みたいな要素があるけど不要なので無視
         //        <ID>property</ID>
         //        <ToolTip>プロパティ名</ToolTip>
         //        <Default>MyProperty</Default>
-        //    </Literal>
-        //    <Literal>
-        //        <ID>field</ID>
-        //        <ToolTip>このプロパティのバッキング変数</ToolTip>
-        //        <Default>myVar</Default>
+        //        <Function>MyProperty</Function>
         //    </Literal>
         //</Declarations>
-        // Literalのfunctionsとは
-        // https://docs.microsoft.com/ja-jp/visualstudio/ide/code-snippet-functions?view=vs-2019
 
-        // Imports:コード スニペットでインポートする必要のある名前空間が格納されます。
-        // References:コード スニペットで参照する必要のあるアセンブリ（dllのこと）についての情報が格納されます。VB用なのでいらない。
+        /// <summary>デミリタで囲まれた文字列</summary>
+        public string Id { get; set; }
 
-        // Code要素
-        //    <Code Language = "Language"
-        //        Kind="method body/method decl/type decl/page/file/any"
-        //        Delimiter="Delimiter">
+        /// <summary>説明</summary>
+        public string ToolTip { get; set; }
 
-        /// <summary>テンプレートにするコード</summary>
-        public string Code { get; set; } = string.Empty;
+        /// <summary>デフォルト値</summary>
+        public string Default { get; set; }
 
-        // TODO:Enumにする
-        /// <summary>言語</summary>
-        public string Language { get; set; } = "csharp";
+        /// <summary>リテラルに適用する関数</summary>
+        public Function Function { get; set; }
+    }
 
-        /// <summary>特殊文字</summary>
-        public string Delimiter { get; set; } = "$";
-
-        // TODO:Kind属性
-        //method body コード スニペットがメソッドの本体であり、メソッド宣言の内部に挿入する必要があることを示します。
-        //method decl コード スニペットがメソッドであり、クラスまたはモジュールの内部に挿入する必要があることを示します。
-        //type decl   コード スニペットが型であり、クラス、モジュール、または名前空間の内部に挿入する必要があることを示します。
-        //file スニペットが完全なコード ファイルであることを示します。 これらのコード スニペットは、単体でコード ファイルに挿入することも、名前空間内に挿入することもできます。
-        //any スニペットをどこにでも挿入できることを示します。 このタグは、コメントなど、コンテキストに依存しないコード スニペットに使用します。
-
+    /// <summary>
+    /// デミリタ文字で定義される部分の値
+    /// </summary>
+    public class Declaration
+    {
+        /// <summary>名前</summary>
+        public Literal Literal { get; set; }
     }
 }

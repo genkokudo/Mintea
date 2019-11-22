@@ -4,8 +4,27 @@ using System.Text;
 
 namespace Mintea.SnippetGenerator
 {
-    //VB, CPP, XML, SQLは使用しない
-    /// <summary></summary>
+    // https://docs.microsoft.com/ja-jp/visualstudio/ide/code-snippet-functions?view=vs-2019
+    /// <summary>リテラルに適用する関数</summary>
+    public enum Function
+    {
+        /// <summary>
+        /// Switch文のCaseを生成する
+        /// 要引数：他のリテラルのIDを指定（リテラルの型は列挙体）
+        /// </summary>
+        GenerateSwitchCases,
+        /// <summary>クラス名を設定する</summary>
+        ClassName,
+        /// <summary>
+        /// 引数の型名を最も単純な形にする
+        /// 例："global::System.Console"にするとSystemがインポートされていればConsoleに置き換えられる
+        /// 要引数：型名を指定
+        /// </summary>
+        SimpleTypeName
+    }
+
+    //VB, CPPは使用しない
+    /// <summary>言語</summary>
     public enum Language
     {
         /// <summary>C#</summary>
@@ -15,50 +34,65 @@ namespace Mintea.SnippetGenerator
         /// <summary>TypeScript</summary>
         TypeScript,
         /// <summary>HTML</summary>
-        HTML
+        HTML,
+        /// <summary>SQL</summary>
+        SQL,
+        /// <summary>XML</summary>
+        XML
     }
 
-    /// <summary></summary>
+    /// <summary>スニペットの種類</summary>
     public enum Kind
     {
-        // TODO:コメントをもっと砕いた表現にする
-
-        /// <summary>コード スニペットがメソッドの本体であり、メソッド宣言の内部に挿入する必要があることを示します。</summary>
+        /// <summary>
+        /// 処理のみ
+        /// メソッドの内部で使用する
+        /// </summary>
         [StringValue("method body")]
         MethodBody, //正常終了－
 
-        /// <summary>コード スニペットがメソッドであり、クラスまたはモジュールの内部に挿入する必要があることを示します。</summary>
+        /// <summary>
+        /// メソッド宣言含む
+        /// クラスの中、メソッドの外で使用する
+        /// </summary>
         [StringValue("method decl")]
         MethodDecl, //エラー 1
 
-        /// <summary>コード スニペットが型であり、クラス、モジュール、または名前空間の内部に挿入する必要があることを示します。</summary>
+        /// <summary>
+        /// 型
+        /// クラスの中、メソッドの外で使用する
+        /// </summary>
         [StringValue("type decl")]
         TypeDecl, //エラー 1
 
-        /// <summary>スニペットが完全なコード ファイルであることを示します。 これらのコード スニペットは、単体でコード ファイルに挿入することも、名前空間内に挿入することもできます。</summary>
+        /// <summary>
+        /// 完全なコードファイル 
+        /// 単体でコードファイル、名前空間内に使用する
+        /// </summary>
         [StringValue("file")]
         File, //エラー 1
 
-        /// <summary>スニペットをどこにでも挿入できることを示します。 このタグは、コメントなど、コンテキストに依存しないコード スニペットに使用します。</summary>
+        /// <summary>
+        /// コンテキストに依存しない
+        /// どこにでも使用できる
+        /// </summary>
         [StringValue("any")]
         Any, //エラー 2
     }
 
-    // TODO:コメントなどを直す
-    // TODO:スニペット化（任意のクラスの拡張方法として1つ、上とセット（enumの拡張方法として）で1つ）
     #region Enumに文字列値を設定する
     /// <summary>
-    /// Enumに文字列を付加するためのAttributeクラス
+    /// Enumに文字列を付加するための属性クラス
     /// </summary>
     public class StringValueAttribute : Attribute
     {
         /// <summary>
-        /// Holds the stringvalue for a value in an enum.
+        /// Enum内にstring型の値を持たせる
         /// </summary>
         public string StringValue { get; protected set; }
 
         /// <summary>
-        /// Constructor used to init a StringValue Attribute
+        /// stringの値を初期化
         /// </summary>
         /// <param name="value"></param>
         public StringValueAttribute(string value)
@@ -67,33 +101,36 @@ namespace Mintea.SnippetGenerator
         }
     }
 
-    public static class CommonAttribute
+    /// <summary>
+    /// Enumに対して拡張メソッドを追加する
+    /// </summary>
+    public static class EnumExtension
     {
-
         /// <summary>
-        /// Will get the string value for a given enums value, this will
-        /// only work if you assign the StringValue attribute to
-        /// the items in your enum.
+        /// Enum値が渡されたらstringの値を取得する
+        /// これはEnum値にStringの値を設定したときのみ動作する
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         public static string GetStringValue(this Enum value)
         {
-            // Get the type
             Type type = value.GetType();
 
-            // Get fieldinfo for this type
+            // この型のフィールド情報を取得
             System.Reflection.FieldInfo fieldInfo = type.GetField(value.ToString());
 
-            //範囲外の値チェック
+            // 範囲外の値チェック
             if (fieldInfo == null) return null;
 
+            // フィールド情報から、目的の属性を探す
             StringValueAttribute[] attribs = fieldInfo.GetCustomAttributes(typeof(StringValueAttribute), false) as StringValueAttribute[];
 
-            // Return the first if there was a match.
+            // 属性があればその設定値を返却する
+            // 複数あっても最初のものだけ返却する
             return attribs.Length > 0 ? attribs[0].StringValue : null;
 
         }
     }
     #endregion
+
 }
