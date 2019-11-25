@@ -9,7 +9,7 @@ namespace Mintea.SnippetGenerator
     /// </summary>
     public class SnippetData
     {
-        // Header 要素
+        #region Header要素
         // Keywords 要素:誰も使ってないみたい。いらない
 
         /// <summary>スニペットのタイプ</summary>
@@ -22,7 +22,7 @@ namespace Mintea.SnippetGenerator
         public string Author { get; set; } = "ginpay";
 
         /// <summary>説明</summary>
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; } = "このスニペットの説明です。";
 
         /// <summary>VisualStudioでは使いません</summary>
         public string HelpUrl { get; set; } = "www.microsoft.com";
@@ -30,10 +30,10 @@ namespace Mintea.SnippetGenerator
         /// <summary>ショートカットになるフレーズ</summary>
         public string Shortcut { get; set; } = string.Empty;
 
+        #endregion
+
         #region Snippet要素
 
-        #endregion
-        // Snippet 要素
         /// <summary>
         /// LiteralとObjectのリストだが
         /// Objectは使わないのでLiteralのリストにする
@@ -46,12 +46,14 @@ namespace Mintea.SnippetGenerator
         /// </summary>
         public List<string> Imports { get; set; }
 
+        #endregion
+
         // References要素:スニペットで参照する必要のあるアセンブリ（dllのこと）、VB用なのでいらない。
 
         #region Code要素
         // <Code Language = "Language"　Kind="method body/method decl/type decl/page/file/any"　Delimiter="Delimiter">
         /// <summary>テンプレートにするコード</summary>
-        public string Code { get; set; } = string.Empty;
+        public string Code { get; set; } = "Console.WriteLine(\"Hello Work!\")";
 
         /// <summary>言語</summary>
         public Language Language { get; set; } = Language.CSharp;
@@ -62,6 +64,8 @@ namespace Mintea.SnippetGenerator
         /// <summary>スニペットの種類</summary>
         public Kind Kind { get; set; } = Kind.Any;
         #endregion
+
+        //TODO:SetHeader, SetCode, AddDeclaration, AddImportを作成する
 
     }
 
@@ -87,16 +91,19 @@ namespace Mintea.SnippetGenerator
         //</Declarations>
 
         /// <summary>デミリタで囲まれた文字列</summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = "Unnamed";
 
         /// <summary>説明</summary>
-        public string ToolTip { get; set; }
+        public string ToolTip { get; set; } = "この変数の説明";
 
         /// <summary>デフォルト値</summary>
-        public string Default { get; set; }
+        public string Default { get; set; } = "DefaultValue";
 
         /// <summary>リテラルに適用する関数</summary>
-        public Function Function { get; set; }
+        public Function? Function { get; set; } = null;
+
+        // TODO:コンストラクタ作成2種類（Functionあるのとないの）
+
     }
 
     /// <summary>
@@ -105,6 +112,8 @@ namespace Mintea.SnippetGenerator
     public class Declaration
     {
         /// <summary>名前</summary>
-        public Literal Literal { get; set; }
+        public Literal Literal { get; set; } = new Literal();
+
+        // TODO:コンストラクタ作成2種類
     }
 }
