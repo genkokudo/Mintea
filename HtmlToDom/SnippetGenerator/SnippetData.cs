@@ -53,7 +53,7 @@ namespace Mintea.SnippetGenerator
         #region Code要素
         // <Code Language = "Language"　Kind="method body/method decl/type decl/page/file/any"　Delimiter="Delimiter">
         /// <summary>テンプレートにするコード</summary>
-        public string Code { get; set; } = "Console.WriteLine(\"Hello Work!\")";
+        public string Code { get; set; } = "Console.WriteLine(\"Hello Work!\");";
 
         /// <summary>言語</summary>
         public Language Language { get; set; } = Language.CSharp;
@@ -64,11 +64,11 @@ namespace Mintea.SnippetGenerator
         /// <summary>スニペットの種類</summary>
         public Kind Kind { get; set; } = Kind.Any;
 
+        #endregion
+
         public SnippetData()
         {
         }
-
-        #endregion
 
         /// <summary>
         /// 可変長要素以外で必須のものを設定する
