@@ -15,7 +15,7 @@ namespace Mintea.SnippetGenerator
         /// <summary>スニペットのタイプ</summary>
         public SnippetType SnippetType { get; set; } = SnippetType.Expansion;
 
-        /// <summary>タイトル</summary>
+        /// <summary>タイトル、ファイル名にもなる</summary>
         public string Title { get; set; } = "Untitled";
 
         /// <summary>作者</summary>
@@ -63,9 +63,118 @@ namespace Mintea.SnippetGenerator
 
         /// <summary>スニペットの種類</summary>
         public Kind Kind { get; set; } = Kind.Any;
+
+        public SnippetData()
+        {
+        }
+
         #endregion
 
-        //TODO:SetHeader, SetCode, AddDeclaration, AddImportを作成する
+        /// <summary>
+        /// 可変長要素以外で必須のものを設定する
+        /// </summary>
+        /// <param name="title">ファイル名</param>
+        /// <param name="author">作者</param>
+        /// <param name="description">説明</param>
+        /// <param name="shortcut">ショートカットになるフレーズ</param>
+        /// <param name="code">コード</param>
+        /// <param name="language">言語</param>
+        /// <param name="delimiter">特殊文字</param>
+        /// <param name="kind">スニペットの種類</param>
+        public SnippetData(string title, string author, string description, string shortcut, string code, Language language, string delimiter, Kind kind)
+        {
+            Title = title;
+            Author = author;
+            Description = description;
+            Shortcut = shortcut;
+            Code = code;
+            Language = language;
+            Delimiter = delimiter;
+            Kind = kind;
+        }
+
+        /// <summary>
+        /// スニペット変数を追加する
+        /// </summary>
+        /// <param name="literal">変数</param>
+        public void AddDeclaration(Literal literal)
+        {
+            if (Declarations is null)
+            {
+                Declarations = new List<Literal>();
+            }
+            Declarations.Add(literal);
+        }
+
+        /// <summary>
+        /// スニペット変数を追加する
+        /// </summary>
+        /// <param name="id">変数名</param>
+        /// <param name="toolTip">説明</param>
+        /// <param name="_default">デフォルト値</param>
+        /// <param name="function">適用する関数</param>
+        /// <param name="functionValue">関数に使用する引数</param>
+        public void AddDeclaration(string id, string toolTip, string _default, Function? function, string functionValue)
+        {
+            if (Declarations is null)
+            {
+                Declarations = new List<Literal>();
+            }
+            Declarations.Add(new Literal(id, toolTip, _default, function, functionValue));
+        }
+
+        /// <summary>
+        /// スニペット変数を追加する
+        /// </summary>
+        /// <param name="id">変数名</param>
+        /// <param name="toolTip">説明</param>
+        /// <param name="_default">デフォルト値</param>
+        /// <param name="function">適用する関数</param>
+        public void AddDeclaration(string id, string toolTip, string _default, Function? function)
+        {
+            if (Declarations is null)
+            {
+                Declarations = new List<Literal>();
+            }
+            Declarations.Add(new Literal(id, toolTip, _default, function));
+        }
+
+        /// <summary>
+        /// スニペット変数を追加する
+        /// </summary>
+        /// <param name="id">変数名</param>
+        /// <param name="toolTip">説明</param>
+        /// <param name="_default">デフォルト値</param>
+        public void AddDeclaration(string id, string toolTip, string _default)
+        {
+            if (Declarations is null)
+            {
+                Declarations = new List<Literal>();
+            }
+            Declarations.Add(new Literal(id, toolTip, _default));
+        }
+
+        //<Imports>
+        //    <Import>
+        //        <Namespace>System.Data</Namespace>
+        //    </Import>
+        //    ...
+        //</Imports>
+
+        /// <summary>
+        /// インポートする必要のある名前空間を追加する
+        /// </summary>
+        /// <param name="import">System.Data など</param>
+        public void AddImport(string import)
+        {
+            // C# 8.0以降
+            //(Imports ??= new List<string>()).Add(import);
+            if(Imports is null)
+            {
+                Imports = new List<string>();
+            }
+            Imports.Add(import);
+        }
 
     }
 
@@ -102,18 +211,61 @@ namespace Mintea.SnippetGenerator
         /// <summary>リテラルに適用する関数</summary>
         public Function? Function { get; set; } = null;
 
-        // TODO:コンストラクタ作成2種類（Functionあるのとないの）
+        /// <summary>関数に使用する引数</summary>
+        public string FunctionValue { get; set; } = null;
+
+        public Literal(string id, string toolTip, string _default, Function? function, string functionValue)
+        {
+            Initialize(id, toolTip, _default);
+            Function = function;
+            FunctionValue = functionValue;
+        }
+
+        public Literal(string id, string toolTip, string _default, Function? function)
+        {
+            Initialize(id, toolTip, _default);
+            Function = function;
+        }
+
+        public Literal(string id, string toolTip, string _default)
+        {
+            Initialize(id, toolTip, _default);
+        }
+
+        private void Initialize(string id, string toolTip, string _default)
+        {
+            Id = id;
+            ToolTip = toolTip;
+            Default = _default;
+        }
 
     }
 
-    /// <summary>
-    /// デミリタ文字で定義される部分の値
-    /// </summary>
-    public class Declaration
-    {
-        /// <summary>名前</summary>
-        public Literal Literal { get; set; } = new Literal();
+    #region オブジェクト使わないので削除
+    // オブジェクト使わないので削除
+    ///// <summary>
+    ///// デミリタ文字で定義される部分の値
+    ///// </summary>
+    //public class Declaration
+    //{
+    //    /// <summary>名前</summary>
+    //    public Literal Literal { get; set; }
 
-        // TODO:コンストラクタ作成2種類
-    }
+    //    public Declaration(string id, string toolTip, string _default, Function? function)
+    //    {
+    //        Literal = new Literal(id, toolTip, _default, function);
+    //    }
+
+    //    public Declaration(string id, string toolTip, string _default)
+    //    {
+    //        Literal = new Literal(id, toolTip, _default);
+    //    }
+
+    //    public Declaration(Literal literal)
+    //    {
+    //        Literal = literal;
+    //    }
+    //}
+
+    #endregion
 }
