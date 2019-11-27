@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mintea", "HtmlToDom\Mintea.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinteaTest", "HtmlToDomTest\MinteaTest.csproj", "{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Practice", "Practice\Practice.csproj", "{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinteaPractice", "MinteaPractice\MinteaPractice.csproj", "{2C341D23-7FAB-4870-ABAC-B6840556AC1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA7B360A-3F3E-4F3A-9D24-44B9203E19CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D81624B2-62BC-42E9-97AE-CA1B9931ECAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C341D23-7FAB-4870-ABAC-B6840556AC1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C341D23-7FAB-4870-ABAC-B6840556AC1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C341D23-7FAB-4870-ABAC-B6840556AC1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C341D23-7FAB-4870-ABAC-B6840556AC1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

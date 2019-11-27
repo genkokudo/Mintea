@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 
@@ -13,7 +14,8 @@ namespace Mintea.SnippetGenerator
     /// </summary>
     public class SnippetGenerator
     {
-        // 設定
+        #region 設定
+
         readonly XmlWriterSettings Settings = new XmlWriterSettings
         {
             Indent = true,
@@ -22,14 +24,29 @@ namespace Mintea.SnippetGenerator
         };
 
         /// <summary>
+        /// 何故かXMLヘッダがUTF-16になるので、UTF8に矯正する
+        /// </summary>
+        private class StringWriterUTF8 : StringWriter
+        {
+            public override Encoding Encoding
+            {
+                get { return Encoding.UTF8; }
+            }
+        }
+
+        #endregion
+
+        /// <summary>
         /// スニペットXMLを出力する
         /// </summary>
         /// <param name="Data">スニペットデータ</param>
         /// <returns>StringBuilderを返す</returns>
-        public StringBuilder MakeSnippetXml(SnippetData Data)
+        public StringWriter MakeSnippetXml(SnippetData Data)
         {
-            var sb = new StringBuilder();
-            using (var w = XmlWriter.Create(sb, Settings))
+            if(Data == null) return null;
+
+            var sw = new StringWriterUTF8();
+            using (var w = XmlWriter.Create(sw, Settings))
             {
                 // 基本：WriteStartElementとWriteEndElementがセット、タグで囲んだ値はWriteValueを呼んで設定。
                 // WriteStartAttributeとWriteEndAttributeもセット、ここの値設定はWriteStringを呼ぶ。
@@ -46,32 +63,34 @@ namespace Mintea.SnippetGenerator
                 w.WriteString("1.0.0");
                 w.WriteEndAttribute();
 
-                // TODO: こっから作業すること！
                 // Header句
                 w.WriteStartElement("Header");
 
                 // 可変長の要素になる・・・かな？
                 w.WriteStartElement("SnippetTypes");
                 w.WriteStartElement("SnippetType");
-                w.WriteValue("Expansion");  // 改行せずに値を書く
+                w.WriteValue(Data.SnippetType.ToString());  // 改行せずに値を書く
                 w.WriteEndElement();
                 w.WriteEndElement();
 
                 w.WriteStartElement("Title");
-                w.WriteValue("test_theory");
+                w.WriteValue(Data.Title);
                 w.WriteEndElement();
 
                 w.WriteStartElement("Author");
+                w.WriteValue(Data.Author);
                 w.WriteEndElement();
 
                 w.WriteStartElement("Description");
+                w.WriteValue(Data.Description);
                 w.WriteEndElement();
 
                 w.WriteStartElement("HelpUrl");
+                w.WriteValue(Data.HelpUrl);
                 w.WriteEndElement();
 
                 w.WriteStartElement("Shortcut");
-                w.WriteValue("test_theory");
+                w.WriteValue(Data.Shortcut);
                 w.WriteEndElement();
 
                 w.WriteEndElement();
@@ -81,13 +100,38 @@ namespace Mintea.SnippetGenerator
 
                 w.WriteStartElement("Code");
                 w.WriteStartAttribute("Language", "");
-                w.WriteString("csharp");
+                w.WriteString(Data.Language.ToString());
+                w.WriteStartAttribute("Kind", "");
+                w.WriteString(Data.Kind.GetStringValue());
                 w.WriteStartAttribute("Delimiter", "");
-                w.WriteString("$");
+                w.WriteString(Data.Delimiter);
                 w.WriteEndAttribute();
-                w.WriteCData("");   // ここに本体を書く
+                w.WriteCData(Data.Code);
 
                 w.WriteEndElement();
+                // TODO: こっから作業すること！
+                // Declarations
+                //<Declarations>
+                //    <Literal>
+                //        <ID>type</ID>
+                //        <ToolTip>プロパティの型</ToolTip>
+                //        <Default>int</Default>
+                //    </Literal>
+                //    <Literal>
+                //        <ID>property</ID>
+                //        <ToolTip>プロパティ名</ToolTip>
+                //        <Default>MyProperty</Default>
+                //        <Function>MyProperty</Function>
+                //    </Literal>
+                //</Declarations>
+
+                // Imports
+                //<Imports>
+                //    <Import>
+                //        <Namespace>System.Data</Namespace>
+                //    </Import>
+                //    ...
+                //</Imports>
 
                 w.WriteEndElement();
                 w.WriteEndElement();
@@ -95,7 +139,7 @@ namespace Mintea.SnippetGenerator
                 // 完成
                 w.Flush();
             }
-            return sb;
+            return sw;
 
 
             //using (var w = XmlWriter.Create($"./{Filename}.xml", Settings))
