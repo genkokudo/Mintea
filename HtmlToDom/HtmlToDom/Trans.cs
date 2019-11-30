@@ -223,7 +223,7 @@ namespace Mintea.HtmlToDom
                     {
                         // タグ情報作成
                         count++;
-                        var tagInfo = new TagInfo(tagName, tagParamList);  // タグ名、class="aa bb", id="cccc",...
+                        var tagInfo = new TagInfo(tagName.Replace("/", ""), tagParamList);  // タグ名、class="aa bb", id="cccc",...
                         tagInfo.Id = count;
 
                         // 現在のノードに子登録して深い階層へ
