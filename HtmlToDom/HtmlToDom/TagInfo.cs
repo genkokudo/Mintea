@@ -58,19 +58,13 @@ namespace Mintea.HtmlToDom
         /// <summary>
         /// タグ1つ分の情報
         /// </summary>
-        /// <param name="parameters">タグ内のパラメータ：タグの括弧内をスペースで区切った配列</param>
-        public TagInfo(string[] parameters)
+        /// <param name="category">タグの種類, buttonとかaとか</param>
+        /// <param name="parameters">タグ内のパラメータ：「class="aa bb"」って感じの文字列</param>
+        public TagInfo(string category, List<string> parameters)
         {
-            // 残りの要素のリストを持たせる
-            var rawParameters = new List<string>();
-            foreach (var tag in parameters)
-            {
-                rawParameters.Add(tag);
-            }
-            Category = rawParameters[0];
-            rawParameters.RemoveAt(0);
+            Category = category;
 
-            foreach (var tag in rawParameters)
+            foreach (var tag in parameters)
             {
                 Parameters.Add(new TagParameter(tag));
             }
@@ -107,7 +101,7 @@ namespace Mintea.HtmlToDom
         /// タグ情報のパラメータ要素
         /// 任意のパラメータ（1つのみ）
         /// </summary>
-        /// <param name="category">パラメータの種類</param>
+        /// <param name="category">パラメータの種類,classとか</param>
         /// <param name="parameter">パラメータの内容</param>
         public TagParameter(string category, string parameter)
         {

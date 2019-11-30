@@ -160,6 +160,9 @@ namespace Mintea.HtmlToDom
         public static TreeNode<TagInfo> ParseTags(string rawText)
         {
             int count = 0;
+            // 改行を消す
+            rawText = rawText.Replace("\n", " ");
+            rawText = rawText.Replace("\r", " ");
             // 邪魔なので最初に複数スペースは削除する
             rawText = ReplaceSpaces(rawText);
             // ダブルクォーテーションをシングルにする
@@ -185,11 +188,28 @@ namespace Mintea.HtmlToDom
 
                 // "<", ">"を取り除いて、スペースで区切る
                 currentTag = currentTag.Trim(beginTag);
-                currentTag = currentTag.Trim(endTag);
-                var split = currentTag.Split(' ');
+                currentTag = currentTag.Trim(endTag).Trim();
+                var isClose = currentTag.Contains("/");
 
-                // 0番目がタグ名
-                var tagName = split[0];
+                // <a class='aaaa bbbb' name='cccc'/>                
+                // a class='aaaa bbbb' name='cccc'/
+
+                var tagParamList = new List<string>();
+                // 何か1文字以上入っていることを条件に検索
+                var terms = "[a-z]*=['][a-zA-Z0-9 ]*[']";
+                // 条件に合った文字列を全部拾う
+                var r = new Regex(terms, RegexOptions.Multiline);
+                var mc = r.Matches(currentTag);
+
+                foreach (var item in mc)
+                {
+                    // class='aaaa bbbb'
+                    // name='cccc'
+                    tagParamList.Add(item.ToString());
+                }
+
+                // 0番目がタグ名、aとかbuttonとか。
+                var tagName = currentTag.Split(' ')[0];
                 // br, hrは無視
                 var temp = tagName.ToLower().Replace(" ", "").Replace("/", "");
                 if (temp != "br" && temp != "hr")
@@ -203,7 +223,7 @@ namespace Mintea.HtmlToDom
                     {
                         // タグ情報作成
                         count++;
-                        var tagInfo = new TagInfo(split);
+                        var tagInfo = new TagInfo(tagName, tagParamList);  // タグ名、class="aa bb", id="cccc",...
                         tagInfo.Id = count;
 
                         // 現在のノードに子登録して深い階層へ
@@ -218,7 +238,7 @@ namespace Mintea.HtmlToDom
                         currentNode = tagTree;
 
                         // "/"で終わってたら閉じタグ処理
-                        if (tagName.EndsWith("/"))
+                        if (isClose)
                         {
                             currentNode = currentNode.Parent;
                         }
@@ -233,7 +253,7 @@ namespace Mintea.HtmlToDom
             return root;
         }
         #endregion
-
+        
         #region BuildJQuery:親要素に子要素をappendする部分のjQueryスクリプトを作成する
         /// <summary>
         /// 親要素に子要素をappendする部分のjQueryスクリプトを作成する
@@ -253,7 +273,7 @@ namespace Mintea.HtmlToDom
             {
                 if (!tagTree.Parent.Value.IsRoot)
                 {
-                    currentResult = $"{currentResult}{tagTree.Parent.Value.Name}.appendChild({tagTree.Value.Name});\n";
+                    currentResult = $"{currentResult}{tagTree.Parent.Value.Name}.append({tagTree.Value.Name});\n";
                 }
                 // 生成順を登録
                 sequence.Add(tagTree.Value);
@@ -299,6 +319,7 @@ namespace Mintea.HtmlToDom
                         {
                             switch (tagParameter.Category)
                             {
+                                // TODO:disabledやselectedが無い！？
                                 case "class":
                                     // .addClass("fa-thumbs-up")
                                     result = $"{result}.addClass('{item}')";
@@ -326,7 +347,7 @@ namespace Mintea.HtmlToDom
             // 改行とインデントを付ける
             result = Format(result);
 
-            // appendChildを付ける
+            // appendを付ける
             result = result + "\n" + appendStr;
             return result;
         }
