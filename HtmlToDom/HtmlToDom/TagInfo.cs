@@ -116,21 +116,39 @@ namespace Mintea.HtmlToDom
         /// <param name="parameterStr">「class="aa bb"」って感じの文字列</param>
         public TagParameter(string parameterStr)
         {
-            var split = parameterStr.Split('=');
-            Category = split[0];
-            if (split.Length > 1)
+
+            if (parameterStr.Contains("data-"))
             {
-                // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
-                var tempStr = split[1].Trim('\'');
-                tempStr = tempStr.Replace(";", "; ");
-                tempStr = Trans.ReplaceSpaces(tempStr);
-                var parameters = tempStr.Split(' ');
-                foreach (var item in parameters)
+                var split = parameterStr.Split('-');
+                Category = split[0];
+                Parameters.Add(split[1]);
+            }
+            else
+            {
+                if (parameterStr.Contains("="))
                 {
-                    if (!string.IsNullOrWhiteSpace(item))
+                    var split = parameterStr.Split('=');
+                    Category = split[0];
+                    if (split.Length > 1)
                     {
-                        Parameters.Add(item);
+                        // セミコロンの付け方が人によって違うと思うのでスペース入れながら分解
+                        var tempStr = split[1].Trim('\'');
+                        tempStr = tempStr.Replace(";", "; ");
+                        tempStr = Trans.ReplaceSpaces(tempStr);
+                        var parameters = tempStr.Split(' ');
+                        foreach (var item in parameters)
+                        {
+                            if (!string.IsNullOrWhiteSpace(item))
+                            {
+                                Parameters.Add(item);
+                            }
+                        }
                     }
+                }
+                else
+                {
+                    Category = parameterStr;
+                    Parameters.Add(parameterStr);
                 }
             }
         }

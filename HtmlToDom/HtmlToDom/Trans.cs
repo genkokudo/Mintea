@@ -196,7 +196,7 @@ namespace Mintea.HtmlToDom
 
                 var tagParamList = new List<string>();
                 // 何か1文字以上入っていることを条件に検索
-                var terms = "[a-z]*=['][a-zA-Z0-9 ]*[']";
+                var terms = "[a-z\\-]*=['][a-zA-Z0-9 ]*[']";
                 // 条件に合った文字列を全部拾う
                 var r = new Regex(terms, RegexOptions.Multiline);
                 var mc = r.Matches(currentTag);
@@ -206,6 +206,19 @@ namespace Mintea.HtmlToDom
                     // class='aaaa bbbb'
                     // name='cccc'
                     tagParamList.Add(item.ToString());
+                }
+                // currentTagに含まれてたらtagParamListに追加
+                if (currentTag.Contains("disabled"))
+                {
+                    tagParamList.Add("disabled");
+                }
+                if (currentTag.Contains("selected"))
+                {
+                    tagParamList.Add("selected");
+                }
+                if (currentTag.Contains("checked"))
+                {
+                    tagParamList.Add("checked");
                 }
 
                 // 0番目がタグ名、aとかbuttonとか。
@@ -319,7 +332,15 @@ namespace Mintea.HtmlToDom
                         {
                             switch (tagParameter.Category)
                             {
-                                // TODO:disabledやselectedが無い！？
+                                case "data":
+                                    // .data("number", "01")
+                                    var temp = item.Split('=');
+                                    if(temp.Length <= 1)
+                                    {
+                                        continue;
+                                    }
+                                    result = $"{result}.data('{temp[0]}', '{temp[1]}')";
+                                    break;
                                 case "class":
                                     // .addClass("fa-thumbs-up")
                                     result = $"{result}.addClass('{item}')";
@@ -329,6 +350,18 @@ namespace Mintea.HtmlToDom
                                     // TODO:class作成
                                     // .addClass("class1")
                                     result = $"{result}.addClass('{tagInfo.Name}Class')";
+                                    break;
+                                case "disabled":
+                                    //result = $"{result}.attr('disabled', true)";
+                                    result = $"{result}.prop('disabled', true)";
+                                    break;
+                                case "selected":
+                                    //result = $"{result}.attr('selected', true)";
+                                    result = $"{result}.prop('selected', true)";
+                                    break;
+                                case "checked":
+                                    //result = $"{result}.attr('checked', 'checked')";
+                                    result = $"{result}.prop('checked', true)";
                                     break;
                                 case TagParameter.InnerText:
                                     result = $"{result}.text('{item}')";
