@@ -120,7 +120,7 @@ namespace Mintea.SnippetGenerator
             {
                 Declarations = new List<Literal>();
             }
-            Declarations.Add(new Literal(id, toolTip, _default, function, functionValue));
+            Declarations.Add(new Literal(id, function, functionValue));
         }
 
         /// <summary>
@@ -214,17 +214,44 @@ namespace Mintea.SnippetGenerator
         /// <summary>関数に使用する引数</summary>
         public string FunctionValue { get; set; } = null;
 
-        public Literal(string id, string toolTip, string _default, Function? function, string functionValue)
+        /// <summary>
+        /// 編集可能か
+        /// 関数指定がある場合"false"、関数指定がない場合null
+        /// "true"はなし
+        /// </summary>
+        public string Editable { get { return Function == null? null : "false"; } }
+
+        // defaultはリファレンスに説明が書いてないので書かない
+
+        /// <summary>
+        /// Function.ClassNameのみ対応
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="toolTip"></param>
+        /// <param name="_default"></param>
+        /// <param name="function">Function.ClassNameを指定すること</param>
+        public Literal(string id, string toolTip, string _default, Function? function = Mintea.SnippetGenerator.Function.ClassName)
         {
             Initialize(id, toolTip, _default);
             Function = function;
-            FunctionValue = functionValue;
+            FunctionValue = string.Empty;
         }
 
-        public Literal(string id, string toolTip, string _default, Function? function)
+        /// <summary>
+        /// Function.ClassName以外対応
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="function">Function.ClassName以外を指定すること</param>
+        public Literal(string id, Function? function, string functionValue)
         {
-            Initialize(id, toolTip, _default);
+            string _default = null;
+            if(function == Mintea.SnippetGenerator.Function.GenerateSwitchCases)
+            {
+                _default = ":default";
+            }
+            Initialize(id, null, _default);
             Function = function;
+            FunctionValue = functionValue;
         }
 
         public Literal(string id, string toolTip, string _default)

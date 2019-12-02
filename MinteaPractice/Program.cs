@@ -1,5 +1,6 @@
 ﻿using Mintea.SnippetGenerator;
 using System;
+using System.Collections.Generic;
 
 namespace MinteaPractice
 {
@@ -24,9 +25,24 @@ namespace MinteaPractice
 
             // スニペットを生成する
             var sg = new SnippetGenerator();
+
+            var imports = new List<string>
+            {
+                "System",
+                "System.Collections.Generic"
+            };
+            var declarations = new List<Literal>
+            {
+                new Literal("Id", "通し番号", "0"),
+                new Literal("Expression", "ここに列挙体を指定する", "switchOn"),
+                new Literal("Cases", Function.GenerateSwitchCases, "$expression$"),
+                new Literal("Name", "名前クラス", "ginpay", Function.ClassName),
+                new Literal("SystemConsole", Function.SimpleTypeName, "global::System.Console")
+            };
             var data = new SnippetData
             {
-                // TODO:サンプルデータを作る
+                Imports = imports,
+                Declarations = declarations
             };
             var sw = sg.MakeSnippetXml(data);
             Console.WriteLine(sw.ToString());
