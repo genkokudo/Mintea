@@ -196,7 +196,7 @@ namespace Mintea.HtmlToDom
 
                 var tagParamList = new List<string>();
                 // 何か1文字以上入っていることを条件に検索
-                var terms = "[a-z\\-]*=['][a-zA-Z0-9 ]*[']";
+                var terms = "[a-z\\-]*=['][a-zA-Z0-9 \\-]*[']";
                 // 条件に合った文字列を全部拾う
                 var r = new Regex(terms, RegexOptions.Multiline);
                 var mc = r.Matches(currentTag);
