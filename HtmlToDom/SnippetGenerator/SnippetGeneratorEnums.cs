@@ -26,6 +26,10 @@ namespace Mintea.SnippetGenerator
     public enum Function
     {
         /// <summary>
+        /// なし
+        /// </summary>
+        None,
+        /// <summary>
         /// Switch文のCaseを生成する
         /// 要引数：他のリテラルのIDを指定（リテラルの型は列挙体）
         /// </summary>
