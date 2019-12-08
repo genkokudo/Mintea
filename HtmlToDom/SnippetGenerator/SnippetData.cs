@@ -254,6 +254,10 @@ namespace Mintea.SnippetGenerator
             FunctionValue = functionValue;
         }
 
+        public Literal()
+        {
+        }
+
         public Literal(string id, string toolTip, string _default)
         {
             Initialize(id, toolTip, _default);

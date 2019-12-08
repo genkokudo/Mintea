@@ -261,7 +261,7 @@ namespace Mintea.HtmlToDom
             }
             if (currentNode.Value.Category == string.Empty)
             {
-                Console.WriteLine("閉じタグが一致していない気がします。");
+                throw new Exception("閉じタグが一致していない気がします。");
             }
             return root;
         }
@@ -392,9 +392,15 @@ namespace Mintea.HtmlToDom
         /// <returns>jQuery</returns>
         public static string ToJQuery(string html)
         {
-            var root = ParseTags(html);
-            var result = TreeToJQuery(root);
-            return result;
+            try
+            {
+                var root = ParseTags(html);
+                var result = TreeToJQuery(root);
+                return result;
+            }catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         #region ReplaceSpaces:複数スペースを1つのスペースにする
