@@ -154,7 +154,7 @@ namespace Mintea.SnippetGenerator
                             w.WriteValue(item.Default);
                             w.WriteEndElement();
                         }
-                        if (item.Function != null)
+                        if (item.Function != null && item.Function != Function.None)
                         {
                             w.WriteStartElement("Function");
                             if (item.Editable != null)
@@ -163,7 +163,10 @@ namespace Mintea.SnippetGenerator
                                 w.WriteString(item.Editable);
                                 w.WriteEndAttribute();
                             }
-                            w.WriteValue(item.Function.ToString() + "(" + item.FunctionValue + ")");
+                            if (!string.IsNullOrWhiteSpace(item.FunctionValue))
+                            {
+                                w.WriteValue(item.Function.ToString() + "(" + item.FunctionValue + ")");
+                            }
                             w.WriteEndElement();
                         }
                         w.WriteEndElement();
