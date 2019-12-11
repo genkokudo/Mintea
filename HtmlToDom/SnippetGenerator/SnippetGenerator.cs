@@ -6,9 +6,6 @@ using System.Xml;
 
 namespace Mintea.SnippetGenerator
 {
-    // TODO:この後ここを作り込んでいく
-    // Web画面に出す場合、ModelはSnippetDataを継承して作成し、BindDataすればよい
-
     /// <summary>
     /// スニペットファイルを生成する
     /// </summary>

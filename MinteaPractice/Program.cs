@@ -1,6 +1,9 @@
 ﻿using Mintea.SnippetGenerator;
+using MinteaPractice.Template.T4;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace MinteaPractice
 {
@@ -23,29 +26,50 @@ namespace MinteaPractice
             //}
             //Console.WriteLine("--------");
 
-            // スニペットを生成する
-            var sg = new SnippetGenerator();
+            // --------------------------------------------------
+            //// スニペットを生成する
+            //var sg = new SnippetGenerator();
 
-            var imports = new List<string>
+            //var imports = new List<string>
+            //{
+            //    "System",
+            //    "System.Collections.Generic"
+            //};
+            //var declarations = new List<Literal>
+            //{
+            //    new Literal("Id", "通し番号", "0"),
+            //    new Literal("Expression", "ここに列挙体を指定する", "switchOn"),
+            //    new Literal("Cases", Function.GenerateSwitchCases, "$expression$"),
+            //    new Literal("Name", "名前クラス", "ginpay", Function.ClassName),
+            //    new Literal("SystemConsole", Function.SimpleTypeName, "global::System.Console")
+            //};
+            //var data = new SnippetData
+            //{
+            //    Imports = imports,
+            //    Declarations = declarations
+            //};
+            //var sw = sg.MakeSnippetXml(data);
+            //Console.WriteLine(sw.ToString());
+            // --------------------------------------------------
+
+            // パラメータを作って
+            var context = new GenerationContext
             {
-                "System",
-                "System.Collections.Generic"
+                NamespaceName = "Ananan",
+                TypeSuffix = "TottemoDaisuki",
+                RepeatCount = 2
             };
-            var declarations = new List<Literal>
-            {
-                new Literal("Id", "通し番号", "0"),
-                new Literal("Expression", "ここに列挙体を指定する", "switchOn"),
-                new Literal("Cases", Function.GenerateSwitchCases, "$expression$"),
-                new Literal("Name", "名前クラス", "ginpay", Function.ClassName),
-                new Literal("SystemConsole", Function.SimpleTypeName, "global::System.Console")
-            };
-            var data = new SnippetData
-            {
-                Imports = imports,
-                Declarations = declarations
-            };
-            var sw = sg.MakeSnippetXml(data);
-            Console.WriteLine(sw.ToString());
+
+            // テキストを生成して
+            var text = new MyCodeGenerator(context).TransformText();
+
+            Console.WriteLine(text);
+
+            //// UTF8(BOMなし)で出力
+            //File.WriteAllText(outputPath, text, new UTF8Encoding(false));
+
+            //Console.WriteLine("Success generate:" + outputPath);
         }
     }
+
 }
