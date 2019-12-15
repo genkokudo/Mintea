@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_write_text</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>手短に文字列をファイルに出力する。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_write_text</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>System.IO</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp" Kind="method body" Delimiter="$"><![CDATA[File.WriteAllText(path, data);]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_signaler</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>SignalRの基本セットです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_signaler</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="$"><![CDATA[// TODO:サーバ側
+// asp_signalr_hub
+
+// SignalRを使用して通信を行う
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl('/aaaaHub')    // TODO:名前をStartUp.csと合わせる
+    .build();
+
+// 接続開始 
+connection.start()
+    .then(function onFulfilled() {
+        // TODO:画面ロックを解除するなどの処理
+    })
+    .catch(function (err) {
+        alert(err.toString());
+        return console.error(err.toString());
+    });
+
+// 再接続処理
+connection.onclose(async () => {
+    setTimeout(function () {
+        connection.start()
+            .catch(function (err) {
+                alert("再接続に失敗しました。リロードをしてください。");
+                return console.error(err.toString());
+            });
+    }, 4000);
+});
+
+
+// サーバに送信 
+function send() {
+    // TODO:入力欄を用意する
+    const message = $('#Input').val();
+    if (message !== '') {
+        // サーバのSendMessageを呼ぶ 
+        connection.invoke('SendMessage', message).catch(err => console.error(err.toString()));
+    }
+}
+
+// サーバから受信 
+connection.on('ReceiveMessage', (message) => {
+
+}); ]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

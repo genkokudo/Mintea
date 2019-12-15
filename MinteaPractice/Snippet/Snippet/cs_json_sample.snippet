@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_json_sample</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>Jsonを扱うクラスのサンプルです</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_json_sample</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Newtonsoft.Json</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[    /// <summary>
+    /// Jsonの入出力を扱います
+    /// </summary>
+    public static class Json
+    {
+        /// <summary>
+        /// Jsonをオブジェクトにする
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static async Task<T> ToObjectAsync<T>(string value)
+        {
+            return await Task.Run(() =>
+            {
+                return JsonConvert.DeserializeObject<T>(value);
+            });
+        }
+
+        /// <summary>
+        /// オブジェクトをJsonにする
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static async Task<string> StringifyAsync(object value)
+        {
+            return await Task.Run(() =>
+            {
+                return JsonConvert.SerializeObject(value);
+            });
+        }
+
+        /// <summary>
+        /// オブジェクトを保存する
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="fullpath">フルパス</param>
+        /// <returns></returns>
+        public static async Task<string> Save(object value, string directory, string filename)
+        {
+            string fullpath = GetPath(directory, filename);
+            var data = await StringifyAsync(value);
+
+            // ディレクトリがなければ作成する
+            SafeCreateDirectory(fullpath);
+
+            // 出力
+            File.WriteAllText(fullpath, data);
+            return data;
+        }
+
+        /// <summary>
+        /// ファイルをオブジェクトにする
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="directory">ディレクトリ</param>
+        /// <param name="filename">ファイル名</param>
+        /// <returns></returns>
+        public static async Task<T> Load<T>(string directory, string filename)
+        {
+            string fullpath = GetPath(directory, filename);
+            // 存在チェック
+            if (!File.Exists(fullpath))
+            {
+                return default(T);
+            }
+            var data = File.ReadAllText(fullpath);
+            return await ToObjectAsync<T>(data);
+        }
+
+        /// <summary>
+        /// 入出力用パスを取得する、ディレクトリがなければ作成する
+        /// （相対パスでも可）
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private static string GetPath(string directory, string filename)
+        {
+            directory = AdjustDirectory(directory);
+            SafeCreateDirectory(directory);
+            return directory + filename;
+        }
+
+        /// <summary>
+        /// ディレクトリの後ろをスラッシュにする
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        private static string AdjustDirectory(string directory)
+        {
+            if (!directory.EndsWith("\\") && !directory.EndsWith("/"))
+            {
+                directory = directory + "/";
+            }
+
+            return directory;
+        }
+
+        /// <summary>
+        /// 指定したパスにディレクトリが存在しない場合
+        /// すべてのディレクトリとサブディレクトリを作成します
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        private static DirectoryInfo SafeCreateDirectory(string directory)
+        {
+            directory = AdjustDirectory(directory);
+            if (Directory.Exists(directory))
+            {
+                return null;
+            }
+            return Directory.CreateDirectory(directory);
+        }
+    }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_time_round_up</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>時刻の切り上げを行います。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_time_round_up</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+        /// <summary>
+        /// 時刻の切り上げを行います。
+        /// </summary>
+        /// <param name="input">対象時刻</param>
+        /// <param name="interval">何時間刻みか指定する</param>
+        /// <returns>切り上げた時刻</returns>
+        private DateTime RoundUp(DateTime input, TimeSpan interval)
+            => new DateTime(((input.Ticks + interval.Ticks - 1) / interval.Ticks) * interval.Ticks, input.Kind);]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

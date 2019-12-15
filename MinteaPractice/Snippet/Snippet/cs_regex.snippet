@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_regex</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>正規表現で設定した文字列を全て抽出するメソッドです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_regex</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[        // 正規表現はここで作成できる
+        // https://weblabo.oscasierra.net/tools/regex/
+        /// <summary>
+        /// 設定した開始終了文字列に囲まれた文字列を抽出する
+        /// </summary>
+        /// <param name="rawText">入力テキスト</param>
+        /// <param name="begin">開始文字列</param>
+        /// <param name="end">終了文字列</param>
+        /// <returns>抽出した値のリスト（設定した開始終了文字列含む）</returns>
+        public static List<string> SearchAll(string rawText, string begin, string end)
+        {
+            var result = new List<string>();
+
+            // 正規表現で変数をチェック
+            //.:任意の文字
+            //+:1回以上の繰り返し
+            //*:0回以上の繰り返し
+            //?: 最小判定（?がなかったら、最も大きな結果を取得する）
+
+            // 何か1文字以上入っていることを条件に検索
+            var terms = begin + "(.+?)" + end;
+            // 条件に合った文字列を全部拾う
+            var r = new Regex(terms, RegexOptions.Multiline);
+            var mc = r.Matches(rawText);
+
+            foreach (var item in mc)
+            {
+                result.Add(item.ToString());
+            }
+
+            return result;
+        }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

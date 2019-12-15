@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>test_inital_set</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>テストクラス作成時に最初に追加するメソッドとフィールドです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>test_inital_set</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Xunit</Namespace>
+        </Import>
+        <Import>
+          <Namespace>ChainingAssertion</Namespace>
+        </Import>
+        <Import>
+          <Namespace>Xunit.Abstractions</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[        private readonly ITestOutputHelper output;
+        public HtmlToDomTest(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            string testData = "あなたのテストデータ";
+            // TODO:テストするクラスメソッドを呼びます
+            var result = Trans.SearchAll(testData);
+
+            output.WriteLine("テスト開始");
+            foreach (var item in result)
+            {
+                output.WriteLine(item);
+            }
+
+            result[0].Is("<tr class=\"collapse\" id=\"dummy@(item.Id)\">");
+        }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
