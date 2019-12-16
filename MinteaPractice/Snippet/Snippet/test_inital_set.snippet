@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <CodeSnippet Format="1.0.0">
     <Header>
@@ -23,7 +23,11 @@
           <Namespace>Xunit.Abstractions</Namespace>
         </Import>
       </Imports>
-      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+      <Code Language="csharp" Kind="method decl" Delimiter="$"><![CDATA[
+// Install-Package xunit
+// Install-Package xunit.core -Version
+// Install-Package ChainingAssertion.Core.Xunit
+
         private readonly ITestOutputHelper output;
         public HtmlToDomTest(ITestOutputHelper output)
         {

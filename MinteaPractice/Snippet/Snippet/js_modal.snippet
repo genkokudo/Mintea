@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_modal</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>モーダルウィンドウを作成します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_modal</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="$"><![CDATA[
+// show.bs.modal	開くshowメソッドを呼び出した時のイベント
+// shown.bs.modal	完全に表示された時のイベント
+// hide.bs.modal	閉じるhideメソッドを呼び出した時のイベント
+// hidden.bs.modal	完全に非表示になった時のイベント
+
+// モーダル初期処理
+$('#editModal').on('show.bs.modal', function (event) {
+    // $(document).on('show.bs.modal', '.modal', function (event) {
+    var id = $(this).data('id');
+});
+
+// modal-dialog modal-dialog-centered 中央表示
+// .modal-sm, .modal-lg, .modal-xl 横幅変更
+
+//<div class="modal fade" id="editModal" data-id="@(Model.Data[i].Id)" tabindex="-1" role="dialog">
+//    <div class="modal-dialog" role="document">
+//        <div class="modal-content">
+//            <div class="modal-header">
+//                <h5 class="modal-title">@Localizer["編集"]</h5>
+//                <button type="button" data-toggle="modal" data-target="#editModal" class="btn btn-primary">閉じる</button>
+//            </div>
+//            <!-- 項目1 -->
+//            <div class="modal-body">
+//            </div>
+//            <!-- 項目2 -->
+//            <div class="modal-body border">
+//            </div>
+//            <div class="modal-footer">
+//                <input asp-page-handler="Update" asp-route-uri="@Model.Data[i].Uri" type="submit" value="OK" class="btn btn-primary" />
+//            </div>
+//        </div>
+//    </div>
+//</div>
+
+// 開き方
+// $('#editModal').modal('show');
+// or
+// <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editModal">開く</button>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
