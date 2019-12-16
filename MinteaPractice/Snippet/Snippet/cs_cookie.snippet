@@ -12,7 +12,8 @@
       <Shortcut>cs_cookie</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="CSharp" Kind="method body" Delimiter="$"><![CDATA[            // クッキーから読む
+      <Code Language="CSharp" Kind="method body" Delimiter="$"><![CDATA[
+            // クッキーから読む
             var author = HttpContext.Request.Cookies.FirstOrDefault(x => x.Key == CAuthor);
             if (author.Key != null)
             {

@@ -12,7 +12,8 @@
       <Shortcut>asp_dbcontext_shaman_full</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[    // データモデルを追加したとき、このクラスも更新すること
+      <Code Language="CSharp" Kind="file" Delimiter="$"><![CDATA[
+    // データモデルを追加したとき、このクラスも更新すること
     public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public DbSet<Tekito> Tekitos { get; set; }
