@@ -2,29 +2,42 @@
 
 
 // -----------------------------------------------------
+// js_listbox_from_master
+// jsでマスタデータによるリストボックスを動的に作成します。
+// using Microsoft.AspNetCore.Mvc.Rendering;
+// $DbPascal$   DB名単数形
+// $DbCamel$    DB名単数形camel
+
+// クライアント側 //
+// 選択肢作成
+// @using Newtonsoft.Json;
+// var _lists = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Lists));
+
+var select = _lists["$DbPascal$"];
+select.forEach(function (value) {
+    tbody += ' <option value="' + value.Value + '">' + value.Text + '</option>';
+});
+
+// サーバ側 //
+//			// TODO:Resultクラスに追加し、クライアントから参照できるようにします。
 //			// 各マスタの選択項目
 //			public Dictionary<string, SelectListItem[]> Lists { get; set; }
 
+//              // TODO:検索ハンドラクラスに追加します。
 //				// 各マスタを選択項目にする
-//				var status = _db.Statuses.OrderBy(x => x.StatusId).AsNoTracking().ToArray();
-//				var statusSelectList = new List<SelectListItem> { new SelectListItem("--- 未選択 ---", "-1") };
-//				foreach (var item in status)
-//				{
-//					statusSelectList.Add(new SelectListItem(item.Name, item.StatusId.ToString()));
-//				}
-
 //				var lists = new Dictionary<string, SelectListItem[]>();
-//				lists.Add("Status", statusSelectList.ToArray());
 
+//				var $DbCamel$ = _db.$DbPascal$s.OrderBy(x => x.Id).AsNoTracking().ToArray();
+//				var $DbCamel$SelectList = new List<SelectListItem> { new SelectListItem("--- 未選択 ---", "-1") };
+//				foreach (var item in $DbCamel$)
+//				{
+//					$DbCamel$SelectList.Add(new SelectListItem(item.Name, item.Id.ToString()));
+//				}
+//				lists.Add("$DbPascal$", $DbCamel$SelectList.ToArray());
 
-//		// 選択肢作成
-//        var _lists = @Html.Raw(JsonConvert.SerializeObject(Model.Data.Lists));
-
-//            var select = _lists[parameterName];
-//			select.forEach(function (value) {
-//                tbody += '                <option value="' + value.Value + '">' + value.Text + '</option>';
-//			});
 // -----------------------------------------------------
+// js_listbox_from_enum
+// jsでenumによるリストボックスを動的に作成します。
 
 //// TODO:サーバ側
 //// 値読み込み時にEnumを選択肢として扱う方法を書く
@@ -122,76 +135,106 @@
 // -----------------------------------------------------
 
 // js_ajax //
-// TODO:以下の2つを作ること
-// データ送信版：jQueryのやり方 js_ajax_data
-// ファイルアップロード版：ソース js_ajax_upload
+// js_ajax_upload
 
-var formData = new FormData();
-// 全てのアップロードファイルを取得
-$("input[name=file]").each(function (index, element) {
-    var file = element.files[0];
-    if (file != undefined) {
-        formData.append("uploadFiles", file, file.name);
-        formData.append("Ids", element.getAttribute("id"));
-    }
+$('#ButtonSave').on('click', function () {
+    var formData = new FormData();
+    // 全てのアップロードファイルを取得
+    $('input[name=file]').each(function (index, element) {
+        var file = element.files[0];
+        if (file != undefined) {
+            formData.append('uploadFiles', file, file.name);
+            formData.append('ids', element.getAttribute('id')); // $(element).attr('id');
+        }
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: '/Pdf/Upload', // TODO:コントローラ名とハンドラ名を設定
+        contentType: false,
+        processData: false,
+        data: formData
+    }).then(
+        function (data) {
+            alert('更新が完了しました');
+        },
+        function (data) {
+            alert('更新に失敗しました:' + data);
+        }
+    );
+}
+
+// 画面に表示しているアップロードボタンのイベント
+$(document).on('click', 'button[name=BtnUpload]', function () {
+    $('#file').click();
+    return false;	// 無いと遷移してしまう
 });
-$.ajax({
-    type: 'POST',
-    url: '/Pdf/Upload', // TODO:コントローラ名とハンドラ名を設定
-    contentType: false,
-    processData: false,
-    data: formData
-}).then(
-    function (data) {
-        alert("更新が完了しました");
-    },
-    function (data) {
-        alert("更新に失敗しました:" + data);
-    }
-);
 
-// サーバ側
-//        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles, List<long> Ids)
+// 何かファイルを選択したときの処理（実装しなくても良い）
+$(document).on('change', 'input[name=file]', function () {
+    var file = $(this)[0].files[0];
+    var fileName = file.name;
+    var fileSize = file.size;
+    var fileType = file.type;
+    alert('ファイル名 : ' + fileName + '\nファイルサイズ : ' + fileSize + ' bytes\nファイルタイプ : ' + fileType);
+});
+
+// サーバ側:PdfController.cs
+//        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles, List<long> ids)
 //        {
 //        }
 
 //// ※<input" type="file"/>を書かないとアップロードはできない。
 //// でも、ファイル選択のボタンデザインを変えたい場合↓
 ////<button name="BtnUpload" type="button" class="btn btn-primary">×</button>
-////<input type="file" name="file" id="file" value="" class="d-none" accept="application/pdf" />
+// TODO:id, acceptを適切に変更すること
+////<input type="file" id="file" name="file" value="" class="d-none" accept="application/pdf" />
 
-//// 画面に表示しているアップロードボタンのイベント
-//$(document).on("click", "button[name=BtnUpload]", function () {
-//    $("#file").click();
-//    return false;	// 無いと遷移してしまう
-//});
-
-//// 何かファイルを選択したときの処理
-//$(document).on("change", "input[name=file]", function () {
-//    var file = $(this)[0].files[0];
-//    var fileName = file.name;
-//    var fileSize = file.size;
-//    var fileType = file.type;
-//    alert('ファイル名 : ' + fileName + '\nファイルサイズ : ' + fileSize + ' bytes\nファイルタイプ : ' + fileType);
-//});
+//<form method="post" id="FormDetail">
+//    <div class="col"><button id="ButtonSave" type="button" class="btn btn-warning float-right">入力内容を反映</button></div>
+//</form>
 
 // -----------------------------------------------------
 
 
-・js_foreach
-・js_jquery_each
+// ・js_foreach
+arr.forEach((value) => {
+    console.log(value);
+});
 
-$('#TableColorPoint').find('[id^=InputColor]').each(function (index) {
+// js_filter
+// データ配列から条件に合うものを抽出します。
+var pomeranians = dogs.filter(dog => dog.type === 'pomeranian');
+
+
+// js_find
+// データ配列から条件に合うものを1件見つけます。
+var myDog = dogs.find(dog => dog.name === 'ポメラニアス3世');
+
+// js_select
+// map関数を使用してデータ配列から要素の配列を作成します。
+var dogNames = dogs.map(dog => dog.name);
+
+// js_reduce
+// データ配列の要素を文字列結合したり合計したりします。
+var total = dogs.reduce((acc, dog) => acc + dog.price, 0);
+
+// ・js_each
+// セレクタで指定したデータ全てに処理を行います。
+
+$('#TableData input[id^=AaaaId]').each(function (index, elem) {
+    elem.checked = true;
+});
+
+// ・js_each_find
+// セレクタで指定したデータ全てに処理を行います。
+$('#TableData').find('input[id^=AaaaId]').each(function (index, elem) {
+    // ※thisで受け取れるので第２引数は使わなくてよい
     alert($(this).val());
 });
 
-※thisで受け取れるので第２引数は使わなくてよい
-
-スニペットはMinteaに書く。
-
 
 // -----------------------------------------------------
-// test_inital_setにNuget追加
 
 
 
