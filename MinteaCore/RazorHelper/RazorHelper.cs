@@ -296,22 +296,16 @@ namespace MinteaCore.RazorHelper
                 // 1つのシート
                 var sheet = excel[sheetName];
 
-                // 親があるか
-                var parentIndex = GetIndex(sheet, ParentCulumn);
-
-                // キー取得
-                var keyIndex = GetIndex(sheet, KeyCulumn);
-
                 // Razorの互換性を持たせるために名前を変更して扱う
                 if (sheetName == OutSheet)
                 {
                     // OutはRootListとして登録
-                    MakeListModel(inf, errors, topDataList, childList, childDynamic, RootListSheet, sheet, parentIndex, string.Empty, keyIndex);
+                    MakeListModel(inf, errors, topDataList, childList, childDynamic, RootListSheet, sheet, string.Empty);
                 }
                 else if (sheetName.EndsWith(OutListSheetSuffix))
                 {
                     // OutListはListとして登録
-                    MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName.Replace(OutListSheetSuffix, ListSheetSuffix), sheet, parentIndex, string.Empty, keyIndex);
+                    MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName.Replace(OutListSheetSuffix, ListSheetSuffix), sheet, string.Empty);
                 }
             }
             if (errors.Count > 0)
@@ -376,8 +370,6 @@ namespace MinteaCore.RazorHelper
                     // 1つのシート
                     var sheet = excel[sheetName];
 
-                    // 親があるか
-                    var parentIndex = GetIndex(sheet, ParentCulumn);
 
                     // 親シート名
                     var parentName = string.Empty;
@@ -404,7 +396,7 @@ namespace MinteaCore.RazorHelper
                         {
                             isRootListExists = true;
                         }
-                        parentName = MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName, sheet, parentIndex, parentName, keyIndex);
+                        parentName = MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName, sheet, parentName);
                     }
                     else
                     {
@@ -491,16 +483,22 @@ namespace MinteaCore.RazorHelper
         /// <param name="childDynamic"></param>
         /// <param name="sheetName"></param>
         /// <param name="sheet"></param>
-        /// <param name="parentIndex"></param>
         /// <param name="parentName"></param>
-        /// <param name="keyIndex"></param>
         /// <returns></returns>
-        private static string MakeListModel(Inflector.Inflector inf, List<string> errors, Dictionary<string, dynamic> topDataList, Dictionary<string, List<string>> childList, Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> childDynamic, string sheetName, List<List<string>> sheet, int parentIndex, string parentName, int keyIndex)
+        private static string MakeListModel(Inflector.Inflector inf, List<string> errors, Dictionary<string, dynamic> topDataList, Dictionary<string, List<string>> childList, Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> childDynamic, string sheetName, List<List<string>> sheet, string parentName)
         {
+            // キー列取得
+            var keyIndex = GetIndex(sheet, KeyCulumn);
+
+            // 親があるか
+            var parentIndex = GetIndex(sheet, ParentCulumn);
 
             // リスト
             if (sheet.Count > 2)
             {
+                // 親があってもなくてもトップからデータアクセス
+                var topData = new List<dynamic>();
+
                 // 親Key別データ、親が無い場合はシート全体のデータ（親キー、1行データ）
                 var dataByParent = new Dictionary<string, List<dynamic>>();
 
@@ -522,7 +520,7 @@ namespace MinteaCore.RazorHelper
                         }
                         else if (col == keyIndex)
                         {
-                            // 子を追加
+                            // キー列の場合、子を追加
                             var key = sheet[row][col];  // 書かれているKeyを取得
                             AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
                         }
@@ -560,12 +558,13 @@ namespace MinteaCore.RazorHelper
                     }
 
                     // 行データをdynamic化し、親Key別のリストに追加する。
-                    // 親がないシートは必ず1件の同じリストに入る
+                    // 親がないシートは必ず1件の同じリストに入る（parentKeyは"-1"）
                     if (!dataByParent.ContainsKey(parentKey))
                     {
                         dataByParent.Add(parentKey, new List<dynamic>());
                     }
                     dataByParent[parentKey].Add(rowData.ToDynamic());
+                    topData.Add(rowData.ToDynamic());
                 }
 
                 // 親Key別のリストをどこかに登録する。
@@ -578,10 +577,9 @@ namespace MinteaCore.RazorHelper
 
                         // 親子でなくてもModelからListにアクセスできるようにするため
                         // 親が無いシートと同様にトップにもデータを入れる
-                        // 注意：動作は確認したが合ってるかどうかわからない
                         if (!topDataList.ContainsKey(sheetName))
                         {
-                            topDataList.Add(sheetName, dataByParent[dataByParentKey]);
+                            topDataList.Add(sheetName, topData);
                         }
                     }
                     else
@@ -721,10 +719,8 @@ namespace MinteaCore.RazorHelper
         /// <returns></returns>
         private Dictionary<string, List<List<string>>> ReadExcel(string filePath, bool isRequiredTitle = false)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                return ReadExcel(stream, isRequiredTitle);
-            }
+            using var stream = new FileStream(filePath, FileMode.Open);
+            return ReadExcel(stream, isRequiredTitle);
         }
         #endregion
 

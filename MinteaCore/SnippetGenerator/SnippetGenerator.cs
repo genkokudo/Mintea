@@ -38,7 +38,7 @@ namespace MinteaCore.SnippetGenerator
         /// </summary>
         /// <param name="Data">スニペットデータ</param>
         /// <returns>StringBuilderを返す</returns>
-        public StringWriter MakeSnippetXml(SnippetData Data)
+        public StringWriter MakeSnippetXml(Snippet Data)
         {
             if(Data == null) return null;
 

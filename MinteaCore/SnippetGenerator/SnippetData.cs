@@ -7,7 +7,7 @@ namespace MinteaCore.SnippetGenerator
     /// <summary>
     /// スニペットデータ
     /// </summary>
-    public class SnippetData
+    public class Snippet
     {
         #region Header要素
         // Keywords 要素:誰も使ってないみたい。いらない
@@ -66,7 +66,7 @@ namespace MinteaCore.SnippetGenerator
 
         #endregion
 
-        public SnippetData()
+        public Snippet()
         {
         }
 
@@ -81,7 +81,7 @@ namespace MinteaCore.SnippetGenerator
         /// <param name="language">言語</param>
         /// <param name="delimiter">特殊文字</param>
         /// <param name="kind">スニペットの種類</param>
-        public SnippetData(string title, string author, string description, string shortcut, string code, Language language, string delimiter, Kind kind)
+        public Snippet(string title, string author, string description, string shortcut, string code, Language language, string delimiter, Kind kind)
         {
             Title = title;
             Author = author;
