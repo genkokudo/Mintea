@@ -530,18 +530,18 @@ namespace MinteaCore.RazorHelper
                                 errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
                             }
                         }
-                        else if (sheet[0][col] == InflectCulumn)
+                        else if (sheet[0][col].EndsWith(InflectCulumn))
                         {
-                            // Nameならば、5フィールド余分に作る
-                            //inf.Pluralize("cost");
+                            // 語尾がNameならば、フィールドを余分に作る
+                            var baseName = sheet[0][col].Remove(sheet[0][col].LastIndexOf(InflectCulumn), InflectCulumn.Length);
                             rowData.Add(sheet[0][col], sheet[row][col]);
-                            rowData.Add(Camel, inf.Camelize(sheet[row][col]));
-                            rowData.Add(Pascal, inf.Pascalize(sheet[row][col]));
-                            rowData.Add(Plural, inf.Pluralize(sheet[row][col]));
-                            rowData.Add(CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(Snake, inf.Underscore(sheet[row][col]));
-                            rowData.Add(Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
+                            rowData.Add(baseName + Camel, inf.Camelize(sheet[row][col]));
+                            rowData.Add(baseName + Pascal, inf.Pascalize(sheet[row][col]));
+                            rowData.Add(baseName + Plural, inf.Pluralize(sheet[row][col]));
+                            rowData.Add(baseName + CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(baseName + PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(baseName + Snake, inf.Underscore(sheet[row][col]));
+                            rowData.Add(baseName + Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
                         }
                         else
                         {
