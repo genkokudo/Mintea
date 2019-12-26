@@ -59,7 +59,9 @@ namespace Mintea.SnippetGenerator
         /// <summary>SQL</summary>
         SQL,
         /// <summary>XML</summary>
-        XML
+        XML,
+        /// <summary>XAML</summary>
+        XAML
     }
 
     /// <summary>スニペットの種類</summary>
