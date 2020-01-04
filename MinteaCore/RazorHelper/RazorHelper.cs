@@ -73,6 +73,8 @@ namespace MinteaCore.RazorHelper
         const string Camel = "Camel";
         const string Pascal = "Pascal";
         const string Plural = "Plural";
+        const string Hyphen = "Hyphen";
+        const string Snake = "Snake";
         const string CamelPlural = "CamelPlural";
         const string PascalPlural = "PascalPlural";
 
@@ -538,6 +540,8 @@ namespace MinteaCore.RazorHelper
                             rowData.Add(Plural, inf.Pluralize(sheet[row][col]));
                             rowData.Add(CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
                             rowData.Add(PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(Snake, inf.Underscore(sheet[row][col]));
+                            rowData.Add(Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
                         }
                         else
                         {
