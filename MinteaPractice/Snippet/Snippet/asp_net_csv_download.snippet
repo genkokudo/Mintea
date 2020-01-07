@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <CodeSnippet Format="1.0.0">
     <Header>
@@ -18,22 +18,24 @@
         </Import>
       </Imports>
       <Declarations>
-        <Literal>
+        <Literal Editable="true">
           <ID>Data</ID>
           <ToolTip>テーブル名</ToolTip>
           <Default>Data</Default>
+          <Function>
+          </Function>
         </Literal>
       </Declarations>
-      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+      <Code Language="csharp" Kind="method decl" Delimiter="#"><![CDATA[
         /// <summary>
         /// CSVデータをダウンロードします。
         /// </summary>
         /// <returns></returns>
-        public ActionResult Download$Data$(long id)
+        public ActionResult Download#Data#(long id)
         {
             try
             {
-                var datas = _context.$Data$s
+                var datas = _context.#Data#s
                     .AsNoTracking()
                     .Where(x => x.System.Id == id)
                     .Include(x => x.System)
@@ -52,7 +54,7 @@
                     item.Votes = _context.Votes.Where(v => v.System.Id == id && v.DataId == item.Id).ToList();
                 }
 
-                var result = File(Render$Data$(datas), "text/csv", string.Format("System_{0}_$Data$.csv", id));
+                var result = File(Render#Data#(datas), "text/csv", string.Format("System_{0}_#Data#.csv", id));
                 return result;
             }
             catch (Exception ex)
@@ -67,7 +69,7 @@
         /// </summary>
         /// <param name="datas">データ</param>
         /// <returns>CSVの内容</returns>
-        private byte[] Render$Data$(List<$Data$> datas)
+        private byte[] Render#Data#(List<#Data#> datas)
         {
             var records = new List<string>();
             records.Add("データ名, 作成者名, 作成日時, 獲得数\r\n");
