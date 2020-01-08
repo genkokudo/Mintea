@@ -36,10 +36,14 @@ $('#ButtonSave').on('click', function () {
         data: formData
     }).then(
         function (data) {
-            alert('更新が完了しました');
+            if (data == null || data.message == undefined) {
+                alert('更新が完了しました');
+            } else {
+                alert(data.message);
+            }
         },
         function (data) {
-            alert('更新に失敗しました:' + data);
+            alert('更新に失敗しました:');
         }
     );
 });
@@ -61,6 +65,7 @@ $('#ButtonSave').on('click', function () {
 //              {
 //                  originalLines = csvReader.GetRecords<AaaCsv>().ToArray();
 //              }
+//              return Json(new { message = $"読み込みに失敗しました\n{b}\n{c}" });
 //        }
 ]]></Code>
     </Snippet>

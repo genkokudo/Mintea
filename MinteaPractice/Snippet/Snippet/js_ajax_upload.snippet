@@ -12,7 +12,8 @@
       <Shortcut>js_ajax_upload</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[
+      <Code Language="JavaScript" Kind="any" Delimiter="@">
+  <![CDATA[
 $('#ButtonSave').on('click', function () {
     var formData = new FormData();
     // 全てのアップロードファイルを取得
@@ -32,10 +33,14 @@ $('#ButtonSave').on('click', function () {
         data: formData
     }).then(
         function (data) {
-            alert('更新が完了しました');
+            if (data == null || data.message == undefined) {
+                alert('更新が完了しました');
+            } else {
+                alert(data.message);
+            }
         },
         function (data) {
-            alert('更新に失敗しました:' + data);
+            alert('更新に失敗しました:');
         }
     );
 });
@@ -72,6 +77,7 @@ $(document).on('change', 'input[name=file]', function () {
 //              {
 //                  originalLines = csvReader.GetRecords<VrrCsv>().ToArray();
 //              }
+//              return Json(new { message = $"読み込みに失敗しました\n{b}\n{c}" });
 //        }
 
 //// ※<input" type="file"/>を書かないとアップロードはできない。
