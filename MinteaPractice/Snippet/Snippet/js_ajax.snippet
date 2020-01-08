@@ -12,21 +12,25 @@
       <Shortcut>js_ajax</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[
+      <Code Language="JavaScript" Kind="any" Delimiter="@">
+        <![CDATA[
+//<form method="post" id="FormDetail">
+//    <input type="file" id="file" name="file" value="" accept=".csv" />
+//    <button id="ButtonSave" type="button">送信</button>
+//</form>
+        
 $('#ButtonSave').on('click', function () {
+    var file = $('#file').get(0).files[0];
+    if (file == undefined) {
+        alert('ファイルがありません');
+        return;
+    }
     var formData = new FormData();
-    // 全てのアップロードファイルを取得
-    $('input[name=file]').each(function (index, element) {
-        var file = element.files[0];
-        if (file != undefined) {
-            formData.append('uploadFiles', file, file.name);
-            formData.append('ids', element.getAttribute('id')); // $(element).attr('id');
-        }
-    });
+    formData.append('uploadFiles', file, file.name);
 
     $.ajax({
         type: 'POST',
-        url: '/Pdf/Upload', // TODO:コントローラ名とハンドラ名を設定
+        url: '/AaaDev/Upload',    // TODO:設定すること
         contentType: false,
         processData: false,
         data: formData
@@ -38,37 +42,27 @@ $('#ButtonSave').on('click', function () {
             alert('更新に失敗しました:' + data);
         }
     );
-}
-
-// 画面に表示しているアップロードボタンのイベント
-$(document).on('click', 'button[name=BtnUpload]', function () {
-    $('#file').click();
-    return false;	// 無いと遷移してしまう
 });
 
-// 何かファイルを選択したときの処理（実装しなくても良い）
-$(document).on('change', 'input[name=file]', function () {
-    var file = $(this)[0].files[0];
-    var fileName = file.name;
-    var fileSize = file.size;
-    var fileType = file.type;
-    alert('ファイル名 : ' + fileName + '\nファイルサイズ : ' + fileSize + ' bytes\nファイルタイプ : ' + fileType);
-});
-
-// サーバ側:PdfController.cs
-//        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles, List<long> ids)
+// サーバ側:AaaDevController.cs
+//        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles)
 //        {
+//              foreach (var uploadFile in uploadFiles)
+//              {
+//                  using (var memoryStream = new MemoryStream())
+//                  {
+//                      await uploadFile.CopyToAsync(memoryStream);
+//                      byte[] bytes = memoryStream.ToArray();
+//                  }
+//              }
+//              // または
+//              using (var reader = new StreamReader(uploadFiles.OpenReadStream()))
+//              using (var csvReader = new CsvReader(reader))
+//              {
+//                  originalLines = csvReader.GetRecords<AaaCsv>().ToArray();
+//              }
 //        }
-
-//// ※<input" type="file"/>を書かないとアップロードはできない。
-//// でも、ファイル選択のボタンデザインを変えたい場合↓
-////<button name="BtnUpload" type="button" class="btn btn-primary">×</button>
-// TODO:id, acceptを適切に変更すること
-////<input type="file" id="file" name="file" value="" class="d-none" accept="application/pdf" />
-
-//<form method="post" id="FormDetail">
-//    <div class="col"><button id="ButtonSave" type="button" class="btn btn-warning float-right">入力内容を反映</button></div>
-//</form>]]></Code>
+]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>
