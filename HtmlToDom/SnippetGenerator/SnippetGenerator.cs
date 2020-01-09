@@ -178,8 +178,11 @@ namespace Mintea.SnippetGenerator
                 w.WriteStartAttribute("Kind", "");
                 w.WriteString(Data.Kind.GetStringValue());
                 w.WriteEndAttribute();
-                w.WriteStartAttribute("Delimiter", "");
-                w.WriteString(Data.Delimiter);
+                if (!string.IsNullOrWhiteSpace(Data.Delimiter))
+                {
+                    w.WriteStartAttribute("Delimiter", "");
+                    w.WriteString(Data.Delimiter);
+                }
                 w.WriteEndAttribute();
                 w.WriteCData(Data.Code);
 
