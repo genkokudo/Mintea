@@ -63,6 +63,8 @@ $(document).on('change', 'input[name=file]', function () {
 // サーバ側:PdfController.cs
 //        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles, List<long> ids)
 //        {
+//              ※サーバに直接保存する場合、asp_save_upload_xxxxを使用してください
+//              ※↓DBなどに保存する場合
 //              foreach (var uploadFile in uploadFiles)
 //              {
 //                  using (var memoryStream = new MemoryStream())

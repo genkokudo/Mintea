@@ -51,6 +51,8 @@ $('#ButtonSave').on('click', function () {
 // サーバ側:AaaDevController.cs
 //        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles)
 //        {
+//              ※サーバに直接保存する場合、asp_save_upload_xxxxを使用してください
+//              ※↓DBなどに保存する場合
 //              foreach (var uploadFile in uploadFiles)
 //              {
 //                  using (var memoryStream = new MemoryStream())
