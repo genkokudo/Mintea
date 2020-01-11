@@ -48,27 +48,7 @@ $('#ButtonSave').on('click', function () {
     );
 });
 
-// サーバ側:AaaDevController.cs
-//        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles)
-//        {
-//              ※サーバに直接保存する場合、asp_save_upload_xxxxを使用してください
-//              ※↓DBなどに保存する場合
-//              foreach (var uploadFile in uploadFiles)
-//              {
-//                  using (var memoryStream = new MemoryStream())
-//                  {
-//                      await uploadFile.CopyToAsync(memoryStream);
-//                      byte[] bytes = memoryStream.ToArray();
-//                  }
-//              }
-//              // または
-//              using (var reader = new StreamReader(uploadFiles.OpenReadStream()))
-//              using (var csvReader = new CsvReader(reader))
-//              {
-//                  originalLines = csvReader.GetRecords<AaaCsv>().ToArray();
-//              }
-//              return Json(new { message = $"読み込みに失敗しました\n{b}\n{c}" });
-//        }
+// TODO:サーバ側（AaaDevController）:asp_save_upload_xxxxを使用すること
 ]]></Code>
     </Snippet>
   </CodeSnippet>

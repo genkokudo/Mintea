@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_upload_bootstrap</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>シンプルなPostアップロードで、BootStrapによる描画をします。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_upload_bootstrap</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[//ファイルの取消
+$('.reset').click(function () {
+    $('#fileLabel').html('画像ファイルを選択');
+    $('#fileInput').val('');
+    setImage();
+});
+// 
+$('#fileInput').on('change', function (e) {
+    $('#fileLabel').html($(this)[0].files[0].name);
+});
+
+//<form id="form" method="post" enctype="multipart/form-data">
+//    <div class="input-group mt-2">
+//        <div class="custom-file">
+//            <input type="file" name="file" id="fileInput" accept="image/png, image/jpeg" class="custom-file-input" />
+//            <label id="fileLabel" for="fileInput" class="custom-file-label">画像ファイルを選択</label>
+//        </div>
+//        <div class="input-group-append">
+//            <button type="button" class="btn btn-outline-secondary reset">取消</button>
+//        </div>
+//    </div>
+//    <input type="submit" asp-page-handler="Upload" value="送信" />
+//</form>
+// TODO:サーバ側:asp_save_upload_xxxxを使用すること]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

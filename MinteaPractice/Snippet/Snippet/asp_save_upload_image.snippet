@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>asp_save_upload_image</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>アップロードした画像をwwwroot内のディレクトリに保存する。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>asp_save_upload_image</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Microsoft.AspNetCore.Hosting</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp" Kind="method body" Delimiter="#"><![CDATA[
+                // アップロードされたファイルをサーバに保存する
+                // ※uploadFileはIFormFile
+                using (var fileStream = uploadFile.OpenReadStream())
+                {
+                    // 画像データの取得
+                    var img = Image.FromStream(fileStream);
+
+                    // TODO:保存先の指定
+                    var savePath = Path.Combine(hostingEnvironment.WebRootPath, imageDirectory.Trim('/'), accountViewModel.IconId);
+                    // サーバに保存
+                    using (var stream = new FileStream(savePath, FileMode.Create))
+                    {
+                        resizeBmp.Save(stream, ImageFormat.Png);
+                    }
+                }
+//        /// <summary>
+//        /// パス取得に使用する
+//        /// </summary>
+//        private IHostingEnvironment _hostingEnvironment = null;
+//        public Controller(IHostingEnvironment hostingEnvironment)
+//        {
+//            _hostingEnvironment = hostingEnvironment;
+//        }
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

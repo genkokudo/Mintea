@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>asp_method_upload_controller</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>ファイルアップロードを処理するメソッドです。（コントローラ用）</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>asp_method_upload_controller</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method decl" Delimiter="#"><![CDATA[
+        /// <summary>
+        /// ファイルのアップロード
+        /// </summary>
+        /// <param name="uploadFiles">アップロードしたファイル</param>
+        /// <param name="ids">データのID</param>
+        /// <returns>処理結果</returns>
+        public async Task<IActionResult> UploadAsync(List<IFormFile> uploadFiles, List<long> ids)	// TODO:単数の場合はList<>を外す
+        {
+            // ※サーバに直接保存する場合、asp_save_upload_xxxxを使用してください
+            // ※CSV関係の処理をする場合、asp_upload_csvを使用してください
+            // ※byte[]にする場合（BlobでDBに保存するなど）はasp_save_upload_binaryを使用してください
+
+            // TODO:処理結果を返すと、JSのコールバックで受け取れます
+            return Json(new { message = $"読み込みに失敗しました\n{b}\n{c}" });
+        }
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
