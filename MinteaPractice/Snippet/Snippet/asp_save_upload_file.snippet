@@ -14,19 +14,24 @@
     <Snippet>
       <Imports>
         <Import>
-          <Namespace>Microsoft.AspNetCore.Hosting</Namespace>
+          <Namespace>Microsoft.Extensions.Hosting</Namespace>
         </Import>
       </Imports>
       <Code Language="CSharp" Kind="method body" Delimiter="#"><![CDATA[
                 // アップロードされたファイルをサーバに保存する
+                // ※uploadFileはIFormFile
                 using (var fileStream = uploadFile.OpenReadStream())
                 {
                     // TODO:保存先の指定
-                    var savePath = Path.Combine(hostingEnvironment.WebRootPath, fileDirectory.Trim('/'), "file.csv");
+                    var fileDirectry = Path.Combine(_hostEnvironment.WebRootPath, "files");
 
-                    // サーバに保存
-                    if (uploadFile.Length > 0)
+                    using (PhysicalFileProvider provider = new PhysicalFileProvider(fileDirectry))
                     {
+                        // ファイル情報を取得
+                        // TODO:対象ファイルを指定する
+                        IFileInfo fileInfo = provider.GetFileInfo("file.csv");
+
+                        // TODO: fileInfo.PhysicalPath がフルパスになるので、これに対して処理を行う
                         using (var stream = new FileStream(savePath, FileMode.Create))
                         {
                             await uploadFile.CopyToAsync(stream);
@@ -36,10 +41,10 @@
 //        /// <summary>
 //        /// パス取得に使用する
 //        /// </summary>
-//        private IHostingEnvironment _hostingEnvironment = null;
-//        public Controller(IHostingEnvironment hostingEnvironment)
+//        private readonly IWebHostEnvironment _hostEnvironment = null;
+//        public Controller(IWebHostEnvironment hostEnvironment)
 //        {
-//            _hostingEnvironment = hostingEnvironment;
+//            _hostEnvironment = hostEnvironment;
 //        }
 ]]></Code>
     </Snippet>
