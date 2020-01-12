@@ -5,22 +5,22 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>cs_time_round_up</Title>
+      <Title>cs_method_time_round_down</Title>
       <Author>Y.Toyoda</Author>
-      <Description>時刻の切り上げを行います。</Description>
+      <Description>時刻の切り捨てを行います。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
-      <Shortcut>cs_time_round_up</Shortcut>
+      <Shortcut>cs_method_time_round_down</Shortcut>
     </Header>
     <Snippet>
       <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
         /// <summary>
-        /// 時刻の切り上げを行います。
+        /// 時刻の切り捨てを行います。
         /// </summary>
         /// <param name="input">対象時刻</param>
         /// <param name="interval">何時間刻みか指定する</param>
-        /// <returns>切り上げた時刻</returns>
-        private DateTime RoundUp(DateTime input, TimeSpan interval)
-            => new DateTime(((input.Ticks + interval.Ticks - 1) / interval.Ticks) * interval.Ticks, input.Kind);]]></Code>
+        /// <returns>切り捨てた時刻</returns>
+        static DateTime RoundDown(DateTime input, TimeSpan interval)
+            => new DateTime((((input.Ticks + interval.Ticks) / interval.Ticks) - 1) * interval.Ticks, input.Kind);]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>

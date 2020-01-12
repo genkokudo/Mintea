@@ -5,16 +5,16 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>js_each</Title>
+      <Title>js_function_each_find</Title>
       <Author>Y.Toyoda</Author>
       <Description>セレクタで指定したデータ全てに処理を行います。</Description>
       <HelpUrl>www.microsoft.com</HelpUrl>
-      <Shortcut>js_each</Shortcut>
+      <Shortcut>js_function_each_find</Shortcut>
     </Header>
     <Snippet>
       <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[
 // セレクタで指定したデータ全てに処理を行います。
-$('#TableData input[id^=AaaaId]').each(function (index, elem) {
+$('#TableData').find('input[id^=AaaaId]').each(function (index, elem) {
     alert($(elem).val());
     //// ※thisで受け取れるので第２引数は使わなくてよい
     //alert($(this).val());
