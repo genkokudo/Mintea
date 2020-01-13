@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_method_readcsv</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>CSVを2次元配列で読み込む処理です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_method_readcsv</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+        /// <summary>
+        /// CSVを読み込む
+        /// </summary>
+        /// <param name="directry">ディレクトリ</param>
+        /// <param name="filename">拡張子付きのファイル名</param>
+        /// <returns></returns>
+        private List<string[]> ReadCsv(string directry, string filename = "file.csv")
+        {
+            // ファイルの読み込み
+            List<string[]> csv = null;
+            using (PhysicalFileProvider provider = new PhysicalFileProvider(directry))
+            {
+                // ファイル情報を取得
+                IFileInfo fileInfo = provider.GetFileInfo(filename);
+
+                // ファイル存在チェック
+                if (fileInfo.Exists)
+                {
+                    csv = new List<string[]>();
+                    // 改行コード、コンマで分けて格納する
+                    var data = File.ReadAllText(fileInfo.PhysicalPath);
+                    data = data.Replace("\r\n", "\n");
+                    data = data.Replace("\r", "\n");
+                    data = data.Trim('\n');
+                    var lines = data.Split('\n');
+                    foreach (var item in lines)
+                    {
+                        csv.Add(item.Split(','));
+                    }
+                }
+            }
+            return csv;
+        }
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
