@@ -38,4 +38,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Snippet\Snippet\Xaml\" />
+  </ItemGroup>
+
 </Project>
