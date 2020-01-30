@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_bootstrap_alert</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>BootStrapのアラートです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_bootstrap_alert</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[// ページを全て読み込み終わった後に実行する
+$(function () {
+    // 5秒後に閉じる
+    setTimeout(function(){
+        $('#TopAlert').alert('close');
+    },5000); 
+});
+
+//<div id="TopAlert" class="alert alert-info" role="alert">
+//    アラートメッセージ
+//    <strong>Warning!</strong>
+//    <a href="#" class="alert-link">リンク</a>
+//</div>
+
+// 閉じるボタン付き
+//<div id="TopAlert" class="alert alert-info alert-dismissible" role="alert">
+//    アラートメッセージ
+//    <a href="#" class="alert-link">リンク</a>
+//    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+//</div>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
