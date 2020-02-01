@@ -32,7 +32,7 @@
                         IFileInfo fileInfo = provider.GetFileInfo("file.png");
 
                         // TODO: fileInfo.PhysicalPath がフルパスになるので、これに対して処理を行う
-                        using (var stream = new FileStream(savePath, FileMode.Create))
+                        using (var stream = new FileStream(fileInfo.PhysicalPath, FileMode.Create))
                         {
                             img.Save(stream, ImageFormat.Png);
                         }

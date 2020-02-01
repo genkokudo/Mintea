@@ -35,6 +35,13 @@
                 if (fileInfo.Exists)
                 {
                     // TODO: fileInfo.PhysicalPath がフルパスになるので、これに対して処理を行う
+                    // 例：画像読み込み
+                    // byte[] = System.IO.File.ReadAllBytes(fileInfo.PhysicalPath);
+                    // 例：ファイル保存
+                    //using (var stream = new FileStream(fileInfo.PhysicalPath, FileMode.Create))
+                    //{
+                    //     await uploadFile.CopyToAsync(stream);
+                    //}
                 }
                 //else
                 //{
