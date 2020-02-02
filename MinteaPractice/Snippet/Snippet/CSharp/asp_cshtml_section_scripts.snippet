@@ -12,9 +12,21 @@
       <Shortcut>asp_cshtml_section_scripts</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="CSharp" Kind="any" Delimiter="$"><![CDATA[@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    @*<script src="~/src/js/doodle.js"></script>*@
+      <Code Language="CSharp" Kind="any" Delimiter="$"><![CDATA[
+@section Scripts {
+    @*@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        <script src="~/src/js/doodle.js"></script>*@
+    <script>
+        // ページを全て読み込み終わった後に実行する
+        $(function () {
+        });
+        
+        // <button id="BtnA" class="btn btn-success btn-sm" key="1">Test</button>
+        $('#BtnA').on('click', function () {
+            var id = $(this).attr('key');
+            alert(id);
+        });
+    </script>
 }]]></Code>
     </Snippet>
   </CodeSnippet>
