@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_popup_base64_thumbnail</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>base64形式でクライアントに画像を持ち、サムネとポップアップを実装します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_popup_base64_thumbnail</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>ClassName</ID>
+          <ToolTip>クラス名</ToolTip>
+          <Default>ClassName</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="JavaScript" Kind="any" Delimiter="%"><![CDATA[// QRコードモーダルを表示する処理
+$('#QrModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const modalSrc = button.data('src');
+
+    const modal = $(this);
+    $('#qrImg').attr('src', modalSrc);
+});
+
+// TODO:サーバ側のページモデルでbyte[]を準備する //
+// public byte[] QrImage { get; set; }
+
+// cshtml //
+// @{
+//     string dataUrl = string.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.QrImage));
+// }
+// <!-- サムネイル -->
+// <a data-toggle="modal" data-target="#QrModal" data-src="@dataUrl">
+//     <img src="@dataUrl" alt="○○の画像" width="48" height="48">
+// </a>
+// 
+// <!-- ポップアップ -->
+// <div class="modal fade" id="QrModal" tabindex="-1" role="dialog" style="height: 105%">
+//     <div class="modal-dialog" role="document">
+//         <div class="modal-body"><!-- 位置の調整: style="margin-left:15%;margin-top:40%" -->
+//             <img id="qrImg" alt="○○の画像" width="300" height="300" />
+//         </div>
+//     </div>
+// </div>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
