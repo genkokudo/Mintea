@@ -12,7 +12,9 @@
       <Shortcut>react_component_no_redux</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[import React, { Component } from 'react';
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// TODO:csprojのItemGroupに追加されてしまいjsが生成されてしまうので、csprojの追加された記述を元に戻すこと。
+import React, { Component } from 'react';
 
 // <FormApp />と書くと呼び出せる。
 // ボタンを押されたことを検知し、コンソールに文字を出力

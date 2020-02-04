@@ -19,26 +19,30 @@
           <Default>ClassName</Default>
         </Literal>
       </Declarations>
-      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[import * as React from 'react';
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// TODO:csprojのItemGroupに追加されてしまいjsが生成されてしまうので、csprojの追加された記述を元に戻すこと。
+import * as React from 'react';
 
 // 項目表示1つ分、状態なし、処理なし
 interface $ClassName$Props {
     title: string,
-    body: string
+    body: string,
+    fontSize: number
 }
 
 class $ClassName$ extends React.Component<$ClassName$Props> {
     // デフォルト値
     public static defaultProps: $ClassName$Props = {
         title: 'Title',
-        body: 'Body'
+        body: 'Body',
+        fontSize: 16
     };
 
     render() {
         return (
             <React.Fragment>
-                <h1>{this.props.title}</h1>
-                <p>{this.props.body}</p>
+                <h1 className={''}>{this.props.title}</h1>
+                <p style={{ fontSize: this.props.fontSize }}>{this.props.body}</p>
             </React.Fragment>
         );
     }
