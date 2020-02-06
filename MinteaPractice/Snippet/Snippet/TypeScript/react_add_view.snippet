@@ -38,7 +38,7 @@ import { Action, Reducer } from 'redux';
 
 // -------- STATE --------
 /**
- * メニューの状態
+ * 画面の状態
  */
 export interface $ChartNav$State {
     isOpen: boolean;    // ～～の状態
@@ -88,7 +88,10 @@ export const reducer: Reducer<$ChartNav$State> = (state: $ChartNav$State | undef
     const action = incomingAction as KnownAction;
     switch (action.type) {
         case 'TOGGLE_AAAA':
-            return { isOpen: action.isOpen, count: 0, name: 'aaaa' };
+            // stateをコピーして、一部値を変更する
+            return Object.assign({}, state, {
+                isOpen: !state.isOpen
+            })
         case 'TOGGLE_BBBB':
             return { isOpen: !state.isOpen, count: 1, name: 'bbbb' };
         default:
@@ -118,6 +121,7 @@ type $ChartNav$Props =
 class $ChartNav$ extends React.PureComponent<$ChartNav$Props> {
     public render() {
         return (
+            <p>$ChartNav$</p>
         );
     }
 }
