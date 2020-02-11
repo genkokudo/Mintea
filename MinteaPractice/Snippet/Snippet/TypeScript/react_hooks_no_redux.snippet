@@ -12,7 +12,20 @@
       <Shortcut>react_hooks_no_redux</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[// --------------- $Counter$.tsx --------------- 
+      <Declarations>
+        <Literal>
+          <ID>Counter</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>Counter</Default>
+        </Literal>
+        <Literal>
+          <ID>counter</ID>
+          <ToolTip>名前Camel</ToolTip>
+          <Default>counter</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// --------------- $Counter$.tsx --------------- 
 import React, { useState, useEffect } from 'react'
 
 /*
@@ -27,9 +40,9 @@ const $Counter$ = (props: $Counter$Props) => {
     // レンダリングの後に処理を動作させることができます（レンダリングの前はuseLayoutEffect）
     useEffect(() => {
         console.log('hello useEffect');
-        // returnを使うと、クリーンアップ関数を登録できる
+        
         //const timerId = setInterval(() => setTime(new Date().getTime()), 1000);
-        //return () => clearInterval(timerId);
+        //return () => clearInterval(timerId);    // returnを使うと、クリーンアップ関数を登録できる
     }, []); // この第2引数にcountをセットすると、count変更時に再びRenderされる
 
     // 任意の関数

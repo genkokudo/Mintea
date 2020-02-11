@@ -16,6 +16,9 @@
         <Import>
           <Namespace>MediatR</Namespace>
         </Import>
+        <Import>
+          <Namespace>System.Threading</Namespace>
+        </Import>
       </Imports>
       <Declarations>
         <Literal>
@@ -46,6 +49,31 @@
         public IActionResult OnPost()
         {
             return Page();
+        }
+    }
+    
+    /// <summary>
+    /// コントローラの場合はこのクラスを使用する
+    /// </summary>
+    [Authorize]
+    public class $Index$Controller : ControllerBase
+    {
+        private readonly ILogger<$Index$Controller> _logger;
+        private readonly IMediator _mediator;
+
+        public $Index$Controller(CmmpNetDbContext db, IMapper mapper, ILogger<$Index$Controller> logger, IMediator mediator)
+        {
+            _logger = logger;
+            _mediator = mediator;
+        }
+
+        /// <summary>
+        /// $Index$/Aaaa
+        /// </summary>
+        /// <returns></returns>
+        public async Task<$Index$Result> AaaaAsync()
+        {
+            return await _mediator.Send(new $Index$Query { });
         }
     }
 

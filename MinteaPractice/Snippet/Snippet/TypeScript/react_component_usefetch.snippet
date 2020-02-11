@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_component_usefetch</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>hooksでFetchAPIを呼ぶコンポーネント。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_component_usefetch</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[import React, { useMemo } from 'react';
+
+const MyComponent = ({ url, token }) => {
+    // 引数、参照等価性のためuseMemoで包む
+    const opts = useMemo(() => ({
+//        headers: {
+//            Authorization: `Bearer ${token}`,
+//        },
+    }, [token]);
+    
+    // FetchAPIの取得
+    const { loading, error, data } = useFetch(url, opts);
+    
+    // 描画
+    return (
+        <div>
+            {loading && <span>Loading...</span>}
+            {error && <span>Failed to fetch</span>}
+            {data && <div>{JSON.stringify(data)}</div>}
+        </div>
+    );
+};]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
