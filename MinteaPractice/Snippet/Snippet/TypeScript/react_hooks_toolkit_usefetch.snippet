@@ -30,10 +30,10 @@
         </Literal>
       </Declarations>
       <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
--------------------- $SimpleCounter$.ts --------------------
+// -------------------- $SimpleCounter$.ts --------------------
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// リスクトレンド（トータルリスク金額）のstate
+// state
 // サーバのフィールドと自動マッピングされるが、対応するのはPascalとCamelだけで、途中が大文字小文字違いの単語は認識されない
 // 例：LabelとlabelはOK、YMaxとymaxはダメで、yMaxはOK
 export interface $SimpleCounter$State {
@@ -44,6 +44,15 @@ export interface $SimpleCounter$State {
     // もし、interfaceの配列を使用する場合：正しく読めないので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
     datasets: Dataset[];
 }
+// 補助データ
+interface Dataset {
+    label: string;
+    borderWidth: number;
+    backgroundColor: string;
+    borderColor: string;
+    data: number[];
+}
+
 
 // 初期値
 const $simpleCounter$InitialState: $SimpleCounter$State = {
@@ -54,7 +63,7 @@ const $simpleCounter$InitialState: $SimpleCounter$State = {
 
 // createSlice() の中では、stateの更新を行っても良い（他ではだめ）
 // 同じ画面で同じhooksを複数使用する場合、このSliceを複数にすること。同じStateを呼んでしまい、エラーになるため。
-const $SimpleCounter$ = createSlice({
+export let $simpleCounter$ = createSlice({
     name: "$simpleCounter$",
     initialState: $simpleCounter$InitialState,
     reducers:   // 処理の定義
@@ -84,17 +93,14 @@ const $SimpleCounter$ = createSlice({
     }
 });
 
-export default $SimpleCounter$;
 
--------------------- $SimpleCounter$.tsx --------------------
-import React, { useEffect } from 'react';
+// -------------------- $SimpleCounter$.tsx --------------------
+import * as React from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $SimpleCounter$Module, { $SimpleCounter$State } from '../../store/chart/$SimpleCounter$';
 import { Container, Row, Col } from 'reactstrap';
-import Comment from './parts/Comment';
-import Chart from 'chart.js';
 import { useFetch } from '../../store/useFetch';
-
 
 // 引数の定義
 interface $SimpleCounter$Props {
@@ -109,7 +115,7 @@ interface $SimpleCounter$Props {
  * ↓こっちで呼んだ場合でもpropsはnullにならず、aaaaとかがnullになってるので判定するとき注意
  * <Route path='/$simple-counter$' component={$SimpleCounter$} />
  */
-const $SimpleCounter$ = (props: $SimpleCounter$Props) => {
+const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
     // hooksセットアップ
     const dispatch = useDispatch();
 
@@ -154,7 +160,7 @@ export default $SimpleCounter$;
 //</NavItem>
 
 // --------------- index.ts --------------- 
-import $SimpleCounter$ from '../store/$SimpleCounter$';
+import { $simpleCounter$Status } from './store/$SimpleCounter$';
 
     $simpleCounter$: $SimpleCounter$.reducer   // △△画面の処理
 
@@ -164,25 +170,25 @@ import $SimpleCounter$ from './components/$SimpleCounter$';
         <Route path='/$simple-counter$' component={$SimpleCounter$} />
         <Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />} />
 
--------------------- サーバ側 --------------------
-    /// <summary>検索結果</summary>
-    public class $SimpleCounter$Result
-    {
-        /// <summary>
-        /// 軸ラベル
-        /// </summary>
-        public string Label { get; set; } = "タイトル";
-
-        /// <summary>
-        /// 金額
-        /// </summary>
-        public List<int> Cost { get; set; }
-
-        /// <summary>
-        /// 年月
-        /// </summary>
-        public List<string> Month { get; set; }
-    }
+// -------------------- サーバ側 --------------------
+//    /// <summary>検索結果</summary>
+//    public class $SimpleCounter$Result
+//    {
+//        /// <summary>
+//        /// 軸ラベル
+//        /// </summary>
+//        public string Label { get; set; } = "タイトル";
+//
+//        /// <summary>
+//        /// 金額
+//        /// </summary>
+//        public List<int> Cost { get; set; }
+//
+//        /// <summary>
+//        /// 年月
+//        /// </summary>
+//        public List<string> Month { get; set; }
+//    }
 ]]></Code>
     </Snippet>
   </CodeSnippet>

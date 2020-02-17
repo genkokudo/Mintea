@@ -80,7 +80,7 @@ interface $SimpleCounter$Props {
  * ↓こっちで呼んだ場合でもpropsはnullにならず、aaaaとかがnullになってるので判定するとき注意
  * <Route path='/$simple-counter$' component={$SimpleCounter$} />
  */
-const $SimpleCounter$ = (props: $SimpleCounter$Props) => {
+const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
     // React本体に関数コンポーネント専用の保存領域を作成してもらい、そこにあるデータを読み書きできる
     // const [count, setCount] = useState(0);    // フィールド名、セッター名、初期値
 
