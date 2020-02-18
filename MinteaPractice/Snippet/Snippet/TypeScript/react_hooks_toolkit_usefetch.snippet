@@ -44,6 +44,7 @@ export interface $SimpleCounter$State {
     // もし、interfaceの配列を使用する場合：正しく読めないので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
     datasets: Dataset[];
 }
+
 // 補助データ
 interface Dataset {
     label: string;
@@ -53,17 +54,17 @@ interface Dataset {
     data: number[];
 }
 
-
 // 初期値
 const $simpleCounter$InitialState: $SimpleCounter$State = {
     label: 'no data',
     cost: [],
-    month: []
+    month: [],
+    datasets: []
 };
 
 // createSlice() の中では、stateの更新を行っても良い（他ではだめ）
 // 同じ画面で同じhooksを複数使用する場合、このSliceを複数にすること。同じStateを呼んでしまい、エラーになるため。
-export let $simpleCounter$ = createSlice({
+export let $SimpleCounter$Module = createSlice({
     name: "$simpleCounter$",
     initialState: $simpleCounter$InitialState,
     reducers:   // 処理の定義
@@ -98,9 +99,9 @@ export let $simpleCounter$ = createSlice({
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import $SimpleCounter$Module, { $SimpleCounter$State } from '../../store/chart/$SimpleCounter$';
+import { $SimpleCounter$Module, $SimpleCounter$State } from '../store/$SimpleCounter$';
 import { Container, Row, Col } from 'reactstrap';
-import { useFetch } from '../../store/useFetch';
+import { useFetch } from '../store/useFetch';   // react_export_usefetch
 
 // 引数の定義
 interface $SimpleCounter$Props {
@@ -120,7 +121,7 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
     const dispatch = useDispatch();
 
     // fetchでデータ取得する
-    const { loading, error, data } = useFetch('/Report/RiskTrandTotalRisk');
+    const { loading, error, data } = useFetch('/$SimpleCounter$/$SimpleCounter$');
 
     // stateにデータを反映させる
     dispatch($SimpleCounter$Module.actions.setData(data));
@@ -147,7 +148,6 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
                 <Col className={'d-flex justify-content-center'}>
                 </Col>
             </Row>
-            <Comment />
         </Container>
     );
 };
@@ -160,15 +160,15 @@ export default $SimpleCounter$;
 //</NavItem>
 
 // --------------- index.ts --------------- 
-import { $simpleCounter$Status } from './store/$SimpleCounter$';
+import { $SimpleCounter$Module } from './Special';
 
-    $simpleCounter$: $SimpleCounter$.reducer   // △△画面の処理
+    $simpleCounter$: $SimpleCounter$Module.reducer,   // △△画面の処理
 
 // --------------- App.tsx --------------- 
 import $SimpleCounter$ from './components/$SimpleCounter$';
 
-        <Route path='/$simple-counter$' component={$SimpleCounter$} />
-        <Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />} />
+<Route path='/$simple-counter$' component={$SimpleCounter$} />
+<Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />} />
 
 // -------------------- サーバ側 --------------------
 //    /// <summary>検索結果</summary>

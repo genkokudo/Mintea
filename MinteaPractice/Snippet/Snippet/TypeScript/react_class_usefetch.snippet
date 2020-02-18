@@ -12,7 +12,8 @@
       <Shortcut>react_export_usefetch</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[import { useEffect, useReducer } from 'react';
+      <Code Language="TypeScript" Kind="any" Delimiter="#"><![CDATA[
+import { useEffect, useReducer } from 'react';
 
 const initialState = {
     loading: false, // データ取得中はtrueに設定される
@@ -20,7 +21,7 @@ const initialState = {
     data: null,         // データ取得結果が設定される
 };
 
-const reducer = (state, action) => {
+const reducer = (state: any, action: any) => {
     switch (action.type) {
         case 'init': // 初期状態に戻す
             return initialState;
@@ -36,16 +37,16 @@ const reducer = (state, action) => {
 };
 
 const defaultOpts = {}; // デフォルトでは空オプション
-const defaultReadBody = body => body.json(); // デフォルトではjsonとしてparseする
+const defaultReadBody: any = (body: any) => body.json(); // デフォルトではjsonとしてparseする
 
 export const useFetch = (
-    url,
+    url: any,
     opts = defaultOpts,
     readBody = defaultReadBody,
 ) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     useEffect(() => {
-        let dispatchSafe = action => dispatch(action); // cleanupで無効にするため
+        let dispatchSafe: any = (action: any) => dispatch(action); // cleanupで無効にするため
         const abortController = new AbortController(); // cleanupでabortするため
         (async () => {
             if (!url) return;
@@ -74,7 +75,8 @@ export const useFetch = (
         return cleanup;
     }, [url, opts, readBody]);
     return state;
-};]]></Code>
+};
+]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>
