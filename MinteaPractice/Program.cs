@@ -1,5 +1,7 @@
 ﻿using Mintea.SnippetGenerator;
 using MinteaPractice.Template.T4;
+using RazorEngine;
+using RazorEngine.Templating;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,20 +13,25 @@ namespace MinteaPractice
     {
         static void Main()
         {
-            //// RazorEngineを使ったシステムの作成
-            //// TODO:datファイルを読み込んで、テンプレートとして使用する
-            //// データは最終的にサーバのどこかに置くので、ここでは適当なデータフォルダ作ってアクセス
+            // RazorEngineを使ったシステムの作成
+            // TODO:datファイルを読み込んで、テンプレートとして使用する
+            // データは最終的にサーバのどこかに置くので、ここでは適当なデータフォルダ作ってアクセス
 
-            //// TODO:Modelデータを作成する
+            // TODO:Modelデータを作成する
 
-            ////OKボタンがクリックされたとき、選択されたファイルを読み取り専用で開く
-            //Console.WriteLine("--------");
-            //using (var reader = new StreamReader("Template/Test.dat"))
-            //{
-            //    string text = reader.ReadToEnd();
-            //    Console.WriteLine(text);
-            //}
-            //Console.WriteLine("--------");
+            //OKボタンがクリックされたとき、選択されたファイルを読み取り専用で開く
+            Console.WriteLine("--------");
+            using (var reader = new StreamReader("Template/Test.dat"))
+            {
+                string text = reader.ReadToEnd();
+                Console.WriteLine(text);
+
+                var model1 = new { Name = "World" };
+                var result1 = Engine.Razor.RunCompile(text, "templateKey", null, model1);
+                Console.WriteLine(result1);
+            }
+
+            Console.WriteLine("--------");
 
             // --------------------------------------------------
             //// スニペットを生成する
@@ -52,18 +59,18 @@ namespace MinteaPractice
             //Console.WriteLine(sw.ToString());
             // --------------------------------------------------
 
-            // パラメータを作って
-            var context = new GenerationContext
-            {
-                NamespaceName = "Ananan",
-                TypeSuffix = "TottemoDaisuki",
-                RepeatCount = 2
-            };
+            //// パラメータを作って
+            //var context = new GenerationContext
+            //{
+            //    NamespaceName = "Ananan",
+            //    TypeSuffix = "TottemoDaisuki",
+            //    RepeatCount = 2
+            //};
 
-            // テキストを生成して
-            var text = new MyCodeGenerator(context).TransformText();
+            //// テキストを生成して
+            //var text = new MyCodeGenerator(context).TransformText();
 
-            Console.WriteLine(text);
+            //Console.WriteLine(text);
 
             //// UTF8(BOMなし)で出力
             //File.WriteAllText(outputPath, text, new UTF8Encoding(false));

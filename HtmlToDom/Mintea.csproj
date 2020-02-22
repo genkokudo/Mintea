@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RazorEngine.NetCore" Version="2.2.4" />
+    <PackageReference Include="RazorEngine.NetCore" Version="2.2.6" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_hooks_table_template</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>Reactでテーブル作成するときののテンプレ</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_hooks_table_template</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>AaaaTable</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>AaaaTable</Default>
+        </Literal>
+        <Literal>
+          <ID>aaaaTable</ID>
+          <ToolTip>名前Camel</ToolTip>
+          <Default>aaaaTable</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+const $AaaaTable$ = () => {
+
+//    // state取得
+//    const stateData: $AaaaTable$State = useSelector(selector);
+
+    // 行内の列データをループで描画する
+    function rowDara(values: number[]) {
+        var list = [];
+        for (var i in values) {
+            list.push(
+                <td className={''}>{values[i]}</td>
+            );
+        }
+        return list;
+    }
+
+    // 行データをループで描画する
+    function records() {
+        var list = [];
+
+        for (var i in stateData.values) {
+            // rowSpan項目の描画例
+            var category = (<React.Fragment />);
+            if (i === '0') {
+                category = (
+                    <React.Fragment>
+                        <td className={''} rowSpan={stateData.condition.length}>{stateData.category}</td>
+                    </React.Fragment>
+                );
+            }
+            list.push(
+                <tr>
+                    {category}
+                    <td className={''}>{stateData.condition[i]}</td>
+                    {rowDara(stateData.values[i])}
+                </tr>
+            );
+        }
+        return list;
+    }
+
+    // 描画処理
+    return (
+        <React.Fragment>
+            <Container className={'d-flex justify-content-center'}>
+                <table>
+                    <thead>
+                        <tr><th rowSpan={2}>XXXX</th><th rowSpan={2}>YYYY</th><th rowSpan={2} colSpan={2} className={''}>ZZZZ</th><th colSpan={4}>AAAA</th></tr>
+                        <tr><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+                    </thead>
+                    <tbody>
+                        {records()}
+                    </tbody>
+                </table>
+            </Container>
+        </React.Fragment>
+    );
+};
+
+export default $AaaaTable$;
+
+// 早く作るコツは、1度ベタ打ちでテーブルを書いてから、それをスクリプトと変数に置き換えていくことです。
+//import * as React from 'react';
+//import { useDispatch, useSelector } from 'react-redux';
+//import { Container } from 'reactstrap';
+//import { $aaaaTable$, $AaaaTable$State } from '../../store/report/$AaaaTable$';
+
+//export interface $AaaaTable$State {
+//    // 表のデータ
+//    category: string[];
+//    total: number[];
+//    condition: string[];
+//    conditionValue: number[];
+//    values: number[][];
+//}]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
