@@ -1,8 +1,4 @@
-﻿using Mintea.SnippetGenerator;
-using MinteaPractice.Template.T4;
-using RazorEngine;
-using RazorEngine.Templating;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -20,18 +16,18 @@ namespace MinteaPractice
             // TODO:Modelデータを作成する
 
             //OKボタンがクリックされたとき、選択されたファイルを読み取り専用で開く
-            Console.WriteLine("--------");
-            using (var reader = new StreamReader("Template/Test.dat"))
-            {
-                string text = reader.ReadToEnd();
-                Console.WriteLine(text);
+            //Console.WriteLine("--------");
+            //using (var reader = new StreamReader("Template/Test.dat"))
+            //{
+            //    string text = reader.ReadToEnd();
+            //    Console.WriteLine(text);
 
-                var model1 = new { Name = "World" };
-                var result1 = Engine.Razor.RunCompile(text, "templateKey", null, model1);
-                Console.WriteLine(result1);
-            }
+            //    var model1 = new { Name = "World" };
+            //    var result1 = Engine.Razor.RunCompile(text, "templateKey", null, model1);
+            //    Console.WriteLine(result1);
+            //}
 
-            Console.WriteLine("--------");
+            //Console.WriteLine("--------");
 
             // --------------------------------------------------
             //// スニペットを生成する

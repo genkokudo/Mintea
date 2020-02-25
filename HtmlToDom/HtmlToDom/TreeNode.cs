@@ -8,8 +8,70 @@ namespace Mintea.HtmlToDom
     /// 簡易ツリー構造のジェネリッククラス
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public /*abstract*/ class TreeNode<T>
+    public class TreeNode<T>
     {
+        /// <summary>
+        /// 木構造データを作成します
+        /// 子が持つ親は1つまで
+        /// もう木構造データ作るの大変だからこういう補助メソッド作り込もうね
+        /// </summary>
+        /// <param name="root">根</param>
+        /// <param name="dictionary">データリスト</param>
+        /// <param name="parentList">Key名に対する親Key名を格納したデータ</param>
+        /// <returns></returns>
+        public static TreeNode<T> MakeTree(TreeNode<T> root, Dictionary<string, T> dictionary, Dictionary<string, string> parentList)
+        {
+            // ノードを一通り作る
+            var nodeList = new Dictionary<string, TreeNode<T>>();
+            foreach (var item in dictionary)
+            {
+                // 登録
+                var node = new TreeNode<T>(item.Value);
+                nodeList.Add(item.Key, node);
+            }
+
+            foreach (var node in nodeList)
+            {
+                if (parentList.ContainsKey(node.Key))
+                {
+                    // Parentがあればその親に登録
+                    nodeList[parentList[node.Key]].AddChild(node.Value);
+                }
+                else
+                {
+                    // Parentがなければroot直下に追加
+                    root.AddChild(node.Value);
+                }
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// 底優先探索の順を返す
+        /// 多分深さ優先とは違うと思う
+        /// 辿っていって根っこだったら追加
+        /// </summary>
+        /// <returns></returns>
+        public List<TreeNode<T>> DepthList()
+        {
+            var result = new List<TreeNode<T>>();
+
+            // 底
+            if(children != null)
+            {
+                foreach (var item in children)
+                {
+                    var list = item.DepthList();
+                    result.AddRange(list);
+                }
+            }
+
+            result.Add(this);
+
+            return result;
+        }
+
         /// <summary>
         /// 親への参照フィールド
         /// </summary>
@@ -55,7 +117,7 @@ namespace Mintea.HtmlToDom
         /// <summary>
         /// データ実体
         /// </summary>
-        public T Value = default(T);
+        public T Value = default;
 
         public TreeNode(T data)
         {
