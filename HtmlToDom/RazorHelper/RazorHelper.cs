@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.Extensions.FileProviders;
+using Mintea.Extensions;
 using Mintea.HtmlToDom;
 using System;
 using System.Collections.Generic;
@@ -15,22 +16,45 @@ namespace Mintea.RazorHelper
     /// </summary>
     public class RazorHelper
     {
-        // TODO:Extensionにしたのでそちらに移行する
-        #region InputDynamic:動的にdynamic型を生成する
         /// <summary>
-        /// 動的にdynamic型を生成する
+        /// "Doc"が最初についているシートは読まない
         /// </summary>
-        /// <param name="Fields">フィールド名とそのオブジェクト(このメソッドで生成したdynamicでも良い)の組み合わせ</param>
-        /// <returns></returns>
-        public static dynamic InputDynamic(Dictionary<string, object> Fields)
-        {
-            dynamic result = new ExpandoObject();
-            IDictionary<string, object> work = result;
-            foreach (var item in Fields) { work.Add(item.Key, item.Value); }
+        const string DocumentSheetPrefix = "Doc";
 
-            return result;
-        }
-        #endregion
+        /// <summary>
+        /// "Is"が最初についている列は0,1,型文字列をbool型とする
+        /// </summary>
+        const string BoolCulumnPrefix = "Is";
+
+        /// <summary>
+        /// 必須シート名
+        /// </summary>
+        const string SettingsSheet = "Settings";
+
+        /// <summary>
+        /// 必須シート名
+        /// </summary>
+        const string RootListSheet = "RootList";
+
+        /// <summary>
+        /// 必須シート内の必須カラム名
+        /// </summary>
+        const string IndexValue = "Index";
+
+        /// <summary>
+        /// "List"が最後についているシートはリスト
+        /// </summary>
+        const string ListSheetSuffix = "List";
+
+        /// <summary>
+        /// キー情報を格納する列
+        /// </summary>
+        const string KeyCulumn = "Key";
+
+        /// <summary>
+        /// 親情報を格納する列
+        /// </summary>
+        const string ParentCulumn = "Parent";
 
         #region MakeSequence:生成するシートの順番を作成する（子シート優先にする）
         /// <summary>
@@ -117,7 +141,7 @@ namespace Mintea.RazorHelper
                 var sheet = excel[sheetName];
 
                 // Parentの列番号を取得
-                var parentIndex = GetIndex(sheet, "Parent");
+                var parentIndex = GetIndex(sheet, ParentCulumn);
 
                 // Parentがある場合
                 if (parentIndex >= 0)
@@ -126,7 +150,7 @@ namespace Mintea.RazorHelper
                     {
                         if (!sheet[i][parentIndex].Contains("."))
                         {
-                            errors.Add($"Parentに'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                            errors.Add($"{ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                         }
                         else
                         {
@@ -137,7 +161,7 @@ namespace Mintea.RazorHelper
                             {
                                 if (parentList[sheetName] != splited[0])
                                 {
-                                    errors.Add($"同じParent列に違う親が書かれている。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                                    errors.Add($"同じ{ParentCulumn}列に違う親が書かれている。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                                 }
                             }
                             else
@@ -167,11 +191,11 @@ namespace Mintea.RazorHelper
 
             foreach (var sheetName in excel.Keys)
             {
-                if (sheetName.EndsWith("List"))
+                if (sheetName.EndsWith(ListSheetSuffix))
                 {
                     // リスト
                     var sheet = excel[sheetName];
-                    var parentIndex = GetIndex(sheet, "Parent");
+                    var parentIndex = GetIndex(sheet, ParentCulumn);
                     if (sheet.Count > 2)
                     {
                         // Parentがある場合
@@ -181,26 +205,19 @@ namespace Mintea.RazorHelper
                             {
                                 if (!sheet[i][parentIndex].Contains("."))
                                 {
-                                    errors.Add($"Parentに'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                                    errors.Add($"{ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                                 }
                                 else
                                 {
                                     // 子情報を登録する
-                                    var splited = sheet[i][parentIndex].Split('.');
+                                    var splited = sheet[i][parentIndex].Split('.'); // 親名、親キー
 
-                                    if (!childList.Keys.Contains(splited[0]))
-                                    {
-                                        childList.Add(splited[0], new List<string>());
-                                    }
-                                    if (!childList[splited[0]].Contains(splited[1]))
-                                    {
-                                        if (!childList[splited[0]].Contains(sheetName))
-                                        {
-                                            // 重複して同じ名前が入らないように。（キーも格納する場合は別だが。）
-                                            childList[splited[0]].Add(sheetName);
-                                        }
-                                        //childList[splited[0]].Add(splited[1]);  // 今回はキーまで載せない。
-                                    }
+                                    // シートが未登録ならば追加
+                                    childList.NewListIfNotExists(splited[0]);
+
+                                    // 今回はキーまで載せない。
+                                    // 重複して同じ名前が入らないようにする。（キーも格納する場合は別だが。）
+                                    childList[splited[0]].AddIfNotExists(sheetName);
                                 }
                             }
                         }
@@ -222,18 +239,9 @@ namespace Mintea.RazorHelper
         /// <param name="childSheetName">子の名前( = 親のフィールド名)</param>
         public static void AddChildrenData(Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> children, string parentName, string parentKey, string childSheetName, dynamic data)
         {
-            if (!children.ContainsKey(parentName))
-            {
-                children.Add(parentName, new Dictionary<string, Dictionary<string, dynamic>>());
-            }
-            if (!children[parentName].ContainsKey(parentKey))
-            {
-                children[parentName].Add(parentKey, new Dictionary<string, dynamic>());
-            }
-            if (!children[parentName][parentKey].ContainsKey(childSheetName))
-            {
-                children[parentName][parentKey].Add(childSheetName, new Dictionary<string, dynamic>());
-            }
+            children.NewListIfNotExists(parentName);
+            children[parentName].NewListIfNotExists(parentKey);
+            children[parentName][parentKey].NewDictionaryIfNotExists(childSheetName);
             children[parentName][parentKey][childSheetName] = data;
         }
         #endregion
@@ -260,27 +268,36 @@ namespace Mintea.RazorHelper
             var childDynamic = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
 
             // 子シートから順番にデータ作成
+            var isRequiredSheetExists = false;
+            var isRequiredValueExists = false;
+            var isRootListExists = false;
             foreach (var sheetName in sequence)
             {
                 // 1つのシート
                 var sheet = excel[sheetName];
 
                 // 親があるか
-                var parentIndex = GetIndex(sheet, "Parent");
+                var parentIndex = GetIndex(sheet, ParentCulumn);
 
                 // 親シート名
                 var parentName = string.Empty;
 
                 // キー取得
-                var keyIndex = GetIndex(sheet, "Key");
+                var keyIndex = GetIndex(sheet, KeyCulumn);
 
-                if (sheetName.StartsWith("Doc"))
+                if (sheetName.StartsWith(DocumentSheetPrefix))
                 {
                     // なにもなし
                     continue;
                 }
-                else if (sheetName.EndsWith("List"))
+                else if (sheetName.EndsWith(ListSheetSuffix))
                 {
+                    // 必須シート存在チェック
+                    if (sheetName == RootListSheet)
+                    {
+                        isRootListExists = true;
+                    }
+
                     // リスト
                     if (sheet.Count > 2)
                     {
@@ -295,6 +312,7 @@ namespace Mintea.RazorHelper
                             var rowData = new Dictionary<string, object>();
                             for (int col = 0; col < sheet[row].Count; col++)
                             {
+                                // 列を読む
                                 if (col == parentIndex)
                                 {
                                     // 親参照はdynamicデータに登録しないが、子dynamicデータリストに保持させるための情報を取得する
@@ -307,6 +325,19 @@ namespace Mintea.RazorHelper
                                     // 子を追加
                                     var key = sheet[row][col];  // 書かれているKeyを取得
                                     AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
+                                }
+                                else if(sheet[0][col].StartsWith(BoolCulumnPrefix))
+                                {
+                                    // bool型判定
+                                    var val = sheet[row][col];
+                                    try
+                                    {
+                                        rowData.Add(sheet[0][col], ToBool(sheet[row][col]));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
+                                    }
                                 }
                                 else
                                 {
@@ -321,7 +352,7 @@ namespace Mintea.RazorHelper
                             {
                                 dataByParent.Add(parentKey, new List<dynamic>());
                             }
-                            dataByParent[parentKey].Add(InputDynamic(rowData));
+                            dataByParent[parentKey].Add(rowData.ToDynamic());
                         }
 
                         // 親Key別のリストをどこかに登録する。
@@ -343,6 +374,12 @@ namespace Mintea.RazorHelper
                 }
                 else
                 {
+                    // 必須シート存在チェック
+                    if(sheetName == SettingsSheet)
+                    {
+                        isRequiredSheetExists = true;
+                    }
+
                     // 今回、通常シートは親子関係を持たない。持たせたい場合はListシートと同様に実装すればできるはず。
                     // …というか、リストの下位互換かも。通常シート不要説。
                     // 通常シート：1列目が名前、2列目が値
@@ -353,19 +390,56 @@ namespace Mintea.RazorHelper
                         for (int row = 2; row < sheet.Count; row++)
                         {
                             var name = sheet[row][0];
+                            if(sheetName == SettingsSheet && name == IndexValue)
+                            {
+                                isRequiredValueExists = true;
+                            }
                             var value = sheet[row][1];
                             data.Add(name, value);
                         }
                         // 親がないのでトップデータリストに追加
-                        topDataList.Add(sheetName, InputDynamic(data));
+                        topDataList.Add(sheetName, data.ToDynamic());
                     }
                 }
             }
-            var result = InputDynamic(topDataList);
+            if (!isRootListExists)
+            {
+                errors.Add($"{RootListSheet}という名前のシートがない。");
+            }
+            if (!isRequiredSheetExists)
+            {
+                errors.Add($"{SettingsSheet}という名前のシートがない。");
+            }
+            if (!isRequiredValueExists)
+            {
+                errors.Add($"{SettingsSheet}には{IndexValue}という値を持たせること。");
+            }
+            if (errors.Count > 0)
+            {
+                throw new Exception($"Excelの内容がおかしい:\n{string.Join(",\n", errors)}");
+            }
+
+            var result = topDataList.ToDynamic();
 
             return result;
         }
         #endregion
+
+        public static bool ToBool(string val)
+        {
+            if (string.IsNullOrWhiteSpace(val) || val.ToLower() == "false" || int.TryParse(val, out int intval) && intval <= 0)
+            {
+                return false;
+            }
+            else if (val.ToLower() == "true" || int.TryParse(val, out intval) && intval > 0)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception($"これはboolにできない:{val}");
+            }
+        }
 
         #region AddChildDynamic:行データに子データを追加
         /// <summary>
