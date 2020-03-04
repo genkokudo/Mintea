@@ -10,8 +10,8 @@ namespace Mintea.Extensions
     public static class ListExtentions
     {
         /// <summary>
-        /// 指定したキーと値をディクショナリに追加します
-        /// 指定したキーが既に格納されている場合は何もしません
+        /// リストに要素を追加しますが
+        /// 同じものが既に格納されている場合は何もしません
         /// </summary>
         public static void AddIfNotExists<TType>(this List<TType> self, TType value)
         {

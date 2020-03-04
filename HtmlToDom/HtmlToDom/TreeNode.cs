@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Mintea.HtmlToDom
@@ -10,6 +11,57 @@ namespace Mintea.HtmlToDom
     /// <typeparam name="T"></typeparam>
     public class TreeNode<T>
     {
+
+        //private void ConstructTree()
+        //{
+        //    treeView.Nodes[0].Nodes.Clear();
+        //    TreeNode node = treeView.Nodes[0];
+        //    ConstructTreeRecursive(node);
+        //}
+
+        //private void ConstructTreeRecursive()
+        //{
+        //    string directoryName = Application.StartupPath + "\\" + node.FullPath;
+
+        //    if (Directory.Exists(directoryName) == false) return;
+
+        //    DirectoryInfo directory = new DirectoryInfo(directoryName);
+
+        //    // Files
+        //    FileInfo[] files = directory.GetFiles();
+
+        //    foreach (FileInfo file in files)
+        //    {
+        //        TreeNode newNode = node.Nodes.Add(file.Name);
+        //        newNode.ImageIndex = 1;
+        //        newNode.SelectedImageIndex = 1;
+        //    }
+
+        //    // Directories
+        //    DirectoryInfo[] subDirectories = directory.GetDirectories();
+        //    foreach (DirectoryInfo subDirectory in subDirectories)
+        //    {
+        //        TreeNode newNode = node.Nodes.Add(subDirectory.Name);
+        //        newNode.ImageIndex = 0;
+        //        newNode.SelectedImageIndex = 0;
+        //        ConstructDocumentTreeRecursive(newNode);
+        //    }
+        //}
+
+        // 引数以下のディレクトリの階層構造を取得します
+        public static TreeNode<string> GetDirectoryTree(string path)
+        {
+            // AllDirectoriesで現在のディレクトリとすべてのサブディレクトリを検索できる
+            // が、それで良いのか？
+            IEnumerable<string> subFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            IEnumerable<string> subFolders = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+
+
+            return new TreeNode<string>("");
+
+
+        }
+
         /// <summary>
         /// 木構造データを作成します
         /// 子が持つ親は1つまで

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Mintea.HtmlToDom;
 
 namespace MinteaPractice
 {
@@ -9,6 +10,11 @@ namespace MinteaPractice
     {
         static void Main()
         {
+
+            var a = TreeNode<string>.GetDirectoryTree(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
+
+            Console.WriteLine("");
+
             // RazorEngineを使ったシステムの作成
             // TODO:datファイルを読み込んで、テンプレートとして使用する
             // データは最終的にサーバのどこかに置くので、ここでは適当なデータフォルダ作ってアクセス
