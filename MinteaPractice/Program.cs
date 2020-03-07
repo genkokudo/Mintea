@@ -11,7 +11,7 @@ namespace MinteaPractice
         static void Main()
         {
 
-            var a = TreeNode<string>.GetDirectoryFileTree(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
+            var a = TreeNode<string>.GetDirectoryFileList(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
 
             //foreach (var item in a.Children)
             //{

@@ -1,76 +1,139 @@
-﻿using System;
+﻿using Mintea.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace Mintea.HtmlToDom
 {
+    #region ListboxFile
+    /// <summary>
+    /// ディレクトリとファイルの情報
+    /// </summary>
+    public class ListboxFile
+    {
+        /// <summary>
+        /// フルパス
+        /// </summary>
+        public string FullPath { get; set; }
+
+        /// <summary>
+        /// 名前
+        /// リストボックス選択肢のnameになる
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// ディレクトリならtrue
+        /// ファイルならfalse
+        /// </summary>
+        public bool IsDirectory { get; set; }
+
+        /// <summary>
+        /// リストボックスで選択したとき
+        /// 下位の要素リストを取得するためのキー
+        /// リストボックス選択肢のvalueになる
+        /// 
+        /// ファイルならFullPathと同じ
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        /// 所属する辞書のキー
+        /// </summary>
+        public string DictionaryKey { get; set; }
+
+        public override string ToString()
+        {
+            return $"FullPath:{FullPath}\nDictionaryKey:{DictionaryKey}\nIsDirectory:{IsDirectory}\nName:{Name}\nValue:{Value}";
+        }
+    }
+    #endregion
+
     /// <summary>
     /// 簡易ツリー構造のジェネリッククラス
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class TreeNode<T>
     {
-        // あるレベルのファイル一覧のキーとパスの辞書を取得します
-        public static Dictionary<string, string> GetFileDictionary(string path, int level)
-        {
-            var result = new Dictionary<string, string>();
 
-            // ツリー取得
-            var tree = GetDirectoryFileTree(path);
-
-            return result;
-        }
-
-        // あるレベルのディレクトリ一覧のキーとパスの辞書を取得します
-        public static Dictionary<string, string> GetDirectoryDictionary(string path, int level)
-        {
-            var result = new Dictionary<string, string>();
-
-            // ツリー取得
-            var tree = GetDirectoryFileTree(path);
-
-            // レベル指定してツリーからデータを取り出す
-
-            return result;
-        }
-
+        #region privateGetDirectoryFileTree
         /// <summary>
         /// 引数以下のディレクトリの階層構造を取得します
         /// 
         /// ファイルとフォルダの区別は？
         /// とりあえずフォルダなら最後にスラッシュつける
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="parent"></param>
         /// <returns></returns>
-        public static TreeNode<string> GetDirectoryFileTree(string path)
+        private static TreeNode<ListboxFile> GetDirectoryFileTree(ListboxFile parent, List<ListboxFile> list)
         {
-            var currentDir = new TreeNode<string>(path);
-            // SearchOption.AllDirectoriesで現在のディレクトリとすべてのサブディレクトリを検索できる
-            // が、それで良いのか？→良くない。
-            IEnumerable<string> subFiles = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly);
-            IEnumerable<string> subFolders = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
+            var currentDir = new TreeNode<ListboxFile>(parent);
+
+            IEnumerable<string> subFiles = Directory.GetFiles(parent.FullPath, "*", SearchOption.TopDirectoryOnly);
+            IEnumerable<string> subFolders = Directory.GetDirectories(parent.FullPath, "*", SearchOption.TopDirectoryOnly);
 
             // ファイルの登録
             foreach (var file in subFiles)
             {
-                currentDir.AddChild(new TreeNode<string>(file));
+                var subFile = new ListboxFile
+                {
+                    FullPath = file,
+                    Name = Path.GetFileName(file),
+                    IsDirectory = false,
+                    Value = file,
+                    DictionaryKey = parent.Value
+                };
+                list.Add(subFile);
+                currentDir.AddChild(new TreeNode<ListboxFile>(subFile));
             }
 
             // ディレクトリの登録
             foreach (var folder in subFolders)
             {
-                var child = new TreeNode<string>(folder + "/");
+                var subFolder = new ListboxFile
+                {
+                    FullPath = folder,
+                    Name = Path.GetFileName(folder),
+                    IsDirectory = true,
+                    Value = $"{parent.Value}#{Path.GetFileName(folder)}".Trim('#'),
+                    DictionaryKey = parent.Value
+                };
+                list.Add(subFolder);
+                var child = new TreeNode<ListboxFile>(subFolder);
 
                 // 更に下の階層のディレクトリ
-                GetDirectoryFileTree(Path.Combine(path, folder));
+                GetDirectoryFileTree(subFolder, list);
 
-                Console.WriteLine(Path.Combine(path, folder));
                 // このディレクトリに追加
                 currentDir.AddChild(child);
             }
 
             return currentDir;
+        }
+        #endregion
+
+        public static Dictionary<string, Dictionary<string, string>> GetDirectoryFileList(string path)
+        {
+            var list = new List<ListboxFile>();
+            GetDirectoryFileTree(new ListboxFile
+            {
+                FullPath = path,
+                Name = "root",
+                IsDirectory = true,
+                Value = "",
+                DictionaryKey = ""
+            }, list);
+
+            var result = new Dictionary<string, Dictionary<string, string>>();
+
+            foreach (var item in list)
+            {
+                result.NewDictionaryIfNotExists(item.DictionaryKey);
+                result[item.DictionaryKey].Add(item.Name, item.Value);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -109,6 +172,23 @@ namespace Mintea.HtmlToDom
             }
 
             return root;
+        }
+
+        /// <summary>
+        /// 左方優先で順に辿ってリストにする
+        /// </summary>
+        /// <param name="parent"></param>
+        public void ToList(List<T> parent)
+        {
+            parent.Add(Value);
+
+            if (children != null)
+            {
+                foreach (var item in children)
+                {
+                    item.ToList(parent);
+                }
+            }
         }
 
         /// <summary>
