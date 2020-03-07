@@ -11,9 +11,13 @@ namespace MinteaPractice
         static void Main()
         {
 
-            var a = TreeNode<string>.GetDirectoryTree(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
+            var a = TreeNode<string>.GetDirectoryFileTree(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
 
-            Console.WriteLine("");
+            //foreach (var item in a.Children)
+            //{
+            //    Console.WriteLine(item.Value);
+            //}
+
 
             // RazorEngineを使ったシステムの作成
             // TODO:datファイルを読み込んで、テンプレートとして使用する

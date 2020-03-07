@@ -11,58 +11,70 @@ namespace Mintea.HtmlToDom
     /// <typeparam name="T"></typeparam>
     public class TreeNode<T>
     {
-
-        //private void ConstructTree()
-        //{
-        //    treeView.Nodes[0].Nodes.Clear();
-        //    TreeNode node = treeView.Nodes[0];
-        //    ConstructTreeRecursive(node);
-        //}
-
-        //private void ConstructTreeRecursive()
-        //{
-        //    string directoryName = Application.StartupPath + "\\" + node.FullPath;
-
-        //    if (Directory.Exists(directoryName) == false) return;
-
-        //    DirectoryInfo directory = new DirectoryInfo(directoryName);
-
-        //    // Files
-        //    FileInfo[] files = directory.GetFiles();
-
-        //    foreach (FileInfo file in files)
-        //    {
-        //        TreeNode newNode = node.Nodes.Add(file.Name);
-        //        newNode.ImageIndex = 1;
-        //        newNode.SelectedImageIndex = 1;
-        //    }
-
-        //    // Directories
-        //    DirectoryInfo[] subDirectories = directory.GetDirectories();
-        //    foreach (DirectoryInfo subDirectory in subDirectories)
-        //    {
-        //        TreeNode newNode = node.Nodes.Add(subDirectory.Name);
-        //        newNode.ImageIndex = 0;
-        //        newNode.SelectedImageIndex = 0;
-        //        ConstructDocumentTreeRecursive(newNode);
-        //    }
-        //}
-
-        // 引数以下のディレクトリの階層構造を取得します
-        public static TreeNode<string> GetDirectoryTree(string path)
+        // あるレベルのファイル一覧のキーとパスの辞書を取得します
+        public static Dictionary<string, string> GetFileDictionary(string path, int level)
         {
-            // AllDirectoriesで現在のディレクトリとすべてのサブディレクトリを検索できる
-            // が、それで良いのか？
-            IEnumerable<string> subFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-            IEnumerable<string> subFolders = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+            var result = new Dictionary<string, string>();
 
+            // ツリー取得
+            var tree = GetDirectoryFileTree(path);
 
-            return new TreeNode<string>("");
+            return result;
+        }
 
+        // あるレベルのディレクトリ一覧のキーとパスの辞書を取得します
+        public static Dictionary<string, string> GetDirectoryDictionary(string path, int level)
+        {
+            var result = new Dictionary<string, string>();
 
+            // ツリー取得
+            var tree = GetDirectoryFileTree(path);
+
+            // レベル指定してツリーからデータを取り出す
+
+            return result;
         }
 
         /// <summary>
+        /// 引数以下のディレクトリの階層構造を取得します
+        /// 
+        /// ファイルとフォルダの区別は？
+        /// とりあえずフォルダなら最後にスラッシュつける
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static TreeNode<string> GetDirectoryFileTree(string path)
+        {
+            var currentDir = new TreeNode<string>(path);
+            // SearchOption.AllDirectoriesで現在のディレクトリとすべてのサブディレクトリを検索できる
+            // が、それで良いのか？→良くない。
+            IEnumerable<string> subFiles = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly);
+            IEnumerable<string> subFolders = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
+
+            // ファイルの登録
+            foreach (var file in subFiles)
+            {
+                currentDir.AddChild(new TreeNode<string>(file));
+            }
+
+            // ディレクトリの登録
+            foreach (var folder in subFolders)
+            {
+                var child = new TreeNode<string>(folder + "/");
+
+                // 更に下の階層のディレクトリ
+                GetDirectoryFileTree(Path.Combine(path, folder));
+
+                Console.WriteLine(Path.Combine(path, folder));
+                // このディレクトリに追加
+                currentDir.AddChild(child);
+            }
+
+            return currentDir;
+        }
+
+        /// <summary>
+        /// それぞれのデータの親が分かっている場合
         /// 木構造データを作成します
         /// 子が持つ親は1つまで
         /// もう木構造データ作るの大変だからこういう補助メソッド作り込もうね
