@@ -12,13 +12,20 @@
       <Shortcut>asp_cshtml_section_scripts</Shortcut>
     </Header>
     <Snippet>
-      <Code Language="CSharp" Kind="any" Delimiter="$"><![CDATA[
+      <Code Language="CSharp" Kind="any" Delimiter="%"><![CDATA[
 @section Scripts {
     @*@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
         <script src="~/src/js/doodle.js"></script>*@
     <script>
         // ページを全て読み込み終わった後に実行する
+        $(document).ready(function(){
+            alert('1');
+        });
         $(function () {
+            alert('2');
+        });
+        $(window).on('load', function() {
+            alert('3');
         });
         
         // <button id="BtnA" class="btn btn-success btn-sm" key="1">Test</button>

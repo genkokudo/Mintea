@@ -72,24 +72,19 @@ export let $SimpleCounter$Module = createSlice({
         // Fetchしたデータをstateに反映させる
         setData: (state, action: PayloadAction<$SimpleCounter$State>) => {
             if (action.payload) {
-                // stateに代入する方法では更新できない
-                //state = action.payload;
-                
-                // $SimpleCounter$Stateにdataという構造体があるとすると、以下のようにセット可能。
-                // state.data = payload.data
-                // ただし上記の場合、useSelector((state: any) => state.$simpleCounter$.data);は可能だが、
-                // useSelector((state: any) => state.$simpleCounter$.data.label);は不可能。
-                // セレクタで取得してからlabelにアクセスすることは可能。
-                // どっちが綺麗かの問題なので、好きな方を選択する。
+                // stateの更新方法
                 
                 // こうやって、1つずつフィールドを転記すると確実
+                // できれば、Read Onlyなデータはinterfaceにして、入力データやPostデータと分けると良い
                 //state.label = action.payload.label;
                 //state.cost = action.payload.cost;
                 
-                // または、丸ごとreturnする（APIと関係ないフィールドが無い場合のみ）
+                // または、丸ごとreturnする（ただしAPIと関係ないフィールドが無い場合のみ）
+                // もし画面の入力値などもstateに含んでいると、入力値がstateに反映しなくなりPost時に困る。
                 return action.payload;
             }
         }
+        // Postする場合はここにFetch処理を追加する。
 
     }
 });
@@ -127,7 +122,7 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
     dispatch($SimpleCounter$Module.actions.setData(data));
 
     // state取得
-    const currentState: $SimpleCounter$State = useSelector((state: any) => state.$simpleCounter$);
+    const stateData: $SimpleCounter$State = useSelector((state: any) => state.$simpleCounter$);
 
     useEffect(() => {
     });
@@ -139,9 +134,9 @@ const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
             {
                 data &&
                 <div>
-                    {currentState.label}
-                    {currentState.cost}
-                    {currentState.month}
+                    {stateData.label}
+                    {stateData.cost}
+                    {stateData.month}
                 </div>
             }
             <Row>
