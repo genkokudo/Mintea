@@ -390,12 +390,30 @@ namespace Mintea.RazorHelper
                         for (int row = 2; row < sheet.Count; row++)
                         {
                             var name = sheet[row][0];
+                            // 必須項目チェック
                             if(sheetName == SettingsSheet && name == IndexValue)
                             {
                                 isRequiredValueExists = true;
                             }
+
                             var value = sheet[row][1];
-                            data.Add(name, value);
+                            if (name.StartsWith(BoolCulumnPrefix))
+                            {
+                                // bool型判定
+                                var val = sheet[row][1];
+                                try
+                                {
+                                    data.Add(name, ToBool(sheet[row][1]));
+                                }
+                                catch (Exception)
+                                {
+                                    errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} value:{val}");
+                                }
+                            }
+                            else
+                            {
+                                data.Add(name, value);
+                            }
                         }
                         // 親がないのでトップデータリストに追加
                         topDataList.Add(sheetName, data.ToDynamic());

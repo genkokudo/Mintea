@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_class_service</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>serviceモジュールの作成。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_class_service</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>Test</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>Test</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="CSharp" Kind="file" Delimiter="%"><![CDATA[    /// <summary>
+    /// オプション（Serviceでこれができるか未確認）
+    /// </summary>
+    public class %Test%Option
+    {
+        // TODO:設定項目があれば作成すること
+        /// <summary>
+        /// 設定項目
+        /// </summary>
+        public string HomeDirectory { get; set; }
+    }
+    
+    public interface I%Test%Service
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <returns></returns>
+        public (string hashed, string salt) Hash(string raw);
+    }
+
+    public class %Test%Service: I%Test%Service
+    {
+        private readonly ILogger<%Test%Service> _logger;
+        
+        public %Test%Service(ILogger<%Test%Service> logger, XxxOption options = null)
+        {
+            _logger = logger;
+        }
+        
+        public (string hashed, string salt) Hash(string raw)
+        {
+            _logger.LogInformation($"%Test%Service.Hash: {hashed}, {salt}");
+            var hashed = string.Empty;
+            var salt = string.Empty;
+            
+            return (hashed, salt);
+        }
+    }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
