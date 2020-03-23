@@ -503,7 +503,6 @@ namespace Mintea.RazorHelper
         public static Dictionary<string, List<List<string>>> ReadExcel(string directry, string filename, bool isRequiredTitle = false)
         {
             // ファイルの読み込み
-            var xlsx = new Dictionary<string, List<List<string>>>();
             using (PhysicalFileProvider provider = new PhysicalFileProvider(directry))
             {
                 // ファイル情報を取得
@@ -512,35 +511,51 @@ namespace Mintea.RazorHelper
                 // ファイル存在チェック
                 if (fileInfo.Exists)
                 {
-                    using (var wb = new XLWorkbook(fileInfo.PhysicalPath))
-                    {
-                        foreach (var ws in wb.Worksheets)
-                        {
-                            // ワークシート
-                            List<List<string>> sheet = new List<List<string>>();
-                            // TODO:何も書いてないシートがあると落ちる
-                            for (int i = 1; i <= ws.LastCellUsed().Address.RowNumber; i++)
-                            {
-                                List<string> raw = new List<string>();
-                                for (int j = 1; j <= ws.LastCellUsed().Address.ColumnNumber; j++)
-                                {
-                                    // 1行目に何もない列を無視する
-                                    if (!isRequiredTitle || !string.IsNullOrWhiteSpace(ws.Cell(1, j).Value.ToString()))
-                                    {
-                                        raw.Add(ws.Cell(i, j).Value.ToString());
-                                    }
-                                }
-                                sheet.Add(raw);
-                            }
-
-                            // シート名と一緒に登録
-                            xlsx.Add(ws.Name, sheet);
-                        }
-                    }
+                    return ReadExcel(new FileStream(fileInfo.PhysicalPath, FileMode.Open), isRequiredTitle);
                 }
-
-                return xlsx;
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Excelファイルを読み込み、シート名をキーとした辞書にする
+        /// xlsxのみ対応
+        /// </summary>
+        /// <param name="directry">ディレクトリ</param>
+        /// <param name="filename">拡張子付きのファイル名</param>
+        /// <param name="isRequiredTitle">1行目に何もない列を無視する</param>
+        /// <returns>シート名をキーとした辞書、行と列の2次元string</returns>
+        public static Dictionary<string, List<List<string>>> ReadExcel(Stream stream, bool isRequiredTitle = false)
+        {
+            // ファイルの読み込み
+            var xlsx = new Dictionary<string, List<List<string>>>();
+            using (var wb = new XLWorkbook(stream))
+            {
+                foreach (var ws in wb.Worksheets)
+                {
+                    // ワークシート
+                    List<List<string>> sheet = new List<List<string>>();
+                    // TODO:何も書いてないシートがあると落ちる
+                    for (int i = 1; i <= ws.LastCellUsed().Address.RowNumber; i++)
+                    {
+                        List<string> raw = new List<string>();
+                        for (int j = 1; j <= ws.LastCellUsed().Address.ColumnNumber; j++)
+                        {
+                            // 1行目に何もない列を無視する
+                            if (!isRequiredTitle || !string.IsNullOrWhiteSpace(ws.Cell(1, j).Value.ToString()))
+                            {
+                                raw.Add(ws.Cell(i, j).Value.ToString());
+                            }
+                        }
+                        sheet.Add(raw);
+                    }
+
+                    // シート名と一緒に登録
+                    xlsx.Add(ws.Name, sheet);
+                }
+            }
+
+            return xlsx;
         }
         #endregion
 
