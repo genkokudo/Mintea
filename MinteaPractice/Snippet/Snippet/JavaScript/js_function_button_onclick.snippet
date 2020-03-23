@@ -15,9 +15,14 @@
       <Code Language="JavaScript" Kind="any" Delimiter="%"><![CDATA[
 // <button id="BtnA" class="btn btn-success btn-sm" key="1">Sample</button>
 $('#BtnA').on('click', function () {
-    var id = $(this).attr('key');
-    alert(id);
-});]]></Code>
+    if (window.confirm('本当にいいんですね？')) {
+        var id = $(this).attr('key');
+        alert(id);
+    } else {
+        // キャンセル時の処理
+    }
+});
+]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>
