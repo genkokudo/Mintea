@@ -580,6 +580,44 @@ namespace MinteaCore.RazorHelper
 
             return xlsx;
         }
+
+        /// <summary>
+        /// Excelを読み込む
+        /// </summary>
+        /// <param name="filePath">ファイルパス</param>
+        /// <returns></returns>
+        private Dictionary<string, List<List<string>>> ReadExcel(string filePath, bool isRequiredTitle = false)
+        {
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                return ReadExcel(stream, isRequiredTitle);
+            }
+        }
+        #endregion
+
+        #region Excelファイル作成（使ってない）
+        ///// <summary>
+        ///// Excelファイル作成
+        ///// </summary>
+        ///// <param name="id"></param>
+        ///// <returns></returns>
+        //private async Task<XLWorkbook> BuildExcelFile(int id)
+        //{
+        //    var t = Task.Run(() =>
+        //    {
+        //        // ブック作成
+        //        var wb = new XLWorkbook();
+        //        // シート作成
+        //        var ws = wb.AddWorksheet("Sheet1");
+        //        // 最初のセルに値を設定
+        //        ws.FirstCell().SetValue(id);
+        //        // 保存
+        //        //wb.SaveAs("HelloWorld.xlsx");
+        //        return wb;
+        //    });
+        //    return await t;
+        //}
+
         #endregion
 
         #region SafeCreateDirectory
