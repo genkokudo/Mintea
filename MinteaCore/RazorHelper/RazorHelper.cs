@@ -640,5 +640,39 @@ namespace MinteaCore.RazorHelper
             return Directory.CreateDirectory(directory);
         }
         #endregion
+
+        #region DeleteDirectory
+        /// <summary>
+        /// 指定したディレクトリとその中身を全て削除する
+        /// </summary>
+        public static void DeleteDirectory(string directory, bool isTop)
+        {
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+
+            //ディレクトリ以外の全ファイルを削除
+            string[] filePaths = Directory.GetFiles(directory);
+            foreach (string filePath in filePaths)
+            {
+                File.SetAttributes(filePath, FileAttributes.Normal);
+                File.Delete(filePath);
+            }
+
+            //ディレクトリの中のディレクトリも再帰的に削除
+            string[] directoryPaths = Directory.GetDirectories(directory);
+            foreach (string directoryPath in directoryPaths)
+            {
+                DeleteDirectory(directoryPath, false);
+            }
+
+            if (!isTop)
+            {
+                //中が空になったらディレクトリ自身も削除
+                Directory.Delete(directory, false);
+            }
+        }
+        #endregion
     }
 }
