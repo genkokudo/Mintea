@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_inflector</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>単数形複数形、PascalCase変換などが出来ます。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_inflector</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method body" Delimiter="$"><![CDATA[            // PM> Install-Package Inflector.NetCore
+            var inf = new Inflector.Inflector(new CultureInfo("en-US"));
+            // 複数形
+            Console.WriteLine(inf.Pluralize("History"));
+            // 単数形
+            Console.WriteLine(inf.Singularize("children"));
+            // PascalCaseにする
+            Console.WriteLine(inf.Pascalize("tryCatch"));
+            // CamelCaseにする
+            Console.WriteLine(inf.Camelize("try_catch"));
+            // 1st 2nd...
+            Console.WriteLine(inf.Ordinalize(3));
+            // 大文字とスペース区切りにする
+            Console.WriteLine(inf.Titleize("try-catch"));
+            // SnakeCaseにする
+            Console.WriteLine(inf.Underscore("TryCatch"));]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

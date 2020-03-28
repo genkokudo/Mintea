@@ -56,6 +56,18 @@ namespace Mintea.RazorHelper
         /// </summary>
         const string ParentCulumn = "Parent";
 
+        /// <summary>
+        /// Camel, Pascal, Pluralを用意する列
+        /// CamelPlural
+        /// PascalPlural
+        /// </summary>
+        const string InflectCulumn = "Name";
+        const string Camel = "Camel";
+        const string Pascal = "Pascal";
+        const string Plural = "Plural";
+        const string CamelPlural = "CamelPlural";
+        const string PascalPlural = "PascalPlural";
+
         #region MakeSequence:生成するシートの順番を作成する（子シート優先にする）
         /// <summary>
         /// 生成するシートの順番を作成する
@@ -328,7 +340,7 @@ namespace Mintea.RazorHelper
                                 }
                                 else if(sheet[0][col].StartsWith(BoolCulumnPrefix))
                                 {
-                                    // bool型判定
+                                    // Isならば、bool型判定
                                     var val = sheet[row][col];
                                     try
                                     {
@@ -338,6 +350,17 @@ namespace Mintea.RazorHelper
                                     {
                                         errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
                                     }
+                                }
+                                else if (sheet[0][col] == InflectCulumn)
+                                {
+                                    // Nameならば、5フィールド余分に作る
+                                    //inf.Pluralize("cost");
+                                    rowData.Add(sheet[0][col], sheet[row][col]);
+                                    //rowData.Add(Camel, sheet[row][col]);
+                                    //rowData.Add(Pascal, sheet[row][col]);
+                                    //rowData.Add(Plural, sheet[row][col]);
+                                    //rowData.Add(CamelPlural, sheet[row][col]);
+                                    //rowData.Add(PascalPlural, sheet[row][col]);
                                 }
                                 else
                                 {
