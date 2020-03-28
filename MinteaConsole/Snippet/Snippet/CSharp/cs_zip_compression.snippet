@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_zip_compression</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>zip圧縮します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_zip_compression</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>System.IO.Compression</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp" Kind="method body" Delimiter="#"><![CDATA[
+            // 単なる圧縮
+            ZipFile.CreateFromDirectory(@"E:\Test", @"E:\Test.zip");
+
+            // または、ファイルを指定＆リネームして圧縮
+            using (ZipArchive archive = ZipFile.Open(@"E:\Test.zip", ZipArchiveMode.Create))
+            {
+                archive.CreateEntryFromFile(
+                    Path.Combine(outPath, $"{filename}"),
+                    $"{filename}",
+                    //$"{direntoryName}/filename}" // ディレクトリ分けする場合はこう書く
+                    );
+            }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

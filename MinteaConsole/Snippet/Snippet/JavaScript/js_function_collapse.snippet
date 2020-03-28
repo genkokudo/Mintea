@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_function_collapse</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>メニューの開閉を実装します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_function_collapse</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="javascript" Kind="any" Delimiter="@"><![CDATA[
+// メニューの開閉
+$(document).on('click', 'button[name=tableCollapse]', function () {
+    $('#multiCollapseExample1').collapse('toggle');
+    $('#multiCollapseExample2').collapse('toggle');
+});
+
+//<p>
+//    <!-- aタグボタン -->
+//    <a role="button" class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1">第1要素の切替</a>
+//    <!-- buttonタグ -->
+//    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#multiCollapseExample2">第2要素の切替</button>
+//    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target=".multi-collapse">クラスを指定して両方の要素を切替</button>
+//    <button type="button" class="btn btn-primary" name="tableCollapse">JSで両方の要素を切替</button>
+//</p>
+//<div class="row">
+//    <div class="col">
+//        <div class="collapse multi-collapse" id="multiCollapseExample1">
+//            <div class="card card-body">
+//                第1要素のコンテンツ。
+//        </div>
+//        </div>
+//    </div>
+//    <div class="col">
+//        <div class="collapse multi-collapse" id="multiCollapseExample2">
+//            <div class="card card-body">
+//                第2要素のコンテンツ。
+//        </div>
+//        </div>
+//    </div>
+//</div>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

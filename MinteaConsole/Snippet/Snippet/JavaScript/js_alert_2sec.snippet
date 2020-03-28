@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_alert_2sec</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>アラートを表示して2秒で閉じる処理です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_alert_2sec</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[
+// <div id="TopAlert" class="row d-block"></div> 
+
+// アラートを表示して2秒で閉じる
+var divArert = $('<div role="alert" class="alert fade show alert-success">更新が完了しました</div>')
+$('#TopAlert').append(divArert);
+
+setTimeout(() => {
+    divArert.alert('close');
+}, 2000); ]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

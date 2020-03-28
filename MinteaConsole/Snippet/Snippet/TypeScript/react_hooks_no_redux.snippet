@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_hooks_no_redux</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>hooksで単純な画面を作成します。Redux不使用。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_hooks_no_redux</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>Counter</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>Counter</Default>
+        </Literal>
+        <Literal>
+          <ID>counter</ID>
+          <ToolTip>名前Camel</ToolTip>
+          <Default>counter</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// --------------- $Counter$.tsx --------------- 
+import React, { useState, useEffect } from 'react'
+
+/*
+ * △△画面の表示
+ */
+const $Counter$ = (props: Partial<$Counter$Props>) => {
+    // 注意：Hooksは必ず関数の中のトップレベルに書くこと
+
+    // React本体に関数コンポーネント専用の保存領域を作成してもらい、そこにあるデータを読み書きできる
+    const [count, setCount] = useState(0);    // フィールド名、セッター名、初期値
+
+    // レンダリングの後に処理を動作させることができます（レンダリングの前はuseLayoutEffect）
+    useEffect(() => {
+        console.log('hello useEffect');
+        
+        //const timerId = setInterval(() => setTime(new Date().getTime()), 1000);
+        //return () => clearInterval(timerId);    // returnを使うと、クリーンアップ関数を登録できる
+    }, []); // この第2引数にcountをセットすると、count変更時に再びRenderされる
+
+    // 任意の関数
+    const helloWork = () => {
+        console.log('Hello Work');
+        return 'aaaa';
+    }
+
+    return (
+        <React.Fragment>
+            <p>{helloWork()}</p>
+            <p>You clicked {count} times</p>
+            <button onClick={() => setCount(count + 1)}>
+                Click me
+            </button>
+        </React.Fragment>
+    );
+
+    // 他に値を送るための入れ物を使う場合は useContext を使用する
+    // コストの大きい計算結果をキャッシュする場合は、useMemoを使用する
+    // const calcResult = useMemo(() => expensiveFunc(), []);
+    // 関数をキャッシュする場合はuseCallbackを使う
+    // const onClick = useCallback(() => alert('Hi!'), []);
+    // DOMから値を取りたい場合はuseRefを使用する
+};
+
+// 引数の型を指定、いらなかったら消す
+type $Counter$Props = {
+    initialCount: number;
+}
+
+// デフォルト値
+$Counter$.defaultProps = {
+    initialCount: 100
+};
+
+export default $Counter$;
+
+// --------------- NavMenu.tsx --------------- 
+//<NavItem>
+//    <NavLink tag={Link} to="/$counter$">$Counter$</NavLink>
+//</NavItem>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

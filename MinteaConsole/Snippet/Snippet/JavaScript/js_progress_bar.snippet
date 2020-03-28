@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_progress_bar</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>プログレスバーのカウントアップ処理です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_progress_bar</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="%"><![CDATA[
+//<style type="text/css">
+//    /* ラベルを白文字で中央にする */
+//    .progress-value {
+//    position:absolute;
+//    right:0;
+//    left:0;
+//    color:white;
+//    }
+//    .progress {
+//        text-align:center;
+//    }
+//</style>
+
+
+//<div class="container">
+//    <!-- プログレスバー -->
+//    <div class="progress bg-dark">
+//        <span id="actionProgressLabel" class="progress-value"></span>
+//        <div id="actionProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%;"></div>
+//    </div>
+//</div>
+
+// -------- プログレスバーの処理 --------
+var isActive = false;        // TODO:どこかでTrueにすることで開始する
+var progressCount = 0;      // 現在のバーの値（％）
+var progressLabelCount = 0; // 現在のラベルの値（ミリ秒）
+var progressInterval = 100; // 更新間隔（ミリ秒）
+var countUnit = 0;          // 1回分のバーの増分（％）
+var actionInterval = 60000;       // 満タンになるまでの時間（ミリ秒）
+
+// プログレスバーの初期設定
+function startProgress() {
+//    actionInterval = Number($('#actionIntervalSeconds').val()) * 1000;
+    progressLabelCount = actionInterval;
+    countUnit = progressInterval * 100 / actionInterval;
+    actionCountProgress();
+}
+
+// 満タン時の処理を何か行ったときなどに呼び出す
+// プログレスバーの値をゼロにし、カウントアップを始める
+function initProgress{
+        // プログレスバーの値をゼロにし、カウントアップを始める
+        progressCount = 0;
+        progressLabelCount = actionInterval;
+        actionCountProgress();
+
+        // 表示更新
+        updateProgressBar();
+    }
+}
+
+// プログレスバーのカウントアップを開始する
+function actionCountProgress() {
+    setTimeout(function () {
+        if(isActive){
+            // 値と表示を更新
+            progressCount += countUnit;
+            progressLabelCount -= progressInterval;
+            updateProgressBar();
+            if (progressCount >= 100) {
+                // 100%になったときの処理、何かの無効化を解除するなど
+                available();
+                return;
+            }
+            actionCountProgress();
+        }
+    }, progressInterval);
+}
+
+// プログレスバーの表示を更新する
+function updateProgressBar() {
+    if (!isActive) {
+        // 始まってないとき
+        progressCount = 0;
+        $('#actionProgressLabel').text('');
+    }
+    else if (progressCount >= 100) {
+        // 満タンの時
+        $('#actionProgressLabel').text($('#actionAvaliableMessage').val());
+    }
+    else {
+        // 通常時
+        $('#actionProgressLabel').text(Math.floor(progressLabelCount / 1000) + $('#unitSeconds').val());
+    }
+    $('#actionProgress').css({ 'width': progressCount + '%' });
+}
+// -------- プログレスバーの処理ここまで --------
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

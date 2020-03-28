@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_add_view</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>画面を追加するときのテンプレートです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_add_view</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>ChartNav</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>ChartNav</Default>
+        </Literal>
+        <Literal>
+          <ID>chart-nav</ID>
+          <ToolTip>名前ハイフン繋ぎ</ToolTip>
+          <Default>chart-nav</Default>
+        </Literal>
+        <Literal>
+          <ID>chartnav</ID>
+          <ToolTip>名前小文字</ToolTip>
+          <Default>chartnav</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="file" Delimiter="$"><![CDATA[
+// TODO:csprojのItemGroupに追加されてしまいjsが生成されてしまうので、csprojの追加された記述を元に戻すこと。
+// ※このコンポーネントの書き方はRouteを使って遷移する前提で、他の画面に貼ることはできないと思います。
+/* ---- $ChartNav$.ts 状態・アクション ---- */
+
+import { Action, Reducer } from 'redux';
+
+// -------- STATE --------
+/**
+ * 画面の状態
+ */
+export interface $ChartNav$State {
+    isOpen: boolean;    // ～～の状態
+    count: number;    // ～～の状態
+    name: string;    // ～～の状態
+}
+
+// -------- ACTIONS --------
+/**
+ * ～～する処理
+ */
+export interface ToggleAaaaAction {
+    type: 'TOGGLE_AAAA'
+    isOpen: boolean;
+}
+
+/**
+ * △△する処理
+ */
+export interface ToggleBbbbAction { type: 'TOGGLE_BBBB' }
+
+/**
+ * 存在する処理の列挙です。
+ */
+export type KnownAction = ToggleAaaaAction | ToggleBbbbAction;
+
+// -------- ACTION CREATORS --------
+/**
+ * Componentに公開される関数です。
+ */
+export const actionCreators = {
+    toggleAaaa: () => ({ type: 'TOGGLE_AAAA' } as ToggleAaaaAction),
+    toggleBbbb: () => ({ type: 'TOGGLE_BBBB' } as ToggleBbbbAction)
+};
+
+// -------- REDUCER --------
+/**
+ * 指定された状態とアクションに対して、新しい状態を返します。
+ */
+export const reducer: Reducer<$ChartNav$State> = (state: $ChartNav$State | undefined, incomingAction: Action): $ChartNav$State => {
+    // 初期状態
+    if (state === undefined) {
+        return { isOpen: false, count: 0, name: 'aaaa' };
+    }
+
+    // 処理内容
+    const action = incomingAction as KnownAction;
+    switch (action.type) {
+        case 'TOGGLE_AAAA':
+            // stateをコピーして、一部値を変更する
+            return Object.assign({}, state, {
+                isOpen: !state.isOpen
+            })
+        case 'TOGGLE_BBBB':
+            return { isOpen: !state.isOpen, count: 1, name: 'bbbb' };
+        default:
+            return state;
+    }
+};
+
+
+/* ---- $ChartNav$.tsx 見た目・コンポーネント ---- */
+import * as React from 'react';
+import { RouteComponentProps } from 'react-router';
+import * as $ChartNav$Store from '../store/$ChartNav$';
+import { connect } from 'react-redux';
+import { ApplicationState } from '../store';
+
+/**
+ * 状態と処理の定義です。
+ */
+type $ChartNav$Props =
+    $ChartNav$Store.$ChartNav$State &
+    typeof $ChartNav$Store.actionCreators &
+    RouteComponentProps<{}>;    // TODO:URLに引数がある場合は{userId: string}のように書く
+
+/**
+ * 画面の描画を定義します。
+ */
+class $ChartNav$ extends React.PureComponent<$ChartNav$Props> {
+    public render() {
+        return (
+            <p>$ChartNav$</p>
+        );
+    }
+}
+
+export default connect(
+    (state: ApplicationState) => state.$chartnav$,
+    $ChartNav$Store.actionCreators
+)($ChartNav$);
+
+
+
+/* ---- App.tsx ---- */
+import $ChartNav$ from './components/$ChartNav$';
+<Route path='/$chart-nav$' component={$ChartNav$} />
+
+/* ---- index.ts ---- */
+import * as $ChartNav$ from './$ChartNav$';
+
+$chartnav$: $ChartNav$.$ChartNav$State | undefined;
+
+$chartnav$: $ChartNav$.reducer,
+
+/* ---- NavMenu.tsx:メニューに追加する場合のみ ---- */
+<NavItem>
+    <NavLink tag={Link} className="text-dark" to="/$chart-nav$">$ChartNav$</NavLink>
+</NavItem>
+
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

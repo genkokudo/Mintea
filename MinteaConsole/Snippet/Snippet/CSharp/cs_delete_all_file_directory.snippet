@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_delete_all_file_directory</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>フォルダの中身を削除します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_delete_all_file_directory</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method body" Delimiter="$"><![CDATA[
+        //private readonly IWebHostEnvironment _hostEnvironment = null;
+        //public IndexModel(IWebHostEnvironment hostEnvironment)
+        //{
+        //    _hostEnvironment = hostEnvironment;
+        //}
+
+            // wwwroot/temp
+            string outPath = Path.Combine(_hostEnvironment.WebRootPath, "temp");
+
+            // 一時ファイル消す
+            DirectoryInfo target = new DirectoryInfo(outPath);
+            foreach (FileInfo file in target.GetFiles())
+            {
+                file.Delete();
+            }
+            //フォルダも消す
+            //foreach(DirectoryInfo dir in target.GetDirectories())
+            //{
+            //    dir.Delete(true);
+            //}]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

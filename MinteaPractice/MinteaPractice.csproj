@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HtmlToDom\Mintea.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Template\botsu\DailyBase.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -41,6 +37,10 @@
 
   <ItemGroup>
     <Folder Include="Snippet\Snippet\Xaml\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MinteaCore\MinteaCore.csproj" />
   </ItemGroup>
 
 </Project>

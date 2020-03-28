@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_hooks_function_render_checklist</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>Stateからチェックリスト関数を作成します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_hooks_function_render_checklist</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>Authority</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>Authority</Default>
+        </Literal>
+        <Literal>
+          <ID>authorities</ID>
+          <ToolTip>名前Camel</ToolTip>
+          <Default>authorities</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[・react_hooks_function_render_checklist
+
+// stateData.$authorities$は、List<SelectListItem>です。
+    function render$Authority$() {
+        var list = [];
+
+        for (var i in stateData.$authorities$) {
+            list.push(
+                <CustomInput id={'$authorities$' + '_' + i} key={'$authorities$' + '_' + i} value={stateData.$authorities$[i].value} type="checkbox" label={stateData.$authorities$[i].text} />
+            );
+        }
+        return (
+            <FormGroup check>
+                <Label check>
+                    <div>
+                        {list}
+                    </div>
+                </Label>
+            </FormGroup>
+        );
+    }
+
+//            <Form>
+//                {render$Authority$()}
+//                <Button>Submit</Button>
+//            </Form>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

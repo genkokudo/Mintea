@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_hooks_usefetch</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>fetchを使うパターンのナウい画面実装です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_hooks_usefetch</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>SimpleCounter</ID>
+          <ToolTip>名前Pascal</ToolTip>
+          <Default>SimpleCounter</Default>
+        </Literal>
+        <Literal>
+          <ID>simpleCounter</ID>
+          <ToolTip>名前Camel</ToolTip>
+          <Default>simpleCounter</Default>
+        </Literal>
+        <Literal>
+          <ID>simple-counter</ID>
+          <ToolTip>名前ハイフン繋ぎ</ToolTip>
+          <Default>simple-counter</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// -------------------- $SimpleCounter$.ts --------------------
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+// state
+// サーバのフィールドと自動マッピングされるが、対応するのはPascalとCamelだけで、途中が大文字小文字違いの単語は認識されない
+// 例：LabelとlabelはOK、YMaxとymaxはダメで、yMaxはOK
+export interface $SimpleCounter$State {
+    // 表のデータ
+    label: string;
+    cost: number[];
+    month: string[];
+    // もし、interfaceの配列を使用する場合：正しく読めないので、JSON.parse(JSON.stringify(datasets))で読み直して使用すること
+    datasets: Dataset[];
+}
+
+// 補助データ
+interface Dataset {
+    label: string;
+    borderWidth: number;
+    backgroundColor: string;
+    borderColor: string;
+    data: number[];
+}
+
+// 初期値
+const $simpleCounter$InitialState: $SimpleCounter$State = {
+    label: 'no data',
+    cost: [],
+    month: [],
+    datasets: []
+};
+
+// createSlice() の中では、stateの更新を行っても良い（他ではだめ）
+// 同じ画面で同じhooksを複数使用する場合、このSliceを複数にすること。同じStateを呼んでしまい、エラーになるため。
+export let $SimpleCounter$Module = createSlice({
+    name: "$simpleCounter$",
+    initialState: $simpleCounter$InitialState,
+    reducers:   // 処理の定義
+    {
+        // Fetchしたデータをstateに反映させる
+        setData: (state, action: PayloadAction<$SimpleCounter$State>) => {
+            if (action.payload) {
+                // stateの更新方法
+                
+                // こうやって、1つずつフィールドを転記すると確実
+                // できれば、Read Onlyなデータはinterfaceにして、入力データやPostデータと分けると良い
+                //state.label = action.payload.label;
+                //state.cost = action.payload.cost;
+                
+                // または、丸ごとreturnする（ただしAPIと関係ないフィールドが無い場合のみ）
+                // もし画面の入力値などもstateに含んでいると、入力値がstateに反映しなくなりPost時に困る。
+                return action.payload;
+            }
+        }
+        // Postする場合はここにFetch処理を追加する。
+
+    }
+});
+
+
+// -------------------- $SimpleCounter$.tsx --------------------
+import * as React from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { $SimpleCounter$Module, $SimpleCounter$State } from '../store/$SimpleCounter$';
+import { Container, Row, Col } from 'reactstrap';
+import { useFetch } from '../store/useFetch';   // react_export_usefetch
+
+// 引数の定義
+interface $SimpleCounter$Props {
+    aaaa: number;
+    bbbb?: string;  // 必須でない場合は?を付ける
+}
+
+/*
+ * △△画面の表示
+ * ↓呼び方
+ * <Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />}/>
+ * ↓こっちで呼んだ場合でもpropsはnullにならず、aaaaとかがnullになってるので判定するとき注意
+ * <Route path='/$simple-counter$' component={$SimpleCounter$} />
+ */
+const $SimpleCounter$ = (props: Partial<$SimpleCounter$Props>) => {
+    // hooksセットアップ
+    const dispatch = useDispatch();
+
+    // fetchでデータ取得する
+    const { loading, error, data } = useFetch('/$SimpleCounter$/$SimpleCounter$');
+
+    // stateにデータを反映させる
+    dispatch($SimpleCounter$Module.actions.setData(data));
+
+    // state取得
+    const stateData: $SimpleCounter$State = useSelector((state: any) => state.$simpleCounter$);
+
+    useEffect(() => {
+    });
+
+    return (
+        <Container>
+            {loading && <span>Loading...</span>}
+            {error && <span>Failed to fetch</span>}
+            {
+                data &&
+                <div>
+                    {stateData.label}
+                    {stateData.cost}
+                    {stateData.month}
+                </div>
+            }
+            <Row>
+                <Col className={'d-flex justify-content-center'}>
+                </Col>
+            </Row>
+        </Container>
+    );
+};
+
+export default $SimpleCounter$;
+
+// --------------- NavMenu.tsx --------------- 
+//<NavItem>
+//    <NavLink tag={Link} to='/$simple-counter$'>$SimpleCounter$</NavLink>
+//</NavItem>
+
+// --------------- index.ts --------------- 
+import { $SimpleCounter$Module } from './Special';
+
+    $simpleCounter$: $SimpleCounter$Module.reducer,   // △△画面の処理
+
+// --------------- App.tsx --------------- 
+import $SimpleCounter$ from './components/$SimpleCounter$';
+
+<Route path='/$simple-counter$' component={$SimpleCounter$} />
+<Route path='/$simple-counter$' render={props => <$SimpleCounter$ aaaa={34} {...props} />} />
+
+// -------------------- サーバ側 --------------------
+//    /// <summary>検索結果</summary>
+//    public class $SimpleCounter$Result
+//    {
+//        /// <summary>
+//        /// 軸ラベル
+//        /// </summary>
+//        public string Label { get; set; } = "タイトル";
+//
+//        /// <summary>
+//        /// 金額
+//        /// </summary>
+//        public List<int> Cost { get; set; }
+//
+//        /// <summary>
+//        /// 年月
+//        /// </summary>
+//        public List<string> Month { get; set; }
+//    }
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

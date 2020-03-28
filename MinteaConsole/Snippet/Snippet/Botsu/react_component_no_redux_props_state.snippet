@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>react_component_no_redux_props_state</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>Redux不使用で、propとstateがあるコンポーネントです。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>react_component_no_redux_props_state</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="TypeScript" Kind="any" Delimiter="$"><![CDATA[
+// TODO:csprojのItemGroupに追加されてしまいjsが生成されてしまうので、csprojの追加された記述を元に戻すこと。
+// TODO:変数を付けること
+// 呼び方
+// Stateタイプを再度使用する必要がない場合は、インラインで定義することもできます
+// React.Component<{}, { count: number }>
+
+import * as React from 'react';
+
+// 必要な入力値
+type Props = {
+    foo: number
+};
+
+// このコンポーネントの状態
+type State = {
+    count: number,
+};
+
+class MyComponent extends React.Component<Props, State> {
+    state = {
+        count: 0,
+    };
+
+    // Propsを入力しなかった場合、デフォルト値を設定する
+    static defaultProps = {
+        foo: 42,
+    };
+
+    componentDidMount() {
+        setInterval(() => {
+            this.setState(prevState => ({
+                count: prevState.count + 1,
+            }));
+        }, 1000);
+    }
+
+    render() {
+        return <div>Count: {this.state.count}</div>;
+    }
+}
+
+<MyComponent />;]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

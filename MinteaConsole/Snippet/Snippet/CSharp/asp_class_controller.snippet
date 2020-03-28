@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>asp_class_controller</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>コントローラの基本形です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>asp_class_controller</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="file" Delimiter="#"><![CDATA[
+    public class AaaaController : ControllerBase
+    {
+        // ※https://localhost:44301/Aaaa/Aaaa/1 みたいにする場合は別のスニペットを使用
+
+        /// <summary>
+        /// https://localhost:44301/Aaaa/Aaaa?id=1
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IEnumerable<string> Aaaa(long id)
+        {
+            return Enumerable.Range(1, 5).Select(index => $"Data{index}_{id}")
+            .ToArray();
+        }
+
+        /// <summary>
+        /// https://localhost:44301/Aaaa/Bbbb
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Bbbb()
+        {
+            // return File(いろいろ);
+            // return PhysicalFile(いろいろ);
+            // return BadRequest(Object);
+            // return RedirectToPage(いろいろ);
+            return Ok(new { message = "正常終了" });
+        }
+    }]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

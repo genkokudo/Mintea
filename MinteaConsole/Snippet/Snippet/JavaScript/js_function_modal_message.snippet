@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>js_function_modal_message</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>改行付きメッセージをモーダル表示する例です。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>js_function_modal_message</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript" Kind="any" Delimiter="@"><![CDATA[// メッセージをポップアップ表示する（\nで改行）
+function popupMessage(message) {
+    $('#TextModal').empty();
+
+    var rows = message.split('\n');
+    rows.forEach((row) => {
+        $('#TextModal').append('<tr><td>'+ row +'</td>/<tr>');
+    });
+
+    $('#MessageModal').modal('show');
+}
+
+// modal-dialog modal-dialog-centered 中央表示
+// .modal-sm, .modal-lg, .modal-xl 横幅変更
+
+//<div class="modal fade" id="MessageModal" tabindex="-1" role="dialog">
+//    <div class="modal-dialog" role="document">
+//        <div class="modal-content">
+//            <div class="modal-body">
+//                <table id="TextModal">
+//                </table>
+//            </div>
+//            <div class="modal-footer">
+//                <button type="button" data-toggle="modal" data-target="#MessageModal" class="btn btn-primary">閉じる</button>
+//            </div>
+//        </div>
+//    </div>
+//</div>]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

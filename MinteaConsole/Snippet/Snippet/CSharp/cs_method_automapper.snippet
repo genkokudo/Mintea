@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_method_automapper</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>Modelに対しAutoMapperを実装します。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_method_automapper</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method decl" Delimiter="$"><![CDATA[
+        public class MappingProfiler : Profile
+        {
+            public MappingProfiler() => CreateMap<$DestClass$, $ClassName$>(MemberList.Source).ReverseMap();
+
+            //// ※または、こういうイレギュラー対応を書く 
+            //public MappingProfiler() => CreateMap<$DestClass$, $ClassName$>(MemberList.Source)
+            //.ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data.Name))
+            //.ForMember(dest => dest.DataId, opt => opt.MapFrom(src => src.Data != null ? src.Data.Id : -1))
+            //.ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date != null ? src.Date.Value.ToString("yyyy-MM-dd") : null))
+            //.ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.Plan != null ? (long?)src.Plan.Id : null))
+            //.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Document != null ? (long?)src.Document.Id : null));
+        }
+
+        // TODO:使い方
+        // [StartUp.cs]
+        // services.AddAutoMapper(typeof(Startup)); 
+
+        // IMapperをインジェクションする
+        //var entity = _mapper.Map<$ClassName$>(Filter);]]></Code>
+        
+        // リストや配列もマッピングできる
+        // Users = _mapper.Map<SrcEntity[], DestViewModel[]>(users)
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
