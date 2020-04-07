@@ -41,6 +41,15 @@ namespace MinteaCore.RazorHelper
         const string IndexValue = "Index";
 
         /// <summary>
+        /// "Out"が最後についているシートは外部入力
+        /// </summary>
+        const string OutSheet = "Out";
+        /// <summary>
+        /// "OutList"が最後についているシートは外部入力
+        /// </summary>
+        const string OutListSheetSuffix = "OutList";
+
+        /// <summary>
         /// "List"が最後についているシートはリスト
         /// </summary>
         const string ListSheetSuffix = "List";
@@ -202,7 +211,7 @@ namespace MinteaCore.RazorHelper
 
             foreach (var sheetName in excel.Keys)
             {
-                if (sheetName.EndsWith(ListSheetSuffix))
+                if (sheetName.EndsWith(ListSheetSuffix))    // OutList含む
                 {
                     // リスト
                     var sheet = excel[sheetName];
@@ -260,9 +269,10 @@ namespace MinteaCore.RazorHelper
         #region CreateModel:Razorに入力するModelを作成する
         /// <summary>
         /// Razorに入力するModelを作成する
+        /// 外部ソース用なので、OutListだけ
         /// </summary>
         /// <returns></returns>
-        public static dynamic CreateModel(Dictionary<string, List<List<string>>> excel)
+        public static dynamic CreateOutModel(Dictionary<string, List<List<string>>> excel)
         {
             var inf = new Inflector.Inflector(new CultureInfo("en-US"));
             var errors = new List<string>();
@@ -279,9 +289,82 @@ namespace MinteaCore.RazorHelper
             // 子シートデータ
             var childDynamic = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
 
+            foreach (var sheetName in sequence)
+            {
+                // 1つのシート
+                var sheet = excel[sheetName];
+
+                // 親があるか
+                var parentIndex = GetIndex(sheet, ParentCulumn);
+
+                // キー取得
+                var keyIndex = GetIndex(sheet, KeyCulumn);
+
+                // Razorの互換性を持たせるために名前を変更して扱う
+                if (sheetName == OutSheet)
+                {
+                    // OutはRootListとして登録
+                    MakeListModel(inf, errors, topDataList, childList, childDynamic, RootListSheet, sheet, parentIndex, string.Empty, keyIndex);
+                }
+                else if (sheetName.EndsWith(OutListSheetSuffix))
+                {
+                    // OutListはListとして登録
+                    MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName.Replace(OutListSheetSuffix, ListSheetSuffix), sheet, parentIndex, string.Empty, keyIndex);
+                }
+            }
+            if (errors.Count > 0)
+            {
+                throw new Exception($"Excelの内容がおかしい:\n{string.Join(",\n", errors)}");
+            }
+
+            // 共通変数としてOutGeneral.Index=0を入れる
+            var generalData = new Dictionary<string, object>
+            {
+                { "Index", "0" }
+            };
+            topDataList.Add("General", generalData.ToDynamic());
+
+            var result = topDataList.ToDynamic();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Razorに入力するModelを作成する
+        /// </summary>
+        /// <param name="excel">Excelデータ</param>
+        /// <param name="outScript"></param>
+        /// <returns></returns>
+        public static dynamic CreateModel(Dictionary<string, List<List<string>>> excel, Dictionary<string, string> outScript = null)
+        {
+            var inf = new Inflector.Inflector(new CultureInfo("en-US"));
+            var errors = new List<string>();
+
+            // データ作成順を決める
+            var sequence = MakeSequence(excel, errors);
+
+            // 親を持たない各シートのデータ：キーはシート名
+            var topDataList = new Dictionary<string, dynamic>();
+
+            // 外部スクリプトの生成結果を追加
+            if (outScript != null)
+            {
+                var outData = new Dictionary<string, object>();
+                foreach (var script in outScript)
+                {
+                    outData.Add(script.Key, script.Value);
+                }
+                topDataList.Add(OutSheet, outData.ToDynamic());
+            }
+
+            // 子情報取得
+            var childList = MakeChildData(excel, errors);
+
+            // 子シートデータ
+            var childDynamic = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
+
             // 子シートから順番にデータ作成
             var isRequiredSheetExists = false;
-            var isRequiredValueExists = false;
             var isRootListExists = false;
             foreach (var sheetName in sequence)
             {
@@ -302,98 +385,21 @@ namespace MinteaCore.RazorHelper
                     // なにもなし
                     continue;
                 }
+                else if (sheetName.EndsWith(OutListSheetSuffix) || sheetName == OutSheet)
+                {
+                    // OutList:外部入力リスト
+                    // なにもなし
+                    continue;
+                }
                 else if (sheetName.EndsWith(ListSheetSuffix))
                 {
+                    // List:通常リスト
                     // 必須シート存在チェック
                     if (sheetName == RootListSheet)
                     {
                         isRootListExists = true;
                     }
-
-                    // リスト
-                    if (sheet.Count > 2)
-                    {
-                        // 親Key別データ、親が無い場合はシート全体のデータ（親キー、1行データ）
-                        var dataByParent = new Dictionary<string, List<dynamic>>();
-
-                        // 2行目まで読まない
-                        for (int row = 2; row < sheet.Count; row++)
-                        {
-                            // 1行読む
-                            var parentKey = "-1";   // 対象の親のKey
-                            var rowData = new Dictionary<string, object>();
-                            for (int col = 0; col < sheet[row].Count; col++)
-                            {
-                                // 列を読む
-                                if (col == parentIndex)
-                                {
-                                    // 親参照はdynamicデータに登録しないが、子dynamicデータリストに保持させるための情報を取得する
-                                    var split = sheet[row][col].Split('.');
-                                    parentName = split[0];
-                                    parentKey = split[1];
-                                }
-                                else if (col == keyIndex)
-                                {
-                                    // 子を追加
-                                    var key = sheet[row][col];  // 書かれているKeyを取得
-                                    AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
-                                }
-                                else if(sheet[0][col].StartsWith(BoolCulumnPrefix))
-                                {
-                                    // Isならば、bool型判定
-                                    var val = sheet[row][col];
-                                    try
-                                    {
-                                        rowData.Add(sheet[0][col], ToBool(sheet[row][col]));
-                                    }
-                                    catch (Exception)
-                                    {
-                                        errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
-                                    }
-                                }
-                                else if (sheet[0][col] == InflectCulumn)
-                                {
-                                    // Nameならば、5フィールド余分に作る
-                                    //inf.Pluralize("cost");
-                                    rowData.Add(sheet[0][col], sheet[row][col]);
-                                    rowData.Add(Camel, inf.Camelize(sheet[row][col]));
-                                    rowData.Add(Pascal, inf.Pascalize(sheet[row][col]));
-                                    rowData.Add(Plural, inf.Pluralize(sheet[row][col]));
-                                    rowData.Add(CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
-                                    rowData.Add(PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
-                                }
-                                else
-                                {
-                                    // ParentでもKeyでもない通常の列
-                                    rowData.Add(sheet[0][col], sheet[row][col]);
-                                }
-                            }
-
-                            // 行データをdynamic化し、親Key別のリストに追加する。
-                            // 親がないシートは必ず1件の同じリストに入る
-                            if (!dataByParent.ContainsKey(parentKey))
-                            {
-                                dataByParent.Add(parentKey, new List<dynamic>());
-                            }
-                            dataByParent[parentKey].Add(rowData.ToDynamic());
-                        }
-
-                        // 親Key別のリストをどこかに登録する。
-                        // 親がないシートは必ず1件
-                        foreach (var dataByParentKey in dataByParent.Keys)
-                        {
-                            if (parentIndex >= 0)
-                            {
-                                // 親がある場合は、データを溜めておく
-                                AddChildrenData(childDynamic, parentName, dataByParentKey, sheetName, dataByParent[dataByParentKey]);
-                            }
-                            else
-                            {
-                                // 親が無いシートはトップにデータを入れる
-                                topDataList.Add(sheetName, dataByParent[dataByParentKey]);
-                            }
-                        }
-                    }
+                    parentName = MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName, sheet, parentIndex, parentName, keyIndex);
                 }
                 else
                 {
@@ -414,10 +420,6 @@ namespace MinteaCore.RazorHelper
                         {
                             var name = sheet[row][0];
                             // 必須項目チェック
-                            if(sheetName == SettingsSheet && name == IndexValue)
-                            {
-                                isRequiredValueExists = true;
-                            }
 
                             var value = sheet[row][1];
                             if (name.StartsWith(BoolCulumnPrefix))
@@ -451,21 +453,130 @@ namespace MinteaCore.RazorHelper
             {
                 errors.Add($"{SettingsSheet}という名前のシートがない。");
             }
-            if (!isRequiredValueExists)
-            {
-                errors.Add($"{SettingsSheet}には{IndexValue}という値を持たせること。");
-            }
             if (errors.Count > 0)
             {
                 throw new Exception($"Excelの内容がおかしい:\n{string.Join(",\n", errors)}");
             }
 
+            // 共通変数としてGeneral.Index=0を入れる
+            var generalData = new Dictionary<string, object>
+            {
+                { "Index", "0" }
+            };
+            topDataList.Add("General", generalData.ToDynamic());
+
             var result = topDataList.ToDynamic();
 
             return result;
         }
+
+        /// <summary>
+        /// やっつけ
+        /// </summary>
+        /// <param name="inf"></param>
+        /// <param name="errors"></param>
+        /// <param name="topDataList"></param>
+        /// <param name="childList"></param>
+        /// <param name="childDynamic"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="sheet"></param>
+        /// <param name="parentIndex"></param>
+        /// <param name="parentName"></param>
+        /// <param name="keyIndex"></param>
+        /// <returns></returns>
+        private static string MakeListModel(Inflector.Inflector inf, List<string> errors, Dictionary<string, dynamic> topDataList, Dictionary<string, List<string>> childList, Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> childDynamic, string sheetName, List<List<string>> sheet, int parentIndex, string parentName, int keyIndex)
+        {
+
+            // リスト
+            if (sheet.Count > 2)
+            {
+                // 親Key別データ、親が無い場合はシート全体のデータ（親キー、1行データ）
+                var dataByParent = new Dictionary<string, List<dynamic>>();
+
+                // 2行目まで読まない
+                for (int row = 2; row < sheet.Count; row++)
+                {
+                    // 1行読む
+                    var parentKey = "-1";   // 対象の親のKey
+                    var rowData = new Dictionary<string, object>();
+                    for (int col = 0; col < sheet[row].Count; col++)
+                    {
+                        // 列を読む
+                        if (col == parentIndex)
+                        {
+                            // 親参照はdynamicデータに登録しないが、子dynamicデータリストに保持させるための情報を取得する
+                            var split = sheet[row][col].Split('.');
+                            parentName = split[0];
+                            parentKey = split[1];
+                        }
+                        else if (col == keyIndex)
+                        {
+                            // 子を追加
+                            var key = sheet[row][col];  // 書かれているKeyを取得
+                            AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
+                        }
+                        else if (sheet[0][col].StartsWith(BoolCulumnPrefix))
+                        {
+                            // Isならば、bool型判定
+                            var val = sheet[row][col];
+                            try
+                            {
+                                rowData.Add(sheet[0][col], ToBool(sheet[row][col]));
+                            }
+                            catch (Exception)
+                            {
+                                errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
+                            }
+                        }
+                        else if (sheet[0][col] == InflectCulumn)
+                        {
+                            // Nameならば、5フィールド余分に作る
+                            //inf.Pluralize("cost");
+                            rowData.Add(sheet[0][col], sheet[row][col]);
+                            rowData.Add(Camel, inf.Camelize(sheet[row][col]));
+                            rowData.Add(Pascal, inf.Pascalize(sheet[row][col]));
+                            rowData.Add(Plural, inf.Pluralize(sheet[row][col]));
+                            rowData.Add(CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
+                        }
+                        else
+                        {
+                            // ParentでもKeyでもない通常の列
+                            rowData.Add(sheet[0][col], sheet[row][col]);
+                        }
+                    }
+
+                    // 行データをdynamic化し、親Key別のリストに追加する。
+                    // 親がないシートは必ず1件の同じリストに入る
+                    if (!dataByParent.ContainsKey(parentKey))
+                    {
+                        dataByParent.Add(parentKey, new List<dynamic>());
+                    }
+                    dataByParent[parentKey].Add(rowData.ToDynamic());
+                }
+
+                // 親Key別のリストをどこかに登録する。
+                // 親がないシートは必ず1件
+                foreach (var dataByParentKey in dataByParent.Keys)
+                {
+                    if (parentIndex >= 0)
+                    {
+                        // 親がある場合は、データを溜めておく
+                        AddChildrenData(childDynamic, parentName, dataByParentKey, sheetName, dataByParent[dataByParentKey]);
+                    }
+                    else
+                    {
+                        // 親が無いシートはトップにデータを入れる
+                        topDataList.Add(sheetName, dataByParent[dataByParentKey]);
+                    }
+                }
+            }
+
+            return parentName;
+        }
         #endregion
 
+        #region ToBool:
         public static bool ToBool(string val)
         {
             if (string.IsNullOrWhiteSpace(val) || val.ToLower() == "false" || int.TryParse(val, out int intval) && intval <= 0)
@@ -481,6 +592,8 @@ namespace MinteaCore.RazorHelper
                 throw new Exception($"これはboolにできない:{val}");
             }
         }
+
+        #endregion
 
         #region AddChildDynamic:行データに子データを追加
         /// <summary>
@@ -645,7 +758,9 @@ namespace MinteaCore.RazorHelper
         /// <summary>
         /// 指定したディレクトリとその中身を全て削除する
         /// </summary>
-        public static void DeleteDirectory(string directory, bool isTop)
+        /// <param name="directory">ディレクトリ</param>
+        /// <param name="isTop">trueを設定すること</param>
+        public static void DeleteDirectory(string directory, bool isTop = true)
         {
             if (!Directory.Exists(directory))
             {
@@ -671,6 +786,20 @@ namespace MinteaCore.RazorHelper
             {
                 //中が空になったらディレクトリ自身も削除
                 Directory.Delete(directory, false);
+            }
+        }
+        #endregion
+
+        #region DeleteFiles
+        /// <summary>
+        /// 指定したディレクトリの中身を全て削除する
+        /// </summary>
+        public static void DeleteFiles(string directory)
+        {
+            DirectoryInfo target = new DirectoryInfo(directory);
+            foreach (FileInfo file in target.GetFiles())
+            {
+                file.Delete();
             }
         }
         #endregion
