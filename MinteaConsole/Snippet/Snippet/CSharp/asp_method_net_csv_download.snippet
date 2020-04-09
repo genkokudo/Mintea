@@ -27,6 +27,18 @@
         </Literal>
       </Declarations>
       <Code Language="csharp" Kind="method decl" Delimiter="#"><![CDATA[
+        // PageModel用
+        /// <summary>
+        /// CSVデータをダウンロードします。
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult OnPostDownloadAsync()
+        {
+            //var result = File(Render#Data#(datas), "text/csv", string.Format("Discussion_{0}_#Data#.csv", id));
+            //return File(System.Text.Encoding.UTF8.GetBytes(output), "application/xml", Input.Title + ".snippet");
+            return File(filepath, "text/csv", string.Format("Test.csv"));
+        }
+        
         /// <summary>
         /// CSVデータをダウンロードします。
         /// </summary>
@@ -83,15 +95,17 @@
                 lineData += "\r\n";
                 records.Add(lineData);
             }
-            Encoding enc = Encoding.GetEncoding("Shift_JIS");
-            using (var stream = new MemoryStream())
+            // Excelで表示するとき文字化けしないためにUTF8(BOM)で出力する
+            Encoding enc = new UTF8Encoding(true);
+            using var stream = new MemoryStream();
+            using (var writer = new StreamWriter(stream, enc))
             {
-                foreach (var row in records.Select(s => enc.GetBytes(s)))
+                foreach (var record in records)
                 {
-                    stream.Write(row, 0, row.Length);
+                    writer.Write(record);
                 }
-                return stream.ToArray();
             }
+            return stream.ToArray();
         }
         //<form id="form" method="post">
         //    <table class="table table-hover table-striped" id="table">
@@ -115,6 +129,8 @@
         //                    <td class="text-center">
         //                        <a class="btn btn-primary d-block d-lg-none" href="@Href($"~/Download/Popularity/?id={item.Id}")" data-toggle="tooltip" title=@Localizer["データダウンロード"]><i class="fa fa-download"></i></a>
         //                        <a class="btn btn-primary btn-sm d-none d-lg-block" href="@Href($"~/Download/Popularity/?id={item.Id}")"><i class="fa fa-download"></i> @Localizer["ダウンロード"]</a>
+        //                        <!-- PageModel用 -->
+        //                        <button asp-page-handler="Download" asp-route-id="@item.Id" type="submit" class="btn btn-success btn-sm d-none d-lg-block"><i class="fa fa-download"></i> Stamp一覧ダウンロード</button>
         //                    </td>
         //                </tr>
         //            }

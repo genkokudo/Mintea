@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>cs_convert_utc_to_jst</Title>
+      <Author>Y.Toyoda</Author>
+      <Description>UTCで格納している時間を、JSTにします。</Description>
+      <HelpUrl>www.microsoft.com</HelpUrl>
+      <Shortcut>cs_convert_utc_to_jst</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method body" Delimiter="&amp;"><![CDATA[            // Install-Package TimeZoneConverter
+            // UTCで格納している時間を、JSTで表示する
+            // Linuxで動かなくなるため一応TimeZoneConverterを使用
+            var jst = TZConvert.GetTimeZoneInfo("Tokyo Standard Time");
+            Date = TimeZoneInfo.ConvertTimeFromUtc(Date, jst);
+            // ※これを行う前に、DateTimeではなくDateTimeOffsetを使用することを検討すること。ただし使えるのはSQLServerのみ。
+            // MariaDBはDateTimeOffset対応していないので、UTCで格納し、上の方法で表示。]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

@@ -22,6 +22,20 @@ $('#BtnA').on('click', function () {
         // キャンセル時の処理
     }
 });
+
+// ページモデル用
+//<td><button key="ReloadCsv" asp-page-handler="ReloadCsv" asp-route-id="@item.CsvInputHistoryId" type="submit" class="btn btn-warning btn-sm d-none d-lg-block mr-3"><i class="fa fa-redo"></i></button></td>
+
+//$('button[key=ReloadCsv]').on('click', function (event) {
+//    if (window.confirm('本当にいいんですね？')) {
+//        // 画面操作を無効する
+//        var id = $(this).attr('key');
+//        $("#overlay").fadeIn(300);
+//    } else {
+//        event.preventDefault();
+//    }
+//});
+
 ]]></Code>
     </Snippet>
   </CodeSnippet>
