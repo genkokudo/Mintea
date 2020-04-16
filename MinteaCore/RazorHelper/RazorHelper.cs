@@ -339,137 +339,146 @@ namespace MinteaCore.RazorHelper
         /// <returns></returns>
         public static dynamic CreateModel(Dictionary<string, List<List<string>>> excel, Dictionary<string, string> outScript = null)
         {
-            var inf = new Inflector.Inflector(new CultureInfo("en-US"));
-            var errors = new List<string>();
-
-            // データ作成順を決める
-            var sequence = MakeSequence(excel, errors);
-
-            // 親を持たない各シートのデータ：キーはシート名
-            var topDataList = new Dictionary<string, dynamic>();
-
-            // 外部スクリプトの生成結果を追加
-            if (outScript != null)
+            try
             {
-                var outData = new Dictionary<string, object>();
-                foreach (var script in outScript)
+
+                var inf = new Inflector.Inflector(new CultureInfo("en-US"));
+                var errors = new List<string>();
+
+                // データ作成順を決める
+                var sequence = MakeSequence(excel, errors);
+
+                // 親を持たない各シートのデータ：キーはシート名
+                var topDataList = new Dictionary<string, dynamic>();
+
+                // 外部スクリプトの生成結果を追加
+                if (outScript != null)
                 {
-                    outData.Add(script.Key, script.Value);
-                }
-                topDataList.Add(OutSheet, outData.ToDynamic());
-            }
-
-            // 子情報取得
-            var childList = MakeChildData(excel, errors);
-
-            // 子シートデータ
-            var childDynamic = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
-
-            // 子シートから順番にデータ作成
-            var isRequiredSheetExists = false;
-            var isRootListExists = false;
-            foreach (var sheetName in sequence)
-            {
-                // 1つのシート
-                var sheet = excel[sheetName];
-
-                // 親があるか
-                var parentIndex = GetIndex(sheet, ParentCulumn);
-
-                // 親シート名
-                var parentName = string.Empty;
-
-                // キー取得
-                var keyIndex = GetIndex(sheet, KeyCulumn);
-
-                if (sheetName.StartsWith(DocumentSheetPrefix))
-                {
-                    // なにもなし
-                    continue;
-                }
-                else if (sheetName.EndsWith(OutListSheetSuffix) || sheetName == OutSheet)
-                {
-                    // OutList:外部入力リスト
-                    // なにもなし
-                    continue;
-                }
-                else if (sheetName.EndsWith(ListSheetSuffix))
-                {
-                    // List:通常リスト
-                    // 必須シート存在チェック
-                    if (sheetName == RootListSheet)
+                    var outData = new Dictionary<string, object>();
+                    foreach (var script in outScript)
                     {
-                        isRootListExists = true;
+                        outData.Add(script.Key, script.Value);
                     }
-                    parentName = MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName, sheet, parentIndex, parentName, keyIndex);
+                    topDataList.Add(OutSheet, outData.ToDynamic());
                 }
-                else
-                {
-                    // 必須シート存在チェック
-                    if(sheetName == SettingsSheet)
-                    {
-                        isRequiredSheetExists = true;
-                    }
 
-                    // 今回、通常シートは親子関係を持たない。持たせたい場合はListシートと同様に実装すればできるはず。
-                    // …というか、リストの下位互換かも。通常シート不要説。
-                    // 通常シート：1列目が名前、2列目が値
-                    if (sheet.Count > 2)
+                // 子情報取得
+                var childList = MakeChildData(excel, errors);
+
+                // 子シートデータ
+                var childDynamic = new Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>>();
+
+                // 子シートから順番にデータ作成
+                var isRequiredSheetExists = false;
+                var isRootListExists = false;
+                foreach (var sheetName in sequence)
+                {
+                    // 1つのシート
+                    var sheet = excel[sheetName];
+
+                    // 親があるか
+                    var parentIndex = GetIndex(sheet, ParentCulumn);
+
+                    // 親シート名
+                    var parentName = string.Empty;
+
+                    // キー取得
+                    var keyIndex = GetIndex(sheet, KeyCulumn);
+
+                    if (sheetName.StartsWith(DocumentSheetPrefix))
                     {
-                        var data = new Dictionary<string, object>();
-                        // 2行目まで読まない
-                        for (int row = 2; row < sheet.Count; row++)
+                        // なにもなし
+                        continue;
+                    }
+                    else if (sheetName.EndsWith(OutListSheetSuffix) || sheetName == OutSheet)
+                    {
+                        // OutList:外部入力リスト
+                        // なにもなし
+                        continue;
+                    }
+                    else if (sheetName.EndsWith(ListSheetSuffix))
+                    {
+                        // List:通常リスト
+                        // 必須シート存在チェック
+                        if (sheetName == RootListSheet)
                         {
-                            var name = sheet[row][0];
-                            // 必須項目チェック
-
-                            var value = sheet[row][1];
-                            if (name.StartsWith(BoolCulumnPrefix))
-                            {
-                                // bool型判定
-                                var val = sheet[row][1];
-                                try
-                                {
-                                    data.Add(name, ToBool(sheet[row][1]));
-                                }
-                                catch (Exception)
-                                {
-                                    errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} value:{val}");
-                                }
-                            }
-                            else
-                            {
-                                data.Add(name, value);
-                            }
+                            isRootListExists = true;
                         }
-                        // 親がないのでトップデータリストに追加
-                        topDataList.Add(sheetName, data.ToDynamic());
+                        parentName = MakeListModel(inf, errors, topDataList, childList, childDynamic, sheetName, sheet, parentIndex, parentName, keyIndex);
+                    }
+                    else
+                    {
+                        // 必須シート存在チェック
+                        if (sheetName == SettingsSheet)
+                        {
+                            isRequiredSheetExists = true;
+                        }
+
+                        // 今回、通常シートは親子関係を持たない。持たせたい場合はListシートと同様に実装すればできるはず。
+                        // …というか、リストの下位互換かも。通常シート不要説。
+                        // 通常シート：1列目が名前、2列目が値
+                        if (sheet.Count > 2)
+                        {
+                            var data = new Dictionary<string, object>();
+                            // 2行目まで読まない
+                            for (int row = 2; row < sheet.Count; row++)
+                            {
+                                var name = sheet[row][0];
+                                // 必須項目チェック
+
+                                var value = sheet[row][1];
+                                if (name.StartsWith(BoolCulumnPrefix))
+                                {
+                                    // bool型判定
+                                    var val = sheet[row][1];
+                                    try
+                                    {
+                                        data.Add(name, ToBool(sheet[row][1]));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} value:{val}");
+                                    }
+                                }
+                                else
+                                {
+                                    data.Add(name, value);
+                                }
+                            }
+                            // 親がないのでトップデータリストに追加
+                            topDataList.Add(sheetName, data.ToDynamic());
+                        }
                     }
                 }
-            }
-            if (!isRootListExists)
-            {
-                errors.Add($"{RootListSheet}という名前のシートがない。");
-            }
-            if (!isRequiredSheetExists)
-            {
-                errors.Add($"{SettingsSheet}という名前のシートがない。");
-            }
-            if (errors.Count > 0)
-            {
-                throw new Exception($"Excelの内容がおかしい:\n{string.Join(",\n", errors)}");
-            }
+                if (!isRootListExists)
+                {
+                    errors.Add($"{RootListSheet}という名前のシートがない。");
+                }
+                if (!isRequiredSheetExists)
+                {
+                    errors.Add($"{SettingsSheet}という名前のシートがない。");
+                }
+                if (errors.Count > 0)
+                {
+                    throw new Exception($"Excelの内容がおかしい:\n{string.Join(",\n", errors)}");
+                }
 
-            // 共通変数としてGeneral.Index=0を入れる
-            var generalData = new Dictionary<string, object>
+                // 共通変数としてGeneral.Index=0を入れる
+                var generalData = new Dictionary<string, object>
+                {
+                    { "Index", "0" }
+                };
+                topDataList.Add("General", generalData.ToDynamic());
+
+                var result = topDataList.ToDynamic();
+
+                return result;
+            }
+            catch (Exception e)
             {
-                { "Index", "0" }
-            };
-            topDataList.Add("General", generalData.ToDynamic());
 
-            var result = topDataList.ToDynamic();
-
-            return result;
+                throw e;
+            }
         }
 
         /// <summary>
@@ -560,13 +569,20 @@ namespace MinteaCore.RazorHelper
                 }
 
                 // 親Key別のリストをどこかに登録する。
-                // 親がないシートは必ず1件
                 foreach (var dataByParentKey in dataByParent.Keys)
                 {
                     if (parentIndex >= 0)
                     {
                         // 親がある場合は、データを溜めておく
                         AddChildrenData(childDynamic, parentName, dataByParentKey, sheetName, dataByParent[dataByParentKey]);
+
+                        // 親子でなくてもModelからListにアクセスできるようにするため
+                        // 親が無いシートと同様にトップにもデータを入れる
+                        // 注意：動作は確認したが合ってるかどうかわからない
+                        if (!topDataList.ContainsKey(sheetName))
+                        {
+                            topDataList.Add(sheetName, dataByParent[dataByParentKey]);
+                        }
                     }
                     else
                     {
