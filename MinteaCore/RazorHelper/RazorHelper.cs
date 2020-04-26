@@ -493,110 +493,131 @@ namespace MinteaCore.RazorHelper
         /// <returns></returns>
         private static string MakeListModel(Inflector.Inflector inf, List<string> errors, Dictionary<string, dynamic> topDataList, Dictionary<string, List<string>> childList, Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> childDynamic, string sheetName, List<List<string>> sheet, string parentName)
         {
-            // キー列取得
-            var keyIndex = GetIndex(sheet, KeyCulumn);
-
-            // 親があるか
-            var parentIndex = GetIndex(sheet, ParentCulumn);
-
-            // リスト
-            if (sheet.Count > 2)
+            try
             {
-                // 親があってもなくてもトップからデータアクセス
-                var topData = new List<dynamic>();
 
-                // 親Key別データ、親が無い場合はシート全体のデータ（親キー、1行データ）
-                var dataByParent = new Dictionary<string, List<dynamic>>();
+                // キー列取得
+                var keyIndex = GetIndex(sheet, KeyCulumn);
 
-                // 2行目まで読まない
-                for (int row = 2; row < sheet.Count; row++)
+                // 親があるか
+                var parentIndex = GetIndex(sheet, ParentCulumn);
+
+                // リスト
+                if (sheet.Count > 2)
                 {
-                    // 1行読む
-                    var parentKey = "-1";   // 対象の親のKey
-                    var rowData = new Dictionary<string, object>();
-                    for (int col = 0; col < sheet[row].Count; col++)
+                    // 親があってもなくてもトップからデータアクセス
+                    var topData = new List<dynamic>();
+
+                    // 親Key別データ、親が無い場合はシート全体のデータ（親キー、1行データ）
+                    var dataByParent = new Dictionary<string, List<dynamic>>();
+
+                    // 2行目まで読まない
+                    for (int row = 2; row < sheet.Count; row++)
                     {
-                        // 列を読む
-                        if (col == parentIndex)
+                        // 1行読む
+                        var parentKeys = new List<string>();   // 対象の親のKey
+                        if (parentIndex == -1)
                         {
-                            // 親参照はdynamicデータに登録しないが、子dynamicデータリストに保持させるための情報を取得する
-                            var split = sheet[row][col].Split('.');
-                            parentName = split[0];
-                            parentKey = split[1];
+                            // 親がない場合は-1に格納する
+                            parentKeys.Add("-1");
                         }
-                        else if (col == keyIndex)
+
+                        var rowData = new Dictionary<string, object>();
+                        for (int col = 0; col < sheet[row].Count; col++)
                         {
-                            // キー列の場合、子を追加
-                            var key = sheet[row][col];  // 書かれているKeyを取得
-                            AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
-                        }
-                        else if (sheet[0][col].StartsWith(BoolCulumnPrefix))
-                        {
-                            // Isならば、bool型判定
-                            var val = sheet[row][col];
-                            try
+                            // 列を読む
+                            if (col == parentIndex)
                             {
-                                rowData.Add(sheet[0][col], ToBool(sheet[row][col]));
+                                // 親参照はdynamicデータに登録しないが、子dynamicデータリストに保持させるための情報を取得する
+                                var split = sheet[row][col].Split('.');
+                                parentName = split[0];
+                                for (int i = 1; i < split.Length; i++)
+                                {
+                                    parentKeys.Add(split[i]);
+                                }
                             }
-                            catch (Exception)
+                            else if (col == keyIndex)
                             {
-                                errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
+                                // キー列の場合、子を追加
+                                var key = sheet[row][col];  // 書かれているKeyを取得
+                                AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
+                            }
+                            else if (sheet[0][col].StartsWith(BoolCulumnPrefix))
+                            {
+                                // Isならば、bool型判定
+                                var val = sheet[row][col];
+                                try
+                                {
+                                    rowData.Add(sheet[0][col], ToBool(sheet[row][col]));
+                                }
+                                catch (Exception)
+                                {
+                                    errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
+                                }
+                            }
+                            else if (sheet[0][col].EndsWith(InflectCulumn))
+                            {
+                                // 語尾がNameならば、フィールドを余分に作る
+                                var baseName = sheet[0][col].Remove(sheet[0][col].LastIndexOf(InflectCulumn), InflectCulumn.Length);
+                                rowData.Add(sheet[0][col], sheet[row][col]);
+                                rowData.Add(baseName + Camel, inf.Camelize(sheet[row][col]));
+                                rowData.Add(baseName + Pascal, inf.Pascalize(sheet[row][col]));
+                                rowData.Add(baseName + Plural, inf.Pluralize(sheet[row][col]));
+                                rowData.Add(baseName + CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
+                                rowData.Add(baseName + PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
+                                rowData.Add(baseName + Snake, inf.Underscore(sheet[row][col]));
+                                rowData.Add(baseName + Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
+                            }
+                            else
+                            {
+                                // ParentでもKeyでもない通常の列
+                                rowData.Add(sheet[0][col], sheet[row][col]);
                             }
                         }
-                        else if (sheet[0][col].EndsWith(InflectCulumn))
+
+                        // 行データをdynamic化し、親Key別のリストに追加する。
+                        // 親がないシートは必ず1件の同じリストに入る（parentKeyは"-1"）
+                        foreach (var parentKey in parentKeys)
                         {
-                            // 語尾がNameならば、フィールドを余分に作る
-                            var baseName = sheet[0][col].Remove(sheet[0][col].LastIndexOf(InflectCulumn), InflectCulumn.Length);
-                            rowData.Add(sheet[0][col], sheet[row][col]);
-                            rowData.Add(baseName + Camel, inf.Camelize(sheet[row][col]));
-                            rowData.Add(baseName + Pascal, inf.Pascalize(sheet[row][col]));
-                            rowData.Add(baseName + Plural, inf.Pluralize(sheet[row][col]));
-                            rowData.Add(baseName + CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(baseName + PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(baseName + Snake, inf.Underscore(sheet[row][col]));
-                            rowData.Add(baseName + Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
+                            if (!dataByParent.ContainsKey(parentKey))
+                            {
+                                dataByParent.Add(parentKey, new List<dynamic>());
+                            }
+                            dataByParent[parentKey].Add(rowData.ToDynamic());
+                        }
+                        topData.Add(rowData.ToDynamic());
+                    }
+
+                    // 親Key別のリストをどこかに登録する。
+                    foreach (var dataByParentKey in dataByParent.Keys)
+                    {
+                        if (parentIndex >= 0)
+                        {
+                            // 親がある場合は、データを溜めておく
+                            AddChildrenData(childDynamic, parentName, dataByParentKey, sheetName, dataByParent[dataByParentKey]);
+
+                            // 親子でなくてもModelからListにアクセスできるようにするため
+                            // 親が無いシートと同様にトップにもデータを入れる
+                            if (!topDataList.ContainsKey(sheetName))
+                            {
+                                topDataList.Add(sheetName, topData);
+                            }
                         }
                         else
                         {
-                            // ParentでもKeyでもない通常の列
-                            rowData.Add(sheet[0][col], sheet[row][col]);
+                            // 親が無いシートはトップにデータを入れる
+                            topDataList.Add(sheetName, dataByParent[dataByParentKey]);
                         }
                     }
-
-                    // 行データをdynamic化し、親Key別のリストに追加する。
-                    // 親がないシートは必ず1件の同じリストに入る（parentKeyは"-1"）
-                    if (!dataByParent.ContainsKey(parentKey))
-                    {
-                        dataByParent.Add(parentKey, new List<dynamic>());
-                    }
-                    dataByParent[parentKey].Add(rowData.ToDynamic());
-                    topData.Add(rowData.ToDynamic());
                 }
 
-                // 親Key別のリストをどこかに登録する。
-                foreach (var dataByParentKey in dataByParent.Keys)
-                {
-                    if (parentIndex >= 0)
-                    {
-                        // 親がある場合は、データを溜めておく
-                        AddChildrenData(childDynamic, parentName, dataByParentKey, sheetName, dataByParent[dataByParentKey]);
-
-                        // 親子でなくてもModelからListにアクセスできるようにするため
-                        // 親が無いシートと同様にトップにもデータを入れる
-                        if (!topDataList.ContainsKey(sheetName))
-                        {
-                            topDataList.Add(sheetName, topData);
-                        }
-                    }
-                    else
-                    {
-                        // 親が無いシートはトップにデータを入れる
-                        topDataList.Add(sheetName, dataByParent[dataByParentKey]);
-                    }
-                }
+                return parentName;
             }
+            catch (Exception e)
+            {
 
-            return parentName;
+                throw e;
+            }
         }
         #endregion
 
