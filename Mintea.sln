@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinteaCore", "MinteaCore\MinteaCore.csproj", "{88D1A84D-B02A-4CF4-BECA-DD7455F5B826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinteaCore", "MinteaCore\MinteaCore.csproj", "{88D1A84D-B02A-4CF4-BECA-DD7455F5B826}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinteaConsole", "MinteaConsole\MinteaConsole.csproj", "{CCF53B84-D509-4F45-9FC5-F32D59316693}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinteaConsole", "MinteaConsole\MinteaConsole.csproj", "{CCF53B84-D509-4F45-9FC5-F32D59316693}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

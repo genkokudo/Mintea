@@ -1,47 +1,16 @@
-﻿using Inflector;
-using System;
+﻿using System;
 using System.Globalization;
+using System.Threading.Tasks;
+using MinteaCore.HtmlToStrap;
 
 namespace MinteaConsole
 {
     class Program
     {
-        static void Main()
+        static async Task Main()
         {
-            var inf = new Inflector.Inflector(new CultureInfo("en-US"));
-            Console.WriteLine(inf.Pluralize("cost"));
-            Console.WriteLine(inf.Pluralize("sword"));
-            Console.WriteLine(inf.Pluralize("water"));
-            Console.WriteLine(inf.Pluralize("data"));
-            Console.WriteLine(inf.Pluralize("child"));
-            Console.WriteLine(inf.Pluralize("apple"));
-            Console.WriteLine(inf.Pluralize("Apple"));
-            Console.WriteLine(inf.Pluralize("History"));
-            Console.WriteLine(inf.Pluralize("JapanHistory"));
-            Console.WriteLine(inf.Pluralize("FlowerChild"));
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine(inf.Singularize("oranges"));
-            Console.WriteLine(inf.Singularize("Lemons"));
-            Console.WriteLine(inf.Singularize("templates"));
-            Console.WriteLine(inf.Singularize("children"));
-            Console.WriteLine(inf.Singularize("boxes"));
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine(inf.Pascalize("tryCatchPrecure"));    // できる
-            Console.WriteLine(inf.Pascalize("try-catch-precure"));  // できない
-            Console.WriteLine(inf.Pascalize("try catch precure"));  // できない
-            Console.WriteLine(inf.Camelize("TryCatchPrecure"));     // できる
-            Console.WriteLine(inf.Camelize("try_catch_precure"));   // できる
-            Console.WriteLine(inf.Dasherize("TryCatchPrecure"));    // TryCatchPrecure  // 未実装っぽい
-            Console.WriteLine(inf.Humanize("TryCatchPrecure"));     // Trycatchprecure  // よく分からん変換
-            Console.WriteLine(inf.Humanize("try_catch_precure"));   // Try catch precure
-            Console.WriteLine(inf.Ordinalize(3));                   // 1st 2nd...
-            Console.WriteLine(inf.Ordinalize(54321));               // 54321st
-            Console.WriteLine(inf.Titleize("try-catch-precure"));   // Try Catch Precure
-            Console.WriteLine(inf.Titleize("try_catch_precure"));   // Try Catch Precure
-            Console.WriteLine(inf.Titleize("TryCatchPrecure"));     // Try Catch Precure // 大文字とスペース区切りにする
-            Console.WriteLine(inf.Uncapitalize("TryCatchPrecure")); // tryCatchPrecure // わからん
-            Console.WriteLine(inf.Underscore("TryCatchPrecure"));   // try_catch_precure // snake caseにする
-
+            var nanashi = new Nanashi();
+            await nanashi.Test();
 
             //var a = TreeNode<string>.GetDirectoryFileList(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
 
