@@ -1,0 +1,28 @@
+<html>
+        <head></head>
+        <body>
+                <div>
+                        <div class="row">
+                                <button class="navbar-toggler" type="button" dddd="eeee" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                                        <span class="navbar-toggler-icon">aaaa</span>
+                                        <span class="navbar-toggler-icon">bbbb</span>
+                                </button>
+                        </div>
+                        <button class="navbar-toggler" type="button" dddd="eeee" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon">1111</span>
+                        </button>
+                        <input readonly="">
+                        <label></label>
+                        <div class="col-auto align-self-center">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#exampleModal">
+                                        <svg class="bi bi-plus" width="1em" height="1em" viewbox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                                        </svg>
+                                </button>
+                        </div>
+                        <div class="col-auto align-self-end">
+                                <button class="btn btn-primary" type="button">検索</button>
+                        </div>
+                </div>
+        </body>
+</html>

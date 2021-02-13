@@ -12,9 +12,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-// 欲しい機能
-// ・インデント付きで出力
-
 namespace MinteaCore.HtmlToStrap
 {
     /// <summary>
@@ -22,16 +19,14 @@ namespace MinteaCore.HtmlToStrap
     /// </summary>
     public class Nanashi
     {
-        private static readonly HttpClient httpClient;
+        private readonly string BeginCommentTag = "<comment value=\"";
+        private readonly string EndCommentTag = "\"></comment>";
 
-        static Nanashi()
-        {
-            httpClient = new HttpClient();
-        }
-
+        #region いらん
         public async Task GetDownloadFile()
         {
             // まずは、スクレイピングするデータを取得します
+            var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(@"https://honokak.osaka/bootstrap-ja.html");
             var sorce = await response.Content.ReadAsStringAsync();
 
@@ -41,43 +36,21 @@ namespace MinteaCore.HtmlToStrap
 
             Console.WriteLine(doc.Title);
         }
+        #endregion
 
-        /// <summary>
-        /// HTMLをパースしてIDocument形式にする
-        /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
-        private async Task<IDocument> ParseHtml(string html)
-        {
-            // デフォ設定で新しいコンテキスト作成
-            var context = BrowsingContext.New(Configuration.Default);   // 全部終わるまでDisposeしないこと。やったら読み込んだデータが消えます。
-
-            // HTML5をパースする
-            return await context.OpenAsync(req => req.Content(html));
-        }
-
-        public async Task Test()
+        public async Task Test(string html)
         {
             var formatter = new PrettyMarkupFormatter();    // 整形してHTML出力する
-            // -------------------- 基本的な使い方 --------------------
-            // まずは、スクレイピングするデータを取得します
-            // とりあえずボタンが2つ並んでいて、それぞれ子要素を持っている感じ。
-            var source = 
-                "<div class=\"row\"/>" +
-                "<button class=\"navbar-toggler\" type=\"button\" dddd=\"eeee\" data-toggle=\"collapse\" data-target=\"#navbarColor01\" aria-controls=\"navbarColor01\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">" +
-                "<span class=\"navbar-toggler-icon\">aaaa</span>" +
-                "<span class=\"navbar-toggler-icon\">bbbb</span>" +
-                "</button>" + 
-                "</div>" +
-                "<button class=\"navbar-toggler\" type=\"button\" dddd=\"eeee\" data-toggle=\"collapse\" data-target=\"#navbarColor01\" aria-controls=\"navbarColor01\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">" +
-                "<span class=\"navbar-toggler-icon\">1111</span>" +
-                "</button>" +
-                "<input readonly/>" +
-                "<label>" +
-                "</label>";
+
+            // ルールの取得
+            var rules = GetRules();
+
+            // コメントはパースされないので退避する
+            var commentRule = rules.FirstOrDefault(x => x.SrcTermCategory == Rule.TermCategory.CommentReplacement);
+            html = EvacuateComment(commentRule, html);
 
             // HTML5をパースする
-            var document = await ParseHtml(source);
+            var document = await ParseHtml(html);
 
             #region もういらない
             // タグ内の隣の要素：NextElementSibling
@@ -105,9 +78,6 @@ namespace MinteaCore.HtmlToStrap
 #endif
 
             // ツリー構造に従って、新しいHTMLを作成
-            // ルールの取得
-            var rules = GetRules(); // TODO: 今からここを追加していく
-
             // 変換
             var newHtml = await MakeTreeAsync(document, rules);
             var result = newHtml.ToHtml(formatter);
@@ -116,30 +86,70 @@ namespace MinteaCore.HtmlToStrap
             // タグごとの分岐とかしない
             foreach (var rule in rules)
             {
-                // TODO: 今からここを追加していく
-                switch (rule.SrcTermCategory)
-                {
-                    case Rule.TermCategory.SimpleReplacement:
-                        // 置換処理
-                        result = result.Replace(rule.TargetTag, rule.DestValue);
-                        break;
-                    case Rule.TermCategory.RemoveAttr:
-                        // 何もなし
-                        break;
-                    case Rule.TermCategory.RemoveValue:
-                        // 何もなし
-                        break;
-                    case Rule.TermCategory.Class:
-                        result = result.Replace(rule.TargetTag, rule.DestValue);
-                        break;
-                    default:
-                        break;
-                }
+                result = rule.Replace(result);
             }
 
+            // 退避したコメントを復帰、その言語のコメントにする
+            result = RecoverComment(rules, commentRule, result);
             Console.WriteLine("------------------------------ 変換後 ------------------------------");
             Console.WriteLine(result);
 
+
+        }
+
+        /// <summary>
+        /// EvacuateCommentで退避したコメントを戻し、コメントルールを適用する
+        /// </summary>
+        /// <param name="rules"></param>
+        /// <param name="commentRule"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private string RecoverComment(List<Rule> rules, Rule commentRule, string result)
+        {
+            if (commentRule != null)
+            {
+                // 単純置換のせいで拾えなくなってる
+                var altBegin = BeginCommentTag;
+                var altEnd = EndCommentTag;
+                var replaceRules = rules.Where(x => x.SrcTermCategory == Rule.TermCategory.SimpleReplacement);
+                foreach (var replaceRule in replaceRules)
+                {
+                    altBegin = replaceRule.Replace(altBegin);
+                    altEnd = replaceRule.Replace(altEnd);
+                }
+
+                result = result.Replace(altBegin, commentRule.TargetValue);
+                result = result.Replace(altEnd, commentRule.DestValue);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// コメントはパースされないので退避する
+        /// </summary>
+        /// <param name="commentRule"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        private string EvacuateComment(Rule commentRule, string html)
+        {
+            var BeginCommentHtml = "<!--";
+            var EndCommentHtml = "-->";
+
+            // コメントなどパースされないものを退避する
+            // commentタグは存在するが、IE用なので無視して使っちゃってOK
+            if (commentRule != null)
+            {
+                Console.WriteLine("コメントを退避します。");
+                html = html.Replace(BeginCommentHtml, BeginCommentTag);
+                html = html.Replace(EndCommentHtml, EndCommentTag);
+            }
+            else
+            {
+                Console.WriteLine("コメントルールが設定されてないので、コメントは削除します。");
+            }
+
+            return html;
         }
 
         #region 元のHTMLからルールを適用したHTMLを生成する
@@ -277,6 +287,9 @@ namespace MinteaCore.HtmlToStrap
         {
             var result = new List<Rule>
             {
+                // コメント退避
+                Rule.GetCommentReplacementRule("{/*", "*/}"),
+
                 // とりあえず単純置換
                 Rule.GetSimpleReplacementRule("button", "Button"),
                 Rule.GetSimpleReplacementRule("label", "Label"),
@@ -295,122 +308,22 @@ namespace MinteaCore.HtmlToStrap
             return result;
         }
         #endregion
+
+        /// <summary>
+        /// HTMLをパースしてIDocument形式にする
+        /// TODO:Dispose問題が未解決
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        private async Task<IDocument> ParseHtml(string html)
+        {
+            // デフォ設定で新しいコンテキスト作成
+            var context = BrowsingContext.New(Configuration.Default);   // 全部終わるまでDisposeしないこと。やったら読み込んだデータが消えます。
+
+            // HTML5をパースする
+            return await context.OpenAsync(req => req.Content(html));
+        }
     }
 
-    /// <summary>
-    /// 変換ルール
-    /// </summary>
-    public class Rule
-    {
-        /// <summary>
-        /// 条件・種類
-        /// classなど
-        /// "SimpleReplacement"の時は、SrcTagとSrcTermValueで単純置換する
-        /// </summary>
-        public TermCategory SrcTermCategory { get; set; } = TermCategory.SimpleReplacement;
-
-        /// <summary>
-        /// 対象のタグ:divなど
-        /// </summary>
-        public string TargetTag { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 条件・値
-        /// mt-3 rowなど
-        /// 単純置換の時は不使用
-        /// </summary>
-        public string TargetValue { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 変換先の値
-        /// 条件に合った部分をこの値に変換する
-        /// </summary>
-        public string DestValue { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 条件の種類
-        /// </summary>
-        public enum TermCategory
-        {
-            /// <summary>
-            /// 単純置換
-            /// この時はSrcTermValueに何も設定しない
-            /// SrcTagはタグ名ではなく、置換前の文字列を入れる
-            /// </summary>
-            SimpleReplacement,
-
-            /// <summary>
-            /// 対象の要素を除去する
-            /// </summary>
-            RemoveAttr,
-
-            /// <summary>
-            /// 全ての要素に対して
-            /// 要素の値を条件に値を除去する
-            /// 要素は指定しない：とにかくこの値は消すってイメージ（今のところ）
-            /// </summary>
-            RemoveValue,
-
-            /// <summary>
-            /// class要素に対する条件
-            /// </summary>
-            Class,
-
-            // 特定のClassをAttributeに変換する
-        }
-
-        #region 条件作成を補助するクラスメソッド
-        /// <summary>
-        /// 全ての変換後、単純に文字を置換する
-        /// </summary>
-        /// <param name="src">置換前文字列</param>
-        /// <param name="dest">置換後文字列</param>
-        /// <returns></returns>
-        public static Rule GetSimpleReplacementRule(string src, string dest)
-        {
-            return new Rule { TargetTag = src, SrcTermCategory = TermCategory.SimpleReplacement, DestValue = dest };
-        }
-
-        /// <summary>
-        /// 特定の名称のAttrを除去するルールを作成する
-        /// </summary>
-        /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となるAttr名</param>
-        /// <returns></returns>
-        public static Rule GetRemoveAttrRule(string targetTag, string targetValue)
-        {
-            return new Rule { TargetTag = targetTag, SrcTermCategory = TermCategory.RemoveAttr, TargetValue = targetValue };
-        }
-
-        /// <summary>
-        /// 値を持ったAttrを除去するルールを作成する
-        /// あまり使わないかも
-        /// </summary>
-        /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となる値</param>
-        /// <returns></returns>
-        public static Rule GetRemoveAttrByValueRule(string targetTag, string targetValue)
-        {
-            return new Rule { TargetTag = targetTag, SrcTermCategory = TermCategory.RemoveValue, TargetValue = targetValue };
-        }
-
-        /// <summary>
-        /// 
-        /// クラス値は削除する
-        /// </summary>
-        /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となるClass値</param>
-        /// <param name="destTag">どのタグに変換するか</param>
-        /// <returns></returns>
-        public static Rule GetReplaceTagByClass(string targetTag, string targetValue, string destTag)
-        {
-            return new Rule { TargetTag = targetTag, SrcTermCategory = TermCategory.Class, TargetValue = targetValue, DestValue = destTag };
-        }
-        #endregion
-
-        // TODO:どんな変換があるかよく整理して、決め直すこと！
-        // ・条件指定してAttrに変換：class="btn btn-danger" を color='danger'にする[class btn-danger attr color danger]
-
-    }
 
 }

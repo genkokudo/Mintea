@@ -17,4 +17,8 @@
     <ProjectReference Include="..\MinteaCore\MinteaCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="abcdefg\" />
+  </ItemGroup>
+
 </Project>

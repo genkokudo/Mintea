@@ -1,0 +1,10 @@
+{/* 追加ボタン */}
+<Col xs='auto' className='align-self-center'>
+	<Button color='secondary' outline={true} disabled={modalData.searchTermModals.length >= 10} onClick={() => { dispatch(SelectModalModule.actions.toggleModal()); }}>
+	<PlusSvg />
+</Button>
+</Col>
+{/* 検索ボタン */}
+<Col xs='auto' className='align-self-end'>
+	<Button color='primary' disabled={modalData.searchTerms.length === 0} onClick={() => { props.selectButtonFunc(); }}>検索</Button>
+</Col>

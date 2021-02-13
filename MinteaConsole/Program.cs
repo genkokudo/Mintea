@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using MinteaCore.HtmlToStrap;
 
@@ -10,7 +11,8 @@ namespace MinteaConsole
         static async Task Main()
         {
             var nanashi = new Nanashi();
-            await nanashi.Test();
+            var data = File.ReadAllText(@"../../../abcdefg/sample1.txt");
+            await nanashi.Test(data);
 
             //var a = TreeNode<string>.GetDirectoryFileList(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
 
