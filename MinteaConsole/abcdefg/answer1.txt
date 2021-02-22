@@ -1,10 +1,21 @@
-{/* 追加ボタン */}
-<Col xs='auto' className='align-self-center'>
-	<Button color='secondary' outline={true} disabled={modalData.searchTermModals.length >= 10} onClick={() => { dispatch(SelectModalModule.actions.toggleModal()); }}>
-	<PlusSvg />
-</Button>
-</Col>
-{/* 検索ボタン */}
-<Col xs='auto' className='align-self-end'>
-	<Button color='primary' disabled={modalData.searchTerms.length === 0} onClick={() => { props.selectButtonFunc(); }}>検索</Button>
-</Col>
+<html>
+        <head></head>
+        <body>
+                {/* 追加ボタン */}
+                <div className='align-self-center' xs='auto'>
+                        <Button outline='true' color='secondary'>aaaa</Button>
+                </div>
+                {/* 検索ボタン */}
+                <div className='align-self-end' xs='auto'>
+                        <Button color='primary'>検索</Button>
+                </div>
+                {/* test */}
+                <Row>
+                        <Button color='primary'>検索</Button>
+                </Row>
+        </body>
+</html>
+
+出来ればButtonには↓が付いていて欲しいけど・・・いいや。
+{/* disabled={false} onClick={() => {}} /*}
+

@@ -11,6 +11,8 @@ namespace MinteaCore.HtmlToStrap
     /// </summary>
     public class Rule
     {
+        const string Separate = "&";
+
         /// <summary>
         /// 条件・種類
         /// classなど
@@ -36,17 +38,6 @@ namespace MinteaCore.HtmlToStrap
         /// </summary>
         public string DestValue { get; set; } = string.Empty;
 
-        ///// <summary>
-        ///// パラメータ
-        ///// 結局こういうの作っちゃうんだから
-        ///// </summary>
-        //public List<string> Parameters { get; set; } = new List<string>();
-        //var parameters = new List<string>
-        //    {
-        //        destBegin,  // "{/*"
-        //        destEnd     // "*/}"
-        //    };
-
         /// <summary>
         /// 特定のルールについて、単純置換を行う
         /// 置換を行わないルールの場合、そのまま返す
@@ -59,8 +50,10 @@ namespace MinteaCore.HtmlToStrap
             {
                 case TermCategory.SimpleReplacement:
                     return source.Replace(TargetTag, DestValue);
-                case TermCategory.Class:
-                    return source.Replace(TargetTag, DestValue);
+                case TermCategory.IncludeStrClassToTagName:
+                    // <row aaaa
+                    // </row>
+                    return source.Replace($"<{TargetValue} ", $"<{DestValue} ").Replace($"<{TargetValue}>", $"<{DestValue}>").Replace($"</{TargetValue}>", $"</{DestValue}>");
                 default:
                     return source;
             }
@@ -102,28 +95,45 @@ namespace MinteaCore.HtmlToStrap
         }
 
         /// <summary>
-        /// 値を持ったAttrを除去するルールを作成する
-        /// あまり使わないかも
-        /// </summary>
-        /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となる値</param>
-        /// <returns></returns>
-        public static Rule GetRemoveAttrByValueRule(string targetTag, string targetValue)
-        {
-            return new Rule { SrcTermCategory = TermCategory.RemoveValue, TargetTag = targetTag, TargetValue = targetValue };
-        }
-
-        /// <summary>
-        /// 
-        /// クラス値は削除する
+        /// クラスを他のタグに変換する
+        /// 既存のクラス値は削除する
         /// </summary>
         /// <param name="targetTag">対象タグ</param>
         /// <param name="targetValue">条件となるClass値</param>
         /// <param name="destTag">どのタグに変換するか</param>
         /// <returns></returns>
-        public static Rule GetReplaceTagByClass(string targetTag, string targetValue, string destTag)
+        public static Rule GetReplaceTagByClassRule(string targetTag, string targetValue, string destTag)
         {
-            return new Rule { SrcTermCategory = TermCategory.Class, TargetTag = targetTag, TargetValue = targetValue, DestValue = destTag };
+            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToTagName, TargetTag = targetTag, TargetValue = targetValue, DestValue = destTag };
+        }
+
+        /// <summary>
+        /// クラス値を削除する
+        /// </summary>
+        /// <param name="targetTag">対象タグ</param>
+        /// <param name="targetValue">条件となるClass値</param>
+        /// <returns></returns>
+        public static Rule GetRemoveClassRule(string targetTag, string targetValue)
+        {
+            return new Rule { SrcTermCategory = TermCategory.RemoveClass, TargetTag = targetTag, TargetValue = targetValue };
+        }
+
+        /// <summary>
+        /// クラスに特定文字が含まれていたらAttrに変換する
+        /// </summary>
+        /// <param name="targetTag">対象タグ</param>
+        /// <param name="targetClassString">条件となるClass文字列</param>
+        /// <param name="targetAttr">変換するAttr名</param>
+        /// <param name="targetAttrValue">変換するAttr値</param>
+        /// <returns></returns>
+        public static Rule GetIncludeClassToAttrRule(string targetTag, string targetClassString, string targetAttr, string targetAttrValue)
+        {
+            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToAttr, TargetTag = targetTag, TargetValue = targetClassString, DestValue = $"{targetAttr}{Separate}{targetAttrValue}" };
+        }
+
+        public string[] GetValues()
+        {
+            return DestValue.Split(Separate);
         }
         #endregion
 
@@ -151,16 +161,20 @@ namespace MinteaCore.HtmlToStrap
             RemoveAttr,
 
             /// <summary>
-            /// 全ての要素に対して
-            /// 要素の値を条件に値を除去する
-            /// 要素は指定しない：とにかくこの値は消すってイメージ（今のところ）
+            /// class要素を他のタグに変換する
             /// </summary>
-            RemoveValue,
+            IncludeStrClassToTagName,
 
             /// <summary>
-            /// class要素に対する条件
+            /// class値を削除する
             /// </summary>
-            Class
+            RemoveClass,
+
+            /// <summary>
+            /// 特定の文字列が含まれているClassを
+            /// 特定のAttr値に変換する
+            /// </summary>
+            IncludeStrClassToAttr
         }
 
     }

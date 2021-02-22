@@ -52,23 +52,6 @@ namespace MinteaCore.HtmlToStrap
             // HTML5をパースする
             var document = await ParseHtml(html);
 
-            #region もういらない
-            // タグ内の隣の要素：NextElementSibling
-            // 子要素：Children
-            // dddd="eeee" の取得方法。
-            //var btn = document.Body.Children[0];
-            //var attr = btn.Attributes;
-            //foreach (var item in attr)
-            //{
-            //    Console.WriteLine($"{item.Name} {item.Value}"); // これが"dddd"と"eeee"
-            //}
-            // SetAttributeとかで追加削除できる。
-
-            //class="navbar-toggler" はClassList
-            //data-toggle="collapse" data-target="#navbarColor01" はDatasetに{ toggle, collapse } のような形で格納される。
-            //disabledは、IsDisabledプロパティに入る。
-            #endregion
-
 #if DEBUG
             // とりあえず比較のための元HTMLを表示
             var sourceHtml = await MakeTreeAsync(document, new List<Rule>());
@@ -108,7 +91,6 @@ namespace MinteaCore.HtmlToStrap
         {
             if (commentRule != null)
             {
-                // 単純置換のせいで拾えなくなってる
                 var altBegin = BeginCommentTag;
                 var altEnd = EndCommentTag;
                 var replaceRules = rules.Where(x => x.SrcTermCategory == Rule.TermCategory.SimpleReplacement);
@@ -187,8 +169,113 @@ namespace MinteaCore.HtmlToStrap
             //newElm.SetAttribute("className", "ananan");       // 全部小文字にされてしまう。後で変換かける
             //newElm.SetAttribute("weapon", "sword");
 
+            // ルールの適用をする:適用対象のルールを集めてから、適用する
+
+            // 対象のルールを集める
+            var targetRules = new List<Rule>();
+            string replaceTagTo = null;
+            foreach (var rule in rules)
+            {
+                if (src.LocalName == rule.TargetTag)       // TODO:条件ってこれだけじゃないはず。後で追加。
+                {
+                    switch (rule.SrcTermCategory)
+                    {
+                        case Rule.TermCategory.IncludeStrClassToTagName:
+                            if (src.ClassList.Contains(rule.TargetValue))
+                            {
+                                // ルールが複数あっても1つしか適用できない。（そんな仕様で大丈夫？）
+                                replaceTagTo = rule.TargetValue;
+                                targetRules.Add(rule);
+                            }
+                            break;
+                        case Rule.TermCategory.RemoveClass:
+                            if (src.ClassList.Contains(rule.TargetValue))
+                            {
+                                targetRules.Add(rule);
+                            }
+                            break;
+                        case Rule.TermCategory.IncludeStrClassToAttr:
+                            if (src.ClassList.FirstOrDefault(x => x.Contains(rule.TargetValue)) != null)
+                            {
+                                targetRules.Add(rule);
+                            }
+                            break;
+                        default:
+                            targetRules.Add(rule);
+                            break;
+                    }
+                }
+            }
+
             // 要素を作成
-            var dest = newHtml.CreateElement(src.LocalName);
+            var dest = CopyTag(src, newHtml, replaceTagTo);
+
+            // ルールを適用する
+            var delClassList = new List<string>();
+            foreach (var rule in targetRules)
+            {
+                switch (rule.SrcTermCategory)
+                {
+                    case Rule.TermCategory.SimpleReplacement:
+                        // 何もなし
+                        break;
+                    case Rule.TermCategory.RemoveAttr:
+                        // 要素を削除
+                        dest.RemoveAttribute(rule.TargetValue);
+                        break;
+                    case Rule.TermCategory.RemoveClass:
+                        delClassList.Add(rule.TargetValue);
+                        break;
+                    case Rule.TermCategory.IncludeStrClassToTagName:
+                        delClassList.Add(rule.TargetValue);
+                        break;
+                    case Rule.TermCategory.IncludeStrClassToAttr:
+                        // 含むクラスを全て取得してAttrに変換する
+                        var targetClasses = dest.ClassList.Where(x => x.Contains(rule.TargetValue)).ToArray();
+                        var values = rule.GetValues();
+                        foreach (var className in targetClasses)
+                        {
+                            dest.SetAttribute(values[0], values[1]);
+                            delClassList.Add(className);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // 削除対象クラスを削除
+            foreach (var del in delClassList)
+            {
+                dest.ClassList.Remove(del);
+            }
+            if (dest.ClassList.Length == 0)
+            {
+                // class=""は表示しない
+                dest.RemoveAttribute("class");
+            }
+
+
+            // 子要素を追加
+            html.AppendChild(dest);
+
+            // 更に子要素を作成する
+            foreach (var child in src.Children)
+            {
+                MakeTree(child, dest, newHtml, rules);
+            }
+        }
+
+        /// <summary>
+        /// 新しいタグに古いタグの内容を移す
+        /// </summary>
+        /// <param name="src">古いタグ</param>
+        /// <param name="newHtml"></param>
+        /// <param name="newTagName">新しいタグ名</param>
+        /// <returns></returns>
+        private static IElement CopyTag(IElement src, IDocument newHtml, string newTagName = null)
+        {
+            var dest = newHtml.CreateElement(newTagName ?? src.LocalName);
 
             // 新しいタグに古いタグの内容を移す
             // classを新しい方に移す
@@ -211,71 +298,7 @@ namespace MinteaCore.HtmlToStrap
                 dest.TextContent = src.TextContent;
             }
 
-            // ルールの適用をする:適用対象のルールを集めてから、適用する
-
-            // 対象のルールを集める
-            var targetRules = new List<Rule>();
-            foreach (var rule in rules)
-            {
-                if (src.LocalName == rule.TargetTag)       // TODO:条件ってこれだけじゃないはず。後で追加。
-                {
-                    switch (rule.SrcTermCategory)
-                    {
-                        case Rule.TermCategory.Class:
-                            if (!src.ClassList.Contains(rule.TargetValue))
-                            {
-                                continue;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                    targetRules.Add(rule);
-                }
-            }
-
-            // ルールを適用する
-            foreach (var rule in targetRules)
-            {
-                switch (rule.SrcTermCategory)
-                {
-                    case Rule.TermCategory.SimpleReplacement:
-                        // 何もなし
-                        break;
-                    case Rule.TermCategory.RemoveAttr:
-                        // 要素を削除
-                        dest.RemoveAttribute(rule.TargetValue);
-                        break;
-                    case Rule.TermCategory.RemoveValue:
-                        // 要素の値を条件に削除（Attrの値は必ず1つなので要素を削除すればよい）
-                        var targets = dest.Attributes.Where(x => x.Value == rule.TargetValue).ToArray();
-                        foreach (var target in targets)
-                        {
-                            dest.RemoveAttribute(target.Name);
-                        }
-                        break;
-                    case Rule.TermCategory.Class:
-                        dest.ClassList.Remove(rule.TargetValue);
-                        if (dest.ClassList.Length == 0)
-                        {
-                            // class=""は表示しない
-                            dest.RemoveAttribute("class");
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-
-            // 子要素を追加
-            html.AppendChild(dest);
-
-            // 更に子要素を作成する
-            foreach (var child in src.Children)
-            {
-                MakeTree(child, dest, newHtml, rules);
-            }
+            return dest;
         }
         #endregion
 
@@ -297,12 +320,25 @@ namespace MinteaCore.HtmlToStrap
                 Rule.GetSimpleReplacementRule("class", "className"),
 
                 // 除去
-                Rule.GetRemoveAttrRule("button", "dddd"),
-                Rule.GetRemoveAttrByValueRule("button", "#navbarColor01"),
-                Rule.GetRemoveAttrByValueRule("button", "navbarColor01"),
+                Rule.GetRemoveAttrRule("button", "type"),
+                Rule.GetRemoveAttrRule("button", "data-toggle"),
+                Rule.GetRemoveAttrRule("button", "data-target"),
                 
                 // Class
-                Rule.GetReplaceTagByClass("div", "row", "Row")
+                Rule.GetReplaceTagByClassRule("div", "row", "Row"),
+
+                // Class削除
+                Rule.GetRemoveClassRule("button", "btn"),
+                
+                //・ClassToAttrを新しく作る
+                Rule.GetIncludeClassToAttrRule("div", "col-auto", "xs", "auto"),
+                Rule.GetIncludeClassToAttrRule("button", "outline", "outline", "true"),
+                Rule.GetIncludeClassToAttrRule("button", "primary", "color", "primary"),
+                Rule.GetIncludeClassToAttrRule("button", "secondary", "color", "secondary"),
+                //<div class="col-auto は <Col xs='auto'
+                //<button の class に outline が含んでいる場合、outline='true'
+                //<button の class に primary が含んでいる場合、color='primary'
+                //<button の class に secondary が含んでいる場合、color='secondary'
             };
 
             return result;
