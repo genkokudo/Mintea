@@ -21,6 +21,7 @@ namespace MinteaCore.HtmlToStrap
     {
         private readonly string BeginCommentTag = "<comment value=\"";
         private readonly string EndCommentTag = "\"></comment>";
+        const string CulumnTag = "columntag";
 
         #region いらん
         public async Task GetDownloadFile()
@@ -122,7 +123,6 @@ namespace MinteaCore.HtmlToStrap
             // commentタグは存在するが、IE用なので無視して使っちゃってOK
             if (commentRule != null)
             {
-                Console.WriteLine("コメントを退避します。");
                 html = html.Replace(BeginCommentHtml, BeginCommentTag);
                 html = html.Replace(EndCommentHtml, EndCommentTag);
             }
@@ -172,32 +172,45 @@ namespace MinteaCore.HtmlToStrap
             // ルールの適用をする:適用対象のルールを集めてから、適用する
 
             // 対象のルールを集める
-            var targetRules = new List<Rule>();
-            string replaceTagTo = null;
+            var delClassList = new List<string>();  // 削除するクラス
+            var targetRules = new List<Rule>();     // タグに適用するルール
+            string replaceTagTo = src.LocalName;    // 新しいタグが元のタグ名と異なる場合に設定する
             foreach (var rule in rules)
             {
-                if (src.LocalName == rule.TargetTag)       // TODO:条件ってこれだけじゃないはず。後で追加。
+                if (src.LocalName == rule.TargetTag)    // まず対象のタグか判定
                 {
+                    var classList = string.Join(',', src.ClassList).Split(',');
                     switch (rule.SrcTermCategory)
                     {
                         case Rule.TermCategory.IncludeStrClassToTagName:
-                            if (src.ClassList.Contains(rule.TargetValue))
+                            foreach (var singleClass in classList)
                             {
-                                // ルールが複数あっても1つしか適用できない。（そんな仕様で大丈夫？）
-                                replaceTagTo = rule.TargetValue;
-                                targetRules.Add(rule);
+                                var words = singleClass.Split('-');
+                                if (words.Contains(rule.TargetValue))
+                                {
+                                    // 該当ルールが複数あっても1つしか適用できないようにしている
+                                    replaceTagTo = rule.TargetValue;
+                                    targetRules.Add(rule);
+                                    delClassList.Add(singleClass);
+                                }
                             }
                             break;
                         case Rule.TermCategory.RemoveClass:
-                            if (src.ClassList.Contains(rule.TargetValue))
+                            if (classList.Contains(rule.TargetValue))
                             {
                                 targetRules.Add(rule);
+                                delClassList.Add(rule.TargetValue);
                             }
                             break;
                         case Rule.TermCategory.IncludeStrClassToAttr:
-                            if (src.ClassList.FirstOrDefault(x => x.Contains(rule.TargetValue)) != null)
+                            foreach (var singleClass in classList)
                             {
-                                targetRules.Add(rule);
+                                var words = singleClass.Split('-');
+                                if (words.Contains(rule.TargetValue))
+                                {
+                                    targetRules.Add(rule);
+                                    delClassList.Add(singleClass);
+                                }
                             }
                             break;
                         default:
@@ -211,23 +224,12 @@ namespace MinteaCore.HtmlToStrap
             var dest = CopyTag(src, newHtml, replaceTagTo);
 
             // ルールを適用する
-            var delClassList = new List<string>();
             foreach (var rule in targetRules)
             {
                 switch (rule.SrcTermCategory)
                 {
-                    case Rule.TermCategory.SimpleReplacement:
-                        // 何もなし
-                        break;
                     case Rule.TermCategory.RemoveAttr:
-                        // 要素を削除
                         dest.RemoveAttribute(rule.TargetValue);
-                        break;
-                    case Rule.TermCategory.RemoveClass:
-                        delClassList.Add(rule.TargetValue);
-                        break;
-                    case Rule.TermCategory.IncludeStrClassToTagName:
-                        delClassList.Add(rule.TargetValue);
                         break;
                     case Rule.TermCategory.IncludeStrClassToAttr:
                         // 含むクラスを全て取得してAttrに変換する
@@ -236,10 +238,13 @@ namespace MinteaCore.HtmlToStrap
                         foreach (var className in targetClasses)
                         {
                             dest.SetAttribute(values[0], values[1]);
-                            delClassList.Add(className);
                         }
                         break;
+                    case Rule.TermCategory.RemoveClass:
+                    case Rule.TermCategory.IncludeStrClassToTagName:
+                    case Rule.TermCategory.SimpleReplacement:
                     default:
+                        // 何もなし
                         break;
                 }
             }
@@ -254,7 +259,6 @@ namespace MinteaCore.HtmlToStrap
                 // class=""は表示しない
                 dest.RemoveAttribute("class");
             }
-
 
             // 子要素を追加
             html.AppendChild(dest);
@@ -275,6 +279,10 @@ namespace MinteaCore.HtmlToStrap
         /// <returns></returns>
         private static IElement CopyTag(IElement src, IDocument newHtml, string newTagName = null)
         {
+            if (newTagName == "col")
+            {
+                newTagName = CulumnTag;   // "col"タグを作ろうとするとhtmlの<col>タグと勘違いされて閉じタグが無くなるので別のタグに退避
+            }
             var dest = newHtml.CreateElement(newTagName ?? src.LocalName);
 
             // 新しいタグに古いタグの内容を移す
@@ -310,35 +318,51 @@ namespace MinteaCore.HtmlToStrap
         {
             var result = new List<Rule>
             {
+                Rule.GetReplaceTagRule(CulumnTag, "Col"),  // colタグを作ろうとすると<col>と勘違いされるので回避
+
+
                 // コメント退避
                 Rule.GetCommentReplacementRule("{/*", "*/}"),
 
                 // とりあえず単純置換
-                Rule.GetSimpleReplacementRule("button", "Button"),
-                Rule.GetSimpleReplacementRule("label", "Label"),
                 Rule.GetSimpleReplacementRule("\"", "'"),
                 Rule.GetSimpleReplacementRule("class", "className"),
+                Rule.GetSimpleReplacementRule("=''", string.Empty),
 
                 // 除去
                 Rule.GetRemoveAttrRule("button", "type"),
                 Rule.GetRemoveAttrRule("button", "data-toggle"),
                 Rule.GetRemoveAttrRule("button", "data-target"),
+                Rule.GetRemoveAttrRule("button", "type"),
                 
-                // Class
+                // "-"で区切って特定文字列が入っているClassをタグに変換、そのClassは削除
                 Rule.GetReplaceTagByClassRule("div", "row", "Row"),
+                Rule.GetReplaceTagByClassRule("div", "col", "Col"),
+                Rule.GetReplaceTagByClassRule("div", "collapse", "Collapse"),
+                Rule.GetReplaceTagByClassRule("div", "container", "Container"),
+
+                // タグを単純に変換する、内部的な仕組みはGetReplaceTagByClassRuleと同じ
+                Rule.GetReplaceTagRule("button", "Button"),
+                Rule.GetReplaceTagRule("label", "Label"),
+                Rule.GetReplaceTagRule("input", "Input"),
 
                 // Class削除
                 Rule.GetRemoveClassRule("button", "btn"),
                 
-                //・ClassToAttrを新しく作る
-                Rule.GetIncludeClassToAttrRule("div", "col-auto", "xs", "auto"),
+                //・Classを"-"で区切って特定文字列が含まれている場合Attrを作成、そのClassは削除
                 Rule.GetIncludeClassToAttrRule("button", "outline", "outline", "true"),
                 Rule.GetIncludeClassToAttrRule("button", "primary", "color", "primary"),
                 Rule.GetIncludeClassToAttrRule("button", "secondary", "color", "secondary"),
+                Rule.GetIncludeClassToAttrRule("div", "fluid", "fluid", ""),
+                
+                // 今の仕様だと"col-auto"ではヒットしない。でも"auto"だけだと他と被るのでは？
+                Rule.GetIncludeClassToAttrRule("div", "auto", "xs", "auto"),
                 //<div class="col-auto は <Col xs='auto'
-                //<button の class に outline が含んでいる場合、outline='true'
-                //<button の class に primary が含んでいる場合、color='primary'
-                //<button の class に secondary が含んでいる場合、color='secondary'
+
+                // TODO:"col-sm-8"とか"col-4"みたいなのは？
+                // →普通に考えて"col"が含んでいるとき、文字列があればそれをAttrにして、数字が来たらAttrの値にする…なんだけど。
+                // "-"で区切って長さが3ならAttrにするとか？
+                // クラス名に"col"が入ってたら…っていうのは、汎用性が無くなるから諦めるべき
             };
 
             return result;

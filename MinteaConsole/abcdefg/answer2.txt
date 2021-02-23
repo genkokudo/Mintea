@@ -1,18 +1,36 @@
-<html>
-        <head></head>
-        <body>
-                <Row>
-                        <Row>
-                                <Button className='navbar-toggler' type='Button' data-toggle='collapse' aria-expanded='false' aria-Label='Toggle navigation'>
-                                        <span className='navbar-toggler-icon'>aaaa</span>
-                                        <span className='navbar-toggler-icon'>bbbb</span>
-                                </Button>
-                        </Row>
-                        <Button className='navbar-toggler' type='Button' data-toggle='collapse' aria-expanded='false' aria-Label='Toggle navigation'>
-                                <span className='navbar-toggler-icon'>1111</span>
-                        </Button>
-                        <input readonly=''>
-                        <Label></Label>
-                </Row>
-        </body>
-</html>
+<Collapse>
+    <Container fluid>
+        {/* 定義済み検索条件 */}
+        <Row className={'mb-3 mt-3'}>
+            <Col>
+                <Label>定義済み検索条件</Label>
+                <Input className='form-control' type='text' list='suggestions' placeholder='無題の検索条件'></Input>
+                <datalist id='suggestions'>
+                    <option value='検索条件1' />
+                    <option value='検索条件2' />
+                    <option value='検索条件3' />
+                    <option value='検索条件4' />
+                    <option value='検索条件5' />
+                </datalist>
+            </Col>
+            <Col xs='auto' className={'align-self-end'}>
+                <Button color='primary' className='mr-3'>保存</Button>
+            </Col>
+        </Row>
+    </Container>
+</Collapse>
+
+-------------------------------------------
+CollapseタグはisOpenが付くので、これもついでに生成してくれるとうれしい。
+<Collapse isOpen={stateData.isOpenMenu}>
+
+optionなど、innerTextがないタグは、出来れば
+    <option value='検索条件1'></option>
+じゃなくて
+    <option value='検索条件1' />
+になってほしい。
+https://anglesharp.github.io/docs/Questions.html#how-to-produce-self-closing-tags
+やりかたはここ。面倒。（暇なときにコピペして実験）
+
+col-sm-8 みたいなのをどうするか？
+

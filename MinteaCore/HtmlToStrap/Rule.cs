@@ -95,11 +95,22 @@ namespace MinteaCore.HtmlToStrap
         }
 
         /// <summary>
+        /// タグを他のタグに変換する
+        /// </summary>
+        /// <param name="targetTag">対象タグ</param>
+        /// <param name="destTag">どのタグに変換するか</param>
+        /// <returns></returns>
+        public static Rule GetReplaceTagRule(string targetTag, string destTag)
+        {
+            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToTagName, TargetTag = targetTag, TargetValue = targetTag, DestValue = destTag };
+        }
+
+        /// <summary>
         /// クラスを他のタグに変換する
         /// 既存のクラス値は削除する
         /// </summary>
         /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となるClass値</param>
+        /// <param name="targetValue">条件となるClass値（ハイフンで区切った時のキーワード）</param>
         /// <param name="destTag">どのタグに変換するか</param>
         /// <returns></returns>
         public static Rule GetReplaceTagByClassRule(string targetTag, string targetValue, string destTag)

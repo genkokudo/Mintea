@@ -11,7 +11,7 @@ namespace MinteaConsole
         static async Task Main()
         {
             var nanashi = new Nanashi();
-            var data = File.ReadAllText(@"../../../abcdefg/sample1.txt");
+            var data = File.ReadAllText(@"../../../abcdefg/sample2.txt");
             await nanashi.Test(data);
 
             //var a = TreeNode<string>.GetDirectoryFileList(@"C:\Users\ginpay\source\repos\DigitalMegaFlare\DigitalMegaFlare\wwwroot\files\razors");
