@@ -195,6 +195,18 @@ namespace MinteaCore.HtmlToStrap
                                 }
                             }
                             break;
+                        case Rule.TermCategory.ClassToTagName:
+                            foreach (var classToTagName in classList)
+                            {
+                                if (classToTagName == rule.TargetValue)
+                                {
+                                    // 該当ルールが複数あっても1つしか適用できないようにしている
+                                    replaceTagTo = rule.TargetValue;
+                                    targetRules.Add(rule);
+                                    delClassList.Add(classToTagName);
+                                }
+                            }
+                            break;
                         case Rule.TermCategory.RemoveClass:
                             if (classList.Contains(rule.TargetValue))
                             {
@@ -272,6 +284,7 @@ namespace MinteaCore.HtmlToStrap
                         break;
                     case Rule.TermCategory.RemoveClass:
                     case Rule.TermCategory.IncludeStrClassToTagName:
+                    case Rule.TermCategory.ClassToTagName:
                     case Rule.TermCategory.SimpleReplacement:
                     default:
                         // 何もなし
@@ -370,6 +383,9 @@ namespace MinteaCore.HtmlToStrap
                 Rule.GetReplaceTagByClassRule("div", "col", "Col"),
                 Rule.GetReplaceTagByClassRule("div", "collapse", "Collapse"),
                 Rule.GetReplaceTagByClassRule("div", "container", "Container"),
+
+                // 完全一致クラスをタグに変換、そのClassは削除
+                Rule.GetReplaceTagByJustClassRule("div", "card-body", "CardBody"),
 
                 // タグを単純に変換する、内部的な仕組みはGetReplaceTagByClassRuleと同じ
                 Rule.GetReplaceTagRule("button", "Button"),

@@ -54,6 +54,8 @@ namespace MinteaCore.HtmlToStrap
                     // <row aaaa
                     // </row>
                     return source.Replace($"<{TargetValue} ", $"<{DestValue} ").Replace($"<{TargetValue}>", $"<{DestValue}>").Replace($"</{TargetValue}>", $"</{DestValue}>");
+                case TermCategory.ClassToTagName:
+                    return source.Replace($"<{TargetValue} ", $"<{DestValue} ").Replace($"<{TargetValue}>", $"<{DestValue}>").Replace($"</{TargetValue}>", $"</{DestValue}>");
                 default:
                     return source;
             }
@@ -96,6 +98,7 @@ namespace MinteaCore.HtmlToStrap
 
         /// <summary>
         /// タグを他のタグに変換する
+        /// 既存のクラス値は削除する
         /// </summary>
         /// <param name="targetTag">対象タグ</param>
         /// <param name="destTag">どのタグに変換するか</param>
@@ -106,16 +109,29 @@ namespace MinteaCore.HtmlToStrap
         }
 
         /// <summary>
-        /// クラスを他のタグに変換する
+        /// クラスを他のタグに変換する：ハイフンで区切ってキーワードが含まれている
         /// 既存のクラス値は削除する
         /// </summary>
         /// <param name="targetTag">対象タグ</param>
-        /// <param name="targetValue">条件となるClass値（ハイフンで区切った時のキーワード）</param>
+        /// <param name="targetClassValue">条件となるClass値（ハイフンで区切った時のキーワード）</param>
         /// <param name="destTag">どのタグに変換するか</param>
         /// <returns></returns>
-        public static Rule GetReplaceTagByClassRule(string targetTag, string targetValue, string destTag)
+        public static Rule GetReplaceTagByClassRule(string targetTag, string targetClassValue, string destTag)
         {
-            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToTagName, TargetTag = targetTag, TargetValue = targetValue, DestValue = destTag };
+            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToTagName, TargetTag = targetTag, TargetValue = targetClassValue, DestValue = destTag };
+        }
+
+        /// <summary>
+        /// クラスを他のタグに変換する：完全一致
+        /// 既存のクラス値は削除する
+        /// </summary>
+        /// <param name="targetTag">対象タグ</param>
+        /// <param name="targetJustClass">条件となるClass値（完全一致）</param>
+        /// <param name="destTag">どのタグに変換するか</param>
+        /// <returns></returns>
+        public static Rule GetReplaceTagByJustClassRule(string targetTag, string targetJustClass, string destTag)
+        {
+            return new Rule { SrcTermCategory = TermCategory.ClassToTagName, TargetTag = targetTag, TargetValue = targetJustClass, DestValue = destTag };
         }
 
         /// <summary>
@@ -189,6 +205,13 @@ namespace MinteaCore.HtmlToStrap
 
             /// <summary>
             /// class要素を他のタグに変換する
+            /// クラス名完全一致
+            /// </summary>
+            ClassToTagName,
+
+            /// <summary>
+            /// class要素を他のタグに変換する
+            /// 要素をハイフンで区切ってどれかが一致していることを条件にする
             /// </summary>
             IncludeStrClassToTagName,
 
