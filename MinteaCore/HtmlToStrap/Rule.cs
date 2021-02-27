@@ -131,6 +131,8 @@ namespace MinteaCore.HtmlToStrap
 
         /// <summary>
         /// クラスに特定文字が含まれていたらAttrに変換する
+        /// 既存のクラス値は削除する
+        /// タグには変換しないので、その場合はGetReplaceTagByClassRuleも設定する
         /// </summary>
         /// <param name="targetTag">対象タグ</param>
         /// <param name="targetClassString">条件となるClass文字列</param>
@@ -140,6 +142,20 @@ namespace MinteaCore.HtmlToStrap
         public static Rule GetIncludeClassToAttrRule(string targetTag, string targetClassString, string targetAttr, string targetAttrValue)
         {
             return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToAttr, TargetTag = targetTag, TargetValue = targetClassString, DestValue = $"{targetAttr}{Separate}{targetAttrValue}" };
+        }
+
+        /// <summary>
+        /// クラスに特定文字が含まれていたらAttrに変換する
+        /// 既存のクラス値は削除する
+        /// タグには変換しないので、その場合はGetReplaceTagByClassRuleも設定する
+        /// </summary>
+        /// <param name="targetTag">対象タグ</param>
+        /// <param name="targetClassString">条件となるClass文字列</param>
+        /// <param name="targetAttr">変換するAttr名(length=2の時)</param>
+        /// <returns></returns>
+        public static Rule GetIncludeClassToAttrNameValueRule(string targetTag, string targetClassString, string targetAttr)
+        {
+            return new Rule { SrcTermCategory = TermCategory.IncludeStrClassToAttrNameValue, TargetTag = targetTag, TargetValue = targetClassString, DestValue = targetAttr };
         }
 
         public string[] GetValues()
@@ -185,7 +201,14 @@ namespace MinteaCore.HtmlToStrap
             /// 特定の文字列が含まれているClassを
             /// 特定のAttr値に変換する
             /// </summary>
-            IncludeStrClassToAttr
+            IncludeStrClassToAttr,
+
+            /// <summary>
+            /// '-'で分けて、長さが3ならば[1]と[2]を使ってAttrにする
+            /// 2ならば[1]を使ってAttrにする
+            /// めっちゃ限定的やな…
+            /// </summary>
+            IncludeStrClassToAttrNameValue
         }
 
     }

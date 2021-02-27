@@ -209,7 +209,20 @@ namespace MinteaCore.HtmlToStrap
                                 if (words.Contains(rule.TargetValue))
                                 {
                                     targetRules.Add(rule);
-                                    delClassList.Add(singleClass);
+                                    //delClassList.Add(singleClass);    // 消さない
+                                }
+                            }
+                            break;
+                        case Rule.TermCategory.IncludeStrClassToAttrNameValue:
+                            foreach (var singleClass in classList)
+                            {
+                                var words = singleClass.Split('-');
+                                if (words.Contains(rule.TargetValue))
+                                {
+                                    if (words.Length > 1)
+                                    {
+                                        targetRules.Add(rule);
+                                    }
                                 }
                             }
                             break;
@@ -239,6 +252,23 @@ namespace MinteaCore.HtmlToStrap
                         {
                             dest.SetAttribute(values[0], values[1]);
                         }
+                        break;
+                    case Rule.TermCategory.IncludeStrClassToAttrNameValue:
+                        // 含むクラスを全て取得してAttrに変換する
+                        var classes = dest.ClassList.Where(x => x.Contains(rule.TargetValue)).ToArray();
+                        foreach (var className in classes)
+                        {
+                            var words = className.Split('-');
+                            if (words.Length > 2)
+                            {
+                                dest.SetAttribute(words[1], words[2]);
+                            }
+                            else if (words.Length > 1)
+                            {
+                                dest.SetAttribute(rule.DestValue, words[1]);
+                            }
+                        }
+
                         break;
                     case Rule.TermCategory.RemoveClass:
                     case Rule.TermCategory.IncludeStrClassToTagName:
@@ -355,14 +385,11 @@ namespace MinteaCore.HtmlToStrap
                 Rule.GetIncludeClassToAttrRule("button", "secondary", "color", "secondary"),
                 Rule.GetIncludeClassToAttrRule("div", "fluid", "fluid", ""),
                 
-                // 今の仕様だと"col-auto"ではヒットしない。でも"auto"だけだと他と被るのでは？
-                Rule.GetIncludeClassToAttrRule("div", "auto", "xs", "auto"),
+                //Rule.GetIncludeClassToAttrRule("div", "auto", "xs", "auto"),
                 //<div class="col-auto は <Col xs='auto'
 
-                // TODO:"col-sm-8"とか"col-4"みたいなのは？
-                // →普通に考えて"col"が含んでいるとき、文字列があればそれをAttrにして、数字が来たらAttrの値にする…なんだけど。
-                // "-"で区切って長さが3ならAttrにするとか？
-                // クラス名に"col"が入ってたら…っていうのは、汎用性が無くなるから諦めるべき
+                // "col-sm-8"とか"col-4"みたいなのを変換
+                Rule.GetIncludeClassToAttrNameValueRule("div", "col", "xs")
             };
 
             return result;

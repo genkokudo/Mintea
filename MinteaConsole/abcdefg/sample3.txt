@@ -1,0 +1,20 @@
+<!-- 検索条件のリスト -->
+<div class="row mb-3">
+  <!-- 検索条件 -->
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-0">
+          <div class="col-4">
+            <p class="card-text"><b>カード名</b></p>
+            <p class="card-text"><b>カテゴリー</b></p>
+          </div>
+          <div class="col-md-8">
+            <p class="card-text">カード内容</p>
+            <p class="card-text">ああああ</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

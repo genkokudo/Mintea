@@ -21,8 +21,5 @@
 </Collapse>
 
 -------------------------------------------
-CollapseタグはisOpenが付くので、これもついでに生成してくれるとうれしい。
+CollapseタグはisOpenが付くので、これもついでに生成してくれるとうれしい。まあ無理。
 <Collapse isOpen={stateData.isOpenMenu}>
-
-col-sm-8 みたいなのをどうするか？
-

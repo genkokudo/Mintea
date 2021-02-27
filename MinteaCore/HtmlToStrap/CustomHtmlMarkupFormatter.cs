@@ -1,10 +1,5 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
+﻿using AngleSharp.Dom;
 using AngleSharp.Html;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
 namespace MinteaCore.HtmlToStrap
 {
