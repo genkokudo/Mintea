@@ -41,7 +41,7 @@ namespace MinteaCore.HtmlToStrap
 
         public async Task Test(string html)
         {
-            var formatter = new PrettyMarkupFormatter();    // 整形してHTML出力する
+            var formatter = new MyFormatter();    // 整形してHTML出力する
 
             // ルールの取得
             var rules = GetRules();

@@ -24,13 +24,5 @@
 CollapseタグはisOpenが付くので、これもついでに生成してくれるとうれしい。
 <Collapse isOpen={stateData.isOpenMenu}>
 
-optionなど、innerTextがないタグは、出来れば
-    <option value='検索条件1'></option>
-じゃなくて
-    <option value='検索条件1' />
-になってほしい。
-https://anglesharp.github.io/docs/Questions.html#how-to-produce-self-closing-tags
-やりかたはここ。面倒。（暇なときにコピペして実験）
-
 col-sm-8 みたいなのをどうするか？
 
