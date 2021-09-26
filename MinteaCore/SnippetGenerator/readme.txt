@@ -1,0 +1,3 @@
+SorcerySplinter.Servicesに移植したのでこのソースコードは更新しない。廃棄。
+
+でも、RazorPagesのサンプルに使えるので今のところは残す。
