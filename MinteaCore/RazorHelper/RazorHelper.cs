@@ -12,6 +12,7 @@ namespace MinteaCore.RazorHelper
 {
     /// <summary>
     /// Razorによるコード生成で使用した関数
+    /// 主にExcelから読み取るためのメソッド
     /// </summary>
     public class RazorHelper
     {
@@ -621,7 +622,7 @@ namespace MinteaCore.RazorHelper
         }
         #endregion
 
-        #region ToBool:
+        #region ToBool:"true","True"などや、1以上の数値文字列をtrueとする
         public static bool ToBool(string val)
         {
             if (string.IsNullOrWhiteSpace(val) || val.ToLower() == "false" || int.TryParse(val, out int intval) && intval <= 0)
@@ -776,75 +777,5 @@ namespace MinteaCore.RazorHelper
 
         #endregion
 
-        #region SafeCreateDirectory
-        /// <summary>
-        /// 指定したパスにディレクトリが存在しない場合
-        /// すべてのディレクトリとサブディレクトリを作成します
-        /// </summary>
-        /// <param name="directory"></param>
-        /// <returns></returns>
-        public static DirectoryInfo SafeCreateDirectory(string directory)
-        {
-            if (!directory.EndsWith("\\") && !directory.EndsWith("/"))
-            {
-                directory += "/";
-            }
-            if (Directory.Exists(directory))
-            {
-                return null;
-            }
-            return Directory.CreateDirectory(directory);
-        }
-        #endregion
-
-        #region DeleteDirectory
-        /// <summary>
-        /// 指定したディレクトリとその中身を全て削除する
-        /// </summary>
-        /// <param name="directory">ディレクトリ</param>
-        /// <param name="isTop">trueを設定すること</param>
-        public static void DeleteDirectory(string directory, bool isTop = true)
-        {
-            if (!Directory.Exists(directory))
-            {
-                return;
-            }
-
-            //ディレクトリ以外の全ファイルを削除
-            string[] filePaths = Directory.GetFiles(directory);
-            foreach (string filePath in filePaths)
-            {
-                File.SetAttributes(filePath, FileAttributes.Normal);
-                File.Delete(filePath);
-            }
-
-            //ディレクトリの中のディレクトリも再帰的に削除
-            string[] directoryPaths = Directory.GetDirectories(directory);
-            foreach (string directoryPath in directoryPaths)
-            {
-                DeleteDirectory(directoryPath, false);
-            }
-
-            if (!isTop)
-            {
-                //中が空になったらディレクトリ自身も削除
-                Directory.Delete(directory, false);
-            }
-        }
-        #endregion
-
-        #region DeleteFiles
-        /// <summary>
-        /// 指定したディレクトリの中身を全て削除する
-        /// </summary>
-        public static void DeleteFiles(string directory)
-        {
-            DirectoryInfo target = new DirectoryInfo(directory);
-            foreach (FileInfo file in target.GetFiles())
-            {
-                file.Delete();
-            }
-        }
-        #endregion
     }
 }
