@@ -1,7 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.Extensions.FileProviders;
 using MinteaCore.Extensions;
-using MinteaCore.HtmlToDom;
+using MithrilCube.Data;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
