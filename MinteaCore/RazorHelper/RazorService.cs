@@ -1,32 +1,56 @@
-﻿using System;
+﻿using ClosedXML.Excel;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace MinteaCore.RazorHelper
 {
     public interface IRazorService
     {
+        /// <summary>
+        /// Excelファイルを読み込み、シート名をキーとした辞書にする
+        /// xlsxのみ対応
+        /// </summary>
+        /// <param name="path">ファイルパス</param>
+        /// <param name="isRequiredTitle">1行目に何もない列を無視する</param>
+        /// <returns>シート名をキーとした辞書、行と列の2次元string</returns>
+        public Dictionary<string, List<List<string>>> ReadExcel(string path, bool isRequiredTitle = false);
     }
 
     public class RazorService : IRazorService
     {
-        ///// <summary>
-        ///// Razor読み込み用
-        ///// Excelに記述しているパスのテキストを読み込む
-        ///// </summary>
-        ///// <param name="path">cs_asp/crud/ListBox</param>      // TODO:もっと自然な形で。
-        ///// <returns></returns>
-        //private string GetTemplate(string path)
-        //{
-        //    // メイン、サブ、ファイルの3つの名前でアクセス
-        //    var splitedPath = path.Trim('/').Split("/");
-        //    var razorData = _db.RazorFiles.First(x => x.Name == splitedPath[2] && x.Parent.Name == splitedPath[1] && x.Parent.Parent.Name == splitedPath[0]);
-        //    var template = string.Empty;
-        //    using (var stream = new MemoryStream(razorData.Razor))
-        //    {
-        //        template = Encoding.UTF8.GetString(stream.ToArray());
-        //    }
-        //    return template;
-        //}
+        public Dictionary<string, List<List<string>>> ReadExcel(string path, bool isRequiredTitle = false)
+        {
+            // ファイルの読み込み
+            var xlsx = new Dictionary<string, List<List<string>>>();
+            using (var wb = new XLWorkbook(path))
+            {
+                foreach (var ws in wb.Worksheets)
+                {
+                    // ワークシート
+                    List<List<string>> sheet = new List<List<string>>();
+                    // TODO:何も書いてないシートがあると落ちる？
+                    for (int i = 1; i <= ws.LastCellUsed().Address.RowNumber; i++)
+                    {
+                        List<string> raw = new List<string>();
+                        for (int j = 1; j <= ws.LastCellUsed().Address.ColumnNumber; j++)
+                        {
+                            // 1行目に何もない列を無視する
+                            if (!isRequiredTitle || !string.IsNullOrWhiteSpace(ws.Cell(1, j).Value.ToString()))
+                            {
+                                raw.Add(ws.Cell(i, j).Value.ToString());
+                            }
+                        }
+                        sheet.Add(raw);
+                    }
+
+                    // シート名と一緒に登録
+                    xlsx.Add(ws.Name, sheet);
+                }
+            }
+
+            return xlsx;
+        }
     }
 }
