@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MinteaCore.HtmlToStrap
+﻿namespace MinteaCore.HtmlToStrap
 {
     #region Class:変換ルール
 

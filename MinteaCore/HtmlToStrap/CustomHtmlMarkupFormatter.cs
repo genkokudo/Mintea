@@ -18,7 +18,7 @@ namespace MinteaCore.HtmlToStrap
 
             if (element.Children.Length == 0 && string.IsNullOrWhiteSpace(element.TextContent))
             {
-                return result.Replace(">"," />");
+                return result.Replace(">", " />");
             }
 
             return result;
