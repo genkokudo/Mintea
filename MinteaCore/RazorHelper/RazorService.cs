@@ -46,7 +46,7 @@
 
 //    public class RazorService : IRazorService
 //    {
-//        // TODO:後でOptionsにすべき
+//        // TODO:後でOptionsにすべき（ノートのServiceの書き方のページを見ること）
 //        /// <summary>
 //        /// "Doc"が最初についているシートは読まない
 //        /// </summary>
