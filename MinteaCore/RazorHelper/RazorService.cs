@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Globalization;
 using MinteaCore.Extensions;
+using Microsoft.Extensions.Options;
 
 // ■注意■
 // このサービスを使用する場合、利用するプロジェクト（モジュールではなくその大元のプロジェクト）の.csprojに以下を追加すること。
@@ -31,79 +32,91 @@ namespace MinteaCore.RazorHelper
         public Task GenerateAsync(string path, string baseDirectory, string outDirectory);
     }
 
-    public class RazorService : IRazorService
+    public class RazorServiceOptions
     {
-        // TODO:後でOptionsにすべき（ノートのServiceの書き方のページを見ること）
         /// <summary>
-        /// "Doc"が最初についているシートは読まない
+        /// 文書用シート
+        /// "Doc"が最初についているシートはRazor生成時は読まない
         /// </summary>
-        const string DocumentSheetPrefix = "Doc";
+        public string DocumentSheetPrefix { get; set; } = "Doc";
+
+        /// <summary>
+        /// 必須シート名
+        /// この名前のシートは必ず含んでいる必要があり、グローバル的な変数・設定値などを列挙する
+        /// </summary>
+        public string SettingsSheet { get; set; } = "Settings";
+
+        /// <summary>
+        /// 必須シート名
+        /// </summary>
+        public string RootListSheet { get; set; } = "RootList";
+
+        /// <summary>
+        /// 共通変数の添え字項目名
+        /// OutGeneral.Index=0
+        /// General.Index=0
+        /// </summary>
+        public string IndexValue { get; set; } = "Index";
 
         /// <summary>
         /// "Is"が最初についている列は0,1,型文字列をbool型とする
         /// </summary>
-        const string BoolCulumnPrefix = "Is";
+        public string BoolCulumnPrefix { get; set; } = "Is";
 
         /// <summary>
-        /// 必須シート名
+        /// "Out"は外部入力
         /// </summary>
-        const string SettingsSheet = "Settings";
-
-        /// <summary>
-        /// 必須シート名
-        /// </summary>
-        const string RootListSheet = "RootList";
-
-        /// <summary>
-        /// 必須シート内の必須カラム名
-        /// </summary>
-        const string IndexValue = "Index";
-
-        /// <summary>
-        /// "Out"が最後についているシートは外部入力
-        /// </summary>
-        const string OutSheet = "Out";
+        public string OutSheet { get; set; } = "Out";
         /// <summary>
         /// "OutList"が最後についているシートは外部入力
         /// </summary>
-        const string OutListSheetSuffix = "OutList";
+        public string OutListSheetSuffix { get; set; } = "OutList";
 
         /// <summary>
         /// "List"が最後についているシートはリスト
         /// </summary>
-        const string ListSheetSuffix = "List";
+        public string ListSheetSuffix { get; set; } = "List";
 
         /// <summary>
         /// キー情報を格納する列
         /// </summary>
-        const string KeyCulumn = "Key";
+        public string KeyCulumn { get; set; } = "Key";
 
         /// <summary>
-        /// 親情報を格納する列
+        /// 親シートを格納する列
         /// </summary>
-        const string ParentCulumn = "Parent";
+        public string ParentCulumn { get; set; } = "Parent";
 
         /// <summary>
         /// Camel, Pascal, Pluralを用意する列
         /// CamelPlural
         /// PascalPlural
         /// </summary>
-        const string InflectCulumn = "Name";
-        const string Camel = "Camel";
-        const string Pascal = "Pascal";
-        const string Plural = "Plural";
-        const string Hyphen = "Hyphen";
-        const string Snake = "Snake";
-        const string CamelPlural = "CamelPlural";
-        const string PascalPlural = "PascalPlural";
+        public string InflectCulumn { get; set; } = "Name";
+        public string Camel { get; set; } = "Camel";
+        public string Pascal { get; set; } = "Pascal";
+        public string Plural { get; set; } = "Plural";  // 複数形
+        public string Hyphen { get; set; } = "Hyphen";
+        public string Snake { get; set; } = "Snake";
+        public string CamelPlural { get; set; } = "CamelPlural";
+        public string PascalPlural { get; set; } = "PascalPlural";
+    }
 
+    public class RazorService : IRazorService
+    {
+        /// <summary>
+        /// 共通変数名：変更不可
+        /// </summary>
+        const string General = "General";
 
         private readonly ExcelService _excelService;
         private readonly DirectoryService _directoryService;
-        public RazorService(ExcelService excelService, DirectoryService directoryService)
+        private readonly RazorServiceOptions _options;
+        public RazorService(ExcelService excelService, DirectoryService directoryService, IOptions<RazorServiceOptions> options)
         {
             _excelService = excelService;
             _directoryService = directoryService;
+            _options = options.Value;
         }
 
         /// <summary>
@@ -179,7 +192,7 @@ namespace MinteaCore.RazorHelper
                 var sheet = excel[sheetName];
 
                 // Parentの列番号を取得
-                var parentIndex = _excelService.GetIndex(sheet, ParentCulumn);
+                var parentIndex = _excelService.GetIndex(sheet, _options.ParentCulumn);
 
                 // Parentがある場合
                 if (parentIndex >= 0)
@@ -188,7 +201,7 @@ namespace MinteaCore.RazorHelper
                     {
                         if (!sheet[i][parentIndex].Contains("."))
                         {
-                            errors.Add($"{ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                            errors.Add($"{_options.ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                         }
                         else
                         {
@@ -199,7 +212,7 @@ namespace MinteaCore.RazorHelper
                             {
                                 if (parentList[sheetName] != splited[0])
                                 {
-                                    errors.Add($"同じ{ParentCulumn}列に違う親が書かれている。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                                    errors.Add($"同じ{_options.ParentCulumn}列に違う親が書かれている。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                                 }
                             }
                             else
@@ -427,11 +440,11 @@ namespace MinteaCore.RazorHelper
 
             foreach (var sheetName in excel.Keys)
             {
-                if (sheetName.EndsWith(ListSheetSuffix))    // OutList含む
+                if (sheetName.EndsWith(_options.ListSheetSuffix))    // OutList含む
                 {
                     // リスト
                     var sheet = excel[sheetName];
-                    var parentIndex = _excelService.GetIndex(sheet, ParentCulumn);
+                    var parentIndex = _excelService.GetIndex(sheet, _options.ParentCulumn);
                     if (sheet.Count > 2)
                     {
                         // Parentがある場合
@@ -441,7 +454,7 @@ namespace MinteaCore.RazorHelper
                             {
                                 if (!sheet[i][parentIndex].Contains("."))
                                 {
-                                    errors.Add($"{ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
+                                    errors.Add($"{_options.ParentCulumn}に'.'が入ってない。sheet:{sheetName} row:{i} column:{parentIndex} value:{sheet[i][parentIndex]}");
                                 }
                                 else
                                 {
@@ -488,7 +501,7 @@ namespace MinteaCore.RazorHelper
 
             foreach (var sheetName in sequence)
             {
-                if (sheetName.StartsWith(DocumentSheetPrefix))
+                if (sheetName.StartsWith(_options.DocumentSheetPrefix))
                 {
                     // なにもなし
                     continue;
@@ -498,15 +511,15 @@ namespace MinteaCore.RazorHelper
                 var sheet = excel[sheetName];
 
                 // Razorの互換性を持たせるために名前を変更して扱う
-                if (sheetName == OutSheet)
+                if (sheetName == _options.OutSheet)
                 {
                     // OutはRootListとして登録
-                    MakeListModel(errors, topDataList, childList, childDynamic, RootListSheet, sheet, string.Empty);
+                    MakeListModel(errors, topDataList, childList, childDynamic, _options.RootListSheet, sheet, string.Empty);
                 }
-                else if (sheetName.EndsWith(OutListSheetSuffix))
+                else if (sheetName.EndsWith(_options.OutListSheetSuffix))
                 {
                     // OutListはListとして登録
-                    MakeListModel(errors, topDataList, childList, childDynamic, sheetName.Replace(OutListSheetSuffix, ListSheetSuffix), sheet, string.Empty);
+                    MakeListModel(errors, topDataList, childList, childDynamic, sheetName.Replace(_options.OutListSheetSuffix, _options.ListSheetSuffix), sheet, string.Empty);
                 }
             }
             if (errors.Count > 0)
@@ -550,7 +563,7 @@ namespace MinteaCore.RazorHelper
                 {
                     outData.Add(script.Key, script.Value);
                 }
-                topDataList.Add(OutSheet, outData.ToDynamic());
+                topDataList.Add(_options.OutSheet, outData.ToDynamic());
             }
 
             // 各シートについて、各シートがどのシートを子としているかの情報を作成します。
@@ -572,24 +585,24 @@ namespace MinteaCore.RazorHelper
                 var parentName = string.Empty;
 
                 // キー取得
-                var keyIndex = _excelService.GetIndex(sheet, KeyCulumn);
+                var keyIndex = _excelService.GetIndex(sheet, _options.KeyCulumn);
 
-                if (sheetName.StartsWith(DocumentSheetPrefix))
+                if (sheetName.StartsWith(_options.DocumentSheetPrefix))
                 {
                     // なにもなし
                     continue;
                 }
-                else if (sheetName.EndsWith(OutListSheetSuffix) || sheetName == OutSheet)
+                else if (sheetName.EndsWith(_options.OutListSheetSuffix) || sheetName == _options.OutSheet)
                 {
                     // OutList:外部入力リスト
                     // なにもなし
                     continue;
                 }
-                else if (sheetName.EndsWith(ListSheetSuffix))
+                else if (sheetName.EndsWith(_options.ListSheetSuffix))
                 {
                     // List:通常リスト
                     // 必須シート存在チェック
-                    if (sheetName == RootListSheet)
+                    if (sheetName == _options.RootListSheet)
                     {
                         isRootListExists = true;
                     }
@@ -598,7 +611,7 @@ namespace MinteaCore.RazorHelper
                 else
                 {
                     // 必須シート存在チェック
-                    if (sheetName == SettingsSheet)
+                    if (sheetName == _options.SettingsSheet)
                     {
                         isRequiredSheetExists = true;
                     }
@@ -616,7 +629,7 @@ namespace MinteaCore.RazorHelper
                             // 必須項目チェック
 
                             var value = sheet[row][1];
-                            if (name.StartsWith(BoolCulumnPrefix))
+                            if (name.StartsWith(_options.BoolCulumnPrefix))
                             {
                                 // bool型判定
                                 var val = sheet[row][1];
@@ -626,7 +639,7 @@ namespace MinteaCore.RazorHelper
                                 }
                                 catch (Exception)
                                 {
-                                    errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} value:{val}");
+                                    errors.Add($"{_options.BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} value:{val}");
                                 }
                             }
                             else
@@ -641,11 +654,11 @@ namespace MinteaCore.RazorHelper
             }
             if (!isRootListExists)
             {
-                errors.Add($"{RootListSheet}という名前のシートがない。");
+                errors.Add($"{_options.RootListSheet}という名前のシートがない。");
             }
             if (!isRequiredSheetExists)
             {
-                errors.Add($"{SettingsSheet}という名前のシートがない。");
+                errors.Add($"{_options.SettingsSheet}という名前のシートがない。");
             }
             if (errors.Count > 0)
             {
@@ -699,10 +712,10 @@ namespace MinteaCore.RazorHelper
             var inf = new Inflector.Inflector(new CultureInfo("en-US"));
 
             // キー列取得
-            var keyIndex = _excelService.GetIndex(sheet, KeyCulumn);
+            var keyIndex = _excelService.GetIndex(sheet, _options.KeyCulumn);
 
             // 親があるか
-            var parentIndex = _excelService.GetIndex(sheet, ParentCulumn);
+            var parentIndex = _excelService.GetIndex(sheet, _options.ParentCulumn);
 
             // リスト
             if (sheet.Count > 2)
@@ -744,7 +757,7 @@ namespace MinteaCore.RazorHelper
                             var key = sheet[row][col];  // 書かれているKeyを取得
                             AddChildDynamic(childList, childDynamic, sheetName, key, rowData);
                         }
-                        else if (sheet[0][col].StartsWith(BoolCulumnPrefix))
+                        else if (sheet[0][col].StartsWith(_options.BoolCulumnPrefix))
                         {
                             // Isならば、bool型判定
                             var val = sheet[row][col];
@@ -754,21 +767,21 @@ namespace MinteaCore.RazorHelper
                             }
                             catch (Exception)
                             {
-                                errors.Add($"{BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
+                                errors.Add($"{_options.BoolCulumnPrefix}で始まってる項目なのにboolにできない。sheet:{sheetName} row:{row} column:{col} value:{val}");
                             }
                         }
-                        else if (sheet[0][col].EndsWith(InflectCulumn))
+                        else if (sheet[0][col].EndsWith(_options.InflectCulumn))
                         {
                             // 語尾がNameならば、フィールドを余分に作る
-                            var baseName = sheet[0][col].Remove(sheet[0][col].LastIndexOf(InflectCulumn), InflectCulumn.Length);
+                            var baseName = sheet[0][col].Remove(sheet[0][col].LastIndexOf(_options.InflectCulumn), _options.InflectCulumn.Length);
                             rowData.Add(sheet[0][col], sheet[row][col]);
-                            rowData.Add(baseName + Camel, inf.Camelize(sheet[row][col]));
-                            rowData.Add(baseName + Pascal, inf.Pascalize(sheet[row][col]));
-                            rowData.Add(baseName + Plural, inf.Pluralize(sheet[row][col]));
-                            rowData.Add(baseName + CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(baseName + PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
-                            rowData.Add(baseName + Snake, inf.Underscore(sheet[row][col]));
-                            rowData.Add(baseName + Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
+                            rowData.Add(baseName + _options.Camel, inf.Camelize(sheet[row][col]));
+                            rowData.Add(baseName + _options.Pascal, inf.Pascalize(sheet[row][col]));
+                            rowData.Add(baseName + _options.Plural, inf.Pluralize(sheet[row][col]));
+                            rowData.Add(baseName + _options.CamelPlural, inf.Camelize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(baseName + _options.PascalPlural, inf.Pascalize(inf.Pluralize(sheet[row][col])));
+                            rowData.Add(baseName + _options.Snake, inf.Underscore(sheet[row][col]));
+                            rowData.Add(baseName + _options.Hyphen, inf.Underscore(sheet[row][col]).Replace('_', '-'));
                         }
                         else
                         {
