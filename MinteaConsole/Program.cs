@@ -4,6 +4,16 @@ using System.IO;
 using System.Threading.Tasks;
 using MinteaCore.HtmlToStrap;
 
+// HTMLをReactとかのコードに変換するつもりだったが、やる必要なくなった。
+// また変換装置的なものがあったらいじるけど、基本的に要らなくなるはず。
+// それよりもソースジェネレータで色々対応する習慣を付けていくことにシフトするべき。
+
+// でもBlazorだったらRazorだしreactよりやりやすくなるので、その時に作ったらいいかも。
+// コメントの所がごちゃごちゃしているが、React用の処理なので"{/*","*/}"に置き換えるところは捨てても良い
+
+// やっぱ要らないかなあ…、どのテーマ使うかとか決まってないし。
+// もうちょっとAngleSharpとか無しにして、regexによる変換器にすることで汎用的に作った方が良いかも。
+
 namespace MinteaConsole
 {
     class Program
