@@ -7,3 +7,8 @@ ToJQueryしか使わない。
 
 普通にAngleSharp使えば良かったことと、しばらくjQueryさわらないので凍結。
 HTMLからReactStrapやBlazorStrap変換できるようにしたい。
+
+# HtmlToDom
+その他  
+HTMLからBlazorStrapとかに変換しようとしてやめた感じ。  
+最初は簡単なのを作って、動的に変換ルール追加できるようにすれば良いかなーって思ってた。
