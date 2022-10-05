@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Globalization;
-using MinteaCore.Extensions;
+using MithrilCube.Extensions;
 using Microsoft.Extensions.Options;
 
 // ■注意■
